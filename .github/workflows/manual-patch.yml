@@ -184,23 +184,7 @@ jobs:
             echo "- $filename" >> release_notes.md
           done
           
-          if [ -f "./release-apks/failed_patches.json" ]; then
-            cat << 'EOF' > parse_failed.py
-import json
-try:
-    with open('./release-apks/failed_patches.json') as f:
-        data = json.load(f)
-    if data:
-        with open('release_notes.md', 'a', encoding='utf-8') as rn:
-            rn.write('\n## ⚠️ Known Issues / Failed Patches\n')
-            for app, patches in data.items():
-                if patches:
-                    rn.write(f'- **{app}**: Failed to apply `{len(patches)}` patches ({ ", ".join(patches) })\n')
-except Exception as e:
-    print('Failed to append failed patches to release notes:', e)
-EOF
-            python parse_failed.py
-          fi
+          python scripts/append_failed_patches.py
           
           cat >> release_notes.md << EOF
           
