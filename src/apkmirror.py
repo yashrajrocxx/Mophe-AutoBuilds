@@ -475,6 +475,9 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
             # Check criteria
             type_match = config['type'] in row_text
             dpi_match = config['dpi'] in row_text
+            if config['dpi'] == 'nodpi' and not dpi_match:
+                dpi_match = 'universal' in row_text or 'noarch' in row_text or 'dpi' in row_text or '-' in row_text
+                
             arch_match = target_arch in row_text
             if config['type'] == 'BUNDLE' and not arch_match:
                 arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
@@ -491,6 +494,9 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
             row_text = row.get_text()
             type_match = config['type'] in row_text
             dpi_match = config['dpi'] in row_text
+            if config['dpi'] == 'nodpi' and not dpi_match:
+                dpi_match = 'universal' in row_text or 'noarch' in row_text or 'dpi' in row_text or '-' in row_text
+                
             arch_match = target_arch in row_text
             if config['type'] == 'BUNDLE' and not arch_match:
                 arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
