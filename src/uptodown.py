@@ -35,70 +35,116 @@ def get_latest_version(app_name: str, config: dict) -> str:
     logging.warning(f"Could not find Uptodown page for {app_name}")
     return None
 
+def _fetch_version_url(base_url: str, data_code: str, entry: dict, session_obj) -> str | None:
+    """Fetch the actual download URL for a given version entry from Uptodown."""
+    try:
+        version_url_parts = entry["versionURL"]
+        version_url = f"{version_url_parts['url']}/{version_url_parts['extraURL']}/{version_url_parts['versionID']}"
+        version_page = session_obj.get(version_url)
+        version_page.raise_for_status()
+        soup = BeautifulSoup(version_page.content, "html.parser")
+
+        button = soup.find('button', id='detail-download-button')
+        if not button:
+            return None
+
+        onclick = button.get('onclick', '')
+        if onclick and "download-link-deeplink" in onclick:
+            version_url += '-x'
+            version_page = session_obj.get(version_url)
+            version_page.raise_for_status()
+            soup = BeautifulSoup(version_page.content, "html.parser")
+            button = soup.find('button', id='detail-download-button')
+
+        if button and 'data-url' in button.attrs:
+            return f"https://dw.uptodown.com/dwn/{button['data-url']}"
+    except Exception as e:
+        logging.debug(f"Could not fetch version URL: {e}")
+    return None
+
+
 def get_download_link(version: str, app_name: str, config: dict) -> str:
     # Generate all possible Uptodown names
     possible_names = generate_possible_uptodown_names(config)
-    
+
     logging.info(f"Searching {len(possible_names)} possible Uptodown names for {app_name} v{version}")
-    
+
     for uptodown_name in possible_names:
         base_url = f"https://{uptodown_name}.en.uptodown.com/android"
         try:
             response = session.get(f"{base_url}/versions")
             if response.status_code != 200:
                 continue
-                
+
             soup = BeautifulSoup(response.content, "html.parser")
             app_name_h1 = soup.find('h1', id='detail-app-name')
             if not app_name_h1 or 'data-code' not in app_name_h1.attrs:
                 continue
             data_code = app_name_h1['data-code']
 
+            target_norm = utils.normalize_version(version)
+            closest_entry = None   # best fallback if exact not found
+            closest_diff = None
+
             page = 1
             while True:
                 response = session.get(f"{base_url}/apps/{data_code}/versions/{page}")
                 response.raise_for_status()
                 version_data = response.json().get('data', [])
-                
+
                 if not version_data:
                     break
-                    
+
                 for entry in version_data:
-                    if entry["version"] == version:
-                        version_url_parts = entry["versionURL"]
-                        version_url = f"{version_url_parts['url']}/{version_url_parts['extraURL']}/{version_url_parts['versionID']}"
-                        version_page = session.get(version_url)
-                        version_page.raise_for_status()
-                        soup = BeautifulSoup(version_page.content, "html.parser")
-                        
-                        button = soup.find('button', id='detail-download-button')
-                        if not button:
-                            continue
-                            
-                        onclick = button.get('onclick', '')
-                        if onclick and "download-link-deeplink" in onclick:
-                            version_url += '-x'
-                            version_page = session.get(version_url)
-                            version_page.raise_for_status()
-                            soup = BeautifulSoup(version_page.content, "html.parser")
-                            button = soup.find('button', id='detail-download-button')
-                        
-                        if button and 'data-url' in button.attrs:
-                            download_url = button['data-url']
-                            return f"https://dw.uptodown.com/dwn/{download_url}"
-                
+                    entry_ver = entry.get("version", "")
+
+                    # --- Robust matching: exact OR prefix match ---
+                    # Matches "2.371.0", "2.371.0-android", "2.371.0.1", etc.
+                    is_match = (
+                        entry_ver == version
+                        or entry_ver.startswith(version + ".")
+                        or entry_ver.startswith(version + "-")
+                    )
+                    if is_match:
+                        logging.info(f"✓ Uptodown matched version '{entry_ver}' for target '{version}'")
+                        dl = _fetch_version_url(base_url, data_code, entry, session)
+                        if dl:
+                            return dl
+
+                    # Track closest version as fallback
+                    try:
+                        entry_norm = utils.normalize_version(entry_ver)
+                        diff = abs(
+                            sum((a - b) * (1000 ** i) for i, (a, b) in
+                                enumerate(zip(reversed(entry_norm), reversed(target_norm))))
+                        )
+                        if closest_diff is None or diff < closest_diff:
+                            closest_diff = diff
+                            closest_entry = entry
+                    except Exception:
+                        pass
+
                 # Stop paginating once we've scrolled past the target version.
-                # Use numeric comparison (not lexicographic) so version boundaries
-                # like 9.x -> 10.x are handled correctly.
-                target_norm = utils.normalize_version(version)
-                if all(utils.normalize_version(entry["version"]) < target_norm
+                if all(utils.normalize_version(entry.get("version", "0")) < target_norm
                        for entry in version_data):
                     break
                 page += 1
+
+            # Exact version not found on this uptodown name — try closest match
+            if closest_entry:
+                closest_ver = closest_entry.get("version", "?")
+                logging.warning(
+                    f"Exact version {version} not found on Uptodown; "
+                    f"trying closest available '{closest_ver}' for {app_name}"
+                )
+                dl = _fetch_version_url(base_url, data_code, closest_entry, session)
+                if dl:
+                    return dl
+
         except Exception as e:
             logging.debug(f"Pattern {uptodown_name} failed: {str(e)[:50]}...")
             continue
-    
+
     logging.error(f"Version {version} not found for {app_name}")
     return None
 
