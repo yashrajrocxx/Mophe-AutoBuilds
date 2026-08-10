@@ -9,7 +9,8 @@ from src import (
     uptodown,
     aptoide,
     apkmirror,
-    github
+    github,
+    playstore,
 )
 
 def download_resource(url: str, name: str = None) -> Path:
@@ -140,7 +141,7 @@ def download_platform(
 
         with config_path.open() as json_file:
             config = json.load(json_file)
-        
+
         # Override arch if specified
         if arch:
             config['arch'] = arch
@@ -167,12 +168,19 @@ def download_platform(
         for version in candidates:
             if not version:
                 continue
-            download_link = platform_module.get_download_link(version, app_name, config)
-            if not download_link:
+            result = platform_module.get_download_link(version, app_name, config)
+            if not result:
                 last_error = ValueError(f"No download link found for {app_name} version {version}")
                 continue
             try:
-                filepath = download_resource(download_link)
+                # PlaystoreDownloader returns a local file path, not an HTTP URL.
+                # Detect this by checking whether the result looks like a local path.
+                result_path = Path(result)
+                if result_path.exists() and result_path.is_file():
+                    logging.info(f"Using local file from {platform}: {result_path}")
+                    return result_path, version, candidates
+                # All other sources return an HTTP URL — download it.
+                filepath = download_resource(result)
                 return filepath, version, candidates
             except Exception as e:
                 last_error = e
@@ -184,7 +192,20 @@ def download_platform(
         logging.error(f"Unexpected error: {e}")
         return None, None, []
 
-# Update the specific download functions
+# ──────────────────────────────────────────────────────────────────────────
+# Per-platform download functions (used by __main__.py)
+# ──────────────────────────────────────────────────────────────────────────
+
+def download_playstore(
+    app_name: str,
+    cli: str,
+    patches: str,
+    arch: str = None,
+    override_version: str = None,
+) -> tuple[Path | None, str | None, list[str]]:
+    """Primary source: Google Play Store via PlaystoreDownloader CLI."""
+    return download_platform(app_name, "playstore", cli, patches, arch, override_version)
+
 def download_apkmirror(
     app_name: str,
     cli: str,

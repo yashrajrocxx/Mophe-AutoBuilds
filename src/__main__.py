@@ -101,11 +101,12 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
     logging.info(f"✅ Using patches: {patches.name}")
 
     download_methods = [
-        downloader.download_apkmirror,
-        downloader.download_uptodown,
-        downloader.download_apkpure,
-        downloader.download_aptoide,
-        downloader.download_github,
+        downloader.download_playstore,   # 1. Google Play (canonical, authoritative)
+        downloader.download_uptodown,    # 2. Uptodown (best scraper, many versions)
+        downloader.download_apkmirror,   # 3. APKMirror (when not Cloudflare-blocked)
+        downloader.download_apkpure,     # 4. APKPure (package-name based discovery)
+        downloader.download_aptoide,     # 5. Aptoide
+        downloader.download_github,      # 6. GitHub releases (open-source apps only)
     ]
 
     input_apk = None

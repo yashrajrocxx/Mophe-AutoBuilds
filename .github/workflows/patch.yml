@@ -170,6 +170,18 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Inject Play Store Credentials
+        env:
+          PLAYSTORE_CREDENTIALS_JSON: ${{ secrets.PLAYSTORE_CREDENTIALS_JSON }}
+        run: |
+          if [ -n "$PLAYSTORE_CREDENTIALS_JSON" ]; then
+            mkdir -p credentials
+            echo "$PLAYSTORE_CREDENTIALS_JSON" > credentials/credentials.json
+            echo "✓ Play Store credentials injected"
+          else
+            echo "⚠️ PLAYSTORE_CREDENTIALS_JSON secret not set — Google Play source will be skipped, falling back to scrapers"
+          fi
+
       - name: Build APK
         env:
           APP_NAME: ${{ matrix.app_name }}

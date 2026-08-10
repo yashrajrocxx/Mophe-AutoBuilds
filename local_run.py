@@ -42,9 +42,20 @@ def check_prerequisites():
         print(f"  ✓ apksigner found at: {apksigner_path}")
     except Exception as e:
         print(f"⚠️ Warning during apksigner check: {e}")
-        
+
+    # 4. Play Store credentials check (non-fatal — scrapers are fallbacks)
+    creds = Path("credentials/credentials.json")
+    if creds.exists() and creds.stat().st_size > 10:
+        print(f"  ✓ Play Store credentials found at {creds}")
+    else:
+        print("  ⚠️  credentials/credentials.json not found")
+        print("     Google Play source will be skipped; scraper fallbacks will be used.")
+        print("     To enable Google Play: run `playstore-downloader --setup` then save")
+        print("     the output as credentials/credentials.json (never commit this file!)")
+
     print("✅ All prerequisites checked!\n")
     return True
+
 
 def main():
     root = Path(__file__).resolve().parent

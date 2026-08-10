@@ -6,3 +6,7 @@ NUL
 morphe-data/
 local_logs/
 *.log
+# Google Play credentials — store in GitHub Secrets, never commit
+credentials/
+# PlaystoreDownloader temp split folders
+playstore_splits_*/
