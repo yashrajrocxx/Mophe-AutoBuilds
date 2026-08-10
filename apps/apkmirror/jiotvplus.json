@@ -1,7 +1,7 @@
 {
     "org": "jio-platforms-limited",
     "name": "jiotv-livetv-otts-android-tv",
-    "type": "APK",
+    "type": "BUNDLE",
     "arch": "universal",
     "dpi": "nodpi",
     "package": "com.jio.media.jiotvplus",

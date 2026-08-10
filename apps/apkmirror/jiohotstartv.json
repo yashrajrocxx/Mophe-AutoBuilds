@@ -1,7 +1,7 @@
 {
     "org": "the-walt-disney-company-southeast-asia-pte-ltd",
     "name": "disney-hotstar-android-tv",
-    "type": "BUNDLE",
+    "type": "APK",
     "arch": "arm64-v8a",
     "dpi": "nodpi",
     "package": "in.startv.hotstar",

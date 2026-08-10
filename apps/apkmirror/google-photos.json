@@ -1,6 +1,6 @@
 {
     "org": "google-inc",
-    "name": "photos",
+    "name": "google-photos",
     "type": "APK",
     "arch": "universal",
     "dpi": "nodpi",

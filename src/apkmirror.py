@@ -473,7 +473,13 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         # Check if row contains our exact version
         if version in row_text or version.replace('.', '-') in row_text:
             # Check criteria
-            if all(criterion in row_text for criterion in criteria):
+            type_match = config['type'] in row_text
+            dpi_match = config['dpi'] in row_text
+            arch_match = target_arch in row_text
+            if config['type'] == 'BUNDLE' and not arch_match:
+                arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
+            
+            if type_match and dpi_match and arch_match:
                 sub_url = row.find('a', class_='accent_color')
                 if sub_url:
                     download_page_url = base_url + sub_url['href']
@@ -483,7 +489,13 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
     if not download_page_url:
         for row in rows:
             row_text = row.get_text()
-            if all(criterion in row_text for criterion in criteria):
+            type_match = config['type'] in row_text
+            dpi_match = config['dpi'] in row_text
+            arch_match = target_arch in row_text
+            if config['type'] == 'BUNDLE' and not arch_match:
+                arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
+                
+            if type_match and dpi_match and arch_match:
                 # Check if this looks like a variant row (has version numbers)
                 if re.search(r'\d+(\.\d+)+', row_text):
                     sub_url = row.find('a', class_='accent_color')

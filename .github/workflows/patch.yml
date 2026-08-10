@@ -236,7 +236,6 @@ jobs:
         with:
           path: ./all-apks
           pattern: apk-*
-          if-no-files-found: warn
 
       - name: Download All Build Records
         uses: actions/download-artifact@v4

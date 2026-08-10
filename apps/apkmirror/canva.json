@@ -1,7 +1,7 @@
 {
     "org": "canva",
     "name": "canva",
-    "type": "APK",
+    "type": "BUNDLE",
     "arch": "universal",
     "dpi": "nodpi",
     "package": "com.canva.editor",
