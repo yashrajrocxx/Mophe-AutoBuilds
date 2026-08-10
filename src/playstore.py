@@ -325,20 +325,45 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         logging.error(f"PlayStore: no package in config for {app_name}")
         return None
 
-    # Resolve the numeric version code corresponding to the requested version name.
-    try:
-        version_code_int = resolve_version_code(package, version)
-        version_code = str(version_code_int)
-        logging.info(f"PlayStore: Resolved {version} to versionCode {version_code}")
-    except VersionNotFound as e:
-        logging.warning(f"PlayStore: {e} - Triggering scraper fallback.")
-        return None
-    except ExodusApiError as e:
-        logging.warning(f"PlayStore: Exodus API unavailable ({e}) - Triggering scraper fallback.")
-        return None
-    except Exception as e:
-        logging.warning(f"PlayStore: Unexpected error resolving version ({e}) - Triggering scraper fallback.")
-        return None
+    version_code: str | None = None
+
+    # First, check if the requested version is simply the latest version on Play Store.
+    # This avoids querying Exodus for brand new versions that Exodus hasn't indexed yet.
+    latest_info = _run(
+        [_TOOL, "info", package, "--arch", _ARCH],
+        capture_output=True, text=True, timeout=60
+    )
+    if latest_info.returncode == 0:
+        play_version = None
+        play_code = None
+        for line in latest_info.stdout.splitlines():
+            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
+            if m:
+                play_version = m.group(1)
+                play_code = m.group(2)
+
+        if play_version and play_code:
+            if (play_version == version
+                    or play_version.startswith(version + ".")
+                    or play_version.startswith(version + "-")):
+                version_code = play_code
+                logging.info(f"PlayStore: target is latest version ✓ using code {version_code}")
+
+    # If it wasn't the latest version (or `info` failed), resolve via Exodus
+    if not version_code:
+        try:
+            version_code_int = resolve_version_code(package, version)
+            version_code = str(version_code_int)
+            logging.info(f"PlayStore: Resolved historical {version} to versionCode {version_code}")
+        except VersionNotFound as e:
+            logging.warning(f"PlayStore: {e} - Triggering scraper fallback.")
+            return None
+        except ExodusApiError as e:
+            logging.warning(f"PlayStore: Exodus API unavailable ({e}) - Triggering scraper fallback.")
+            return None
+        except Exception as e:
+            logging.warning(f"PlayStore: Unexpected error resolving version ({e}) - Triggering scraper fallback.")
+            return None
 
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
     splits_dir = Path(f"playstore_splits_{package}")
