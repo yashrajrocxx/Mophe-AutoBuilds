@@ -10,7 +10,7 @@ on:
         required: false
         default: false
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+    - cron: '30 0 */2 * *'  # Every 2 days at 6:00 AM IST (00:30 UTC)
 
 jobs:
   download-tools:
