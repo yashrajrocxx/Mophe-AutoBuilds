@@ -65,12 +65,12 @@ def _get_version_code(package: str) -> str | None:
             )
             return None
 
-        # gplaydl info outputs rich text; parse version code from it
-        # Lines like: "Version code   1234567890"
+        # gplaydl info outputs a rich table; parse version code from it
+        # Lines like: "│ Version    │ 2.372.0 (29663417)  │"
         for line in result.stdout.splitlines():
-            m = re.search(r"version\s*code[:\s]+(\d+)", line, re.IGNORECASE)
+            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
             if m:
-                return m.group(1)
+                return m.group(2)
 
         logging.warning(f"PlayStore: could not parse version code from gplaydl info output")
     except subprocess.TimeoutExpired:
@@ -230,7 +230,7 @@ def get_latest_version(app_name: str, config: dict) -> str | None:
 
         # Parse version name from output
         for line in result.stdout.splitlines():
-            m = re.search(r"version\s*name[:\s]+([\d.]+)", line, re.IGNORECASE)
+            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
             if m:
                 ver = m.group(1)
                 logging.info(f"PlayStore: latest version for {app_name} is {ver}")
@@ -274,12 +274,10 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         play_version = None
         play_code = None
         for line in latest_info.stdout.splitlines():
-            mn = re.search(r"version\s*name[:\s]+([\d.]+)", line, re.IGNORECASE)
-            mc = re.search(r"version\s*code[:\s]+(\d+)", line, re.IGNORECASE)
-            if mn:
-                play_version = mn.group(1)
-            if mc:
-                play_code = mc.group(1)
+            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
+            if m:
+                play_version = m.group(1)
+                play_code = m.group(2)
 
         if play_version and play_code:
             logging.info(
@@ -293,13 +291,14 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
                 version_code = play_code
                 logging.info(f"PlayStore: version match ✓ using code {version_code}")
             else:
-                # Target version differs — download without pinning version code
-                # (gets latest; patch may still be compatible)
+                # Target version differs, Play Store only gives the latest.
+                # We MUST fail here so the downloader falls back to scrapers
+                # (Uptodown/APKMirror) which can fetch older versions.
                 logging.warning(
-                    f"PlayStore: target={version} but Play has {play_version}. "
-                    f"Downloading latest and letting patch decide."
+                    f"PlayStore: target={version} but Play only serves {play_version}. "
+                    f"Failing to trigger scraper fallback."
                 )
-                version_code = None
+                return None
 
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
     splits_dir = Path(f"playstore_splits_{package}")
