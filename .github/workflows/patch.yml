@@ -380,7 +380,7 @@ jobs:
           done < release_assets.txt
 
           if [ -f "./release-apks/failed_patches.json" ]; then
-            python -c "
+            cat << 'EOF' > parse_failed.py
 import json
 try:
     with open('./release-apks/failed_patches.json') as f:
@@ -390,10 +390,11 @@ try:
             rn.write('\n## ⚠️ Known Issues / Failed Patches\n')
             for app, patches in data.items():
                 if patches:
-                    rn.write(f'- **{app}**: Failed to apply `{len(patches)}` patches ({ \", \".join(patches) })\n')
+                    rn.write(f'- **{app}**: Failed to apply `{len(patches)}` patches ({ ", ".join(patches) })\n')
 except Exception as e:
     print('Failed to append failed patches to release notes:', e)
-"
+EOF
+            python parse_failed.py
           fi
 
           cat >> release_notes.md << 'EOF'
