@@ -1,9 +1,0 @@
-{
-    "org": "disney",
-    "name": "disney",
-    "type": "APK",
-    "arch": "universal",
-    "dpi": "nodpi",
-    "package": "com.disney.disneyplus",
-    "version": ""
-}

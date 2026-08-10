@@ -1,9 +1,0 @@
-{
-    "org": "lider-soft-kz",
-    "name": "pydroid-3-ide-for-python-3",
-    "type": "APK", 
-    "arch": "arm64-v8a",
-    "dpi": "nodpi",
-    "package" : "ru.iiec.pydroid3",
-    "version" : ""
-}

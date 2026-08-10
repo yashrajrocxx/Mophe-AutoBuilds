@@ -1,9 +1,0 @@
-{
-    "org": "sofascore",
-    "name": "soccer-scores-and-sports-livescore-sofascore",
-    "type": "APK", 
-    "arch": "arm64-v8a",
-    "dpi": "480-640",
-    "package" : "com.sofascore.results",
-    "version" : ""
-}

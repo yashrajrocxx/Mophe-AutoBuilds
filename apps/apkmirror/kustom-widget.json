@@ -1,9 +1,0 @@
-{
-    "org": "kustom-industries",
-    "name": "klwp-live-wallpaper-maker",
-    "type": "APK",
-    "arch": "universal",
-    "dpi": "nodpi",
-    "package": "org.kustom.wallpaper",
-    "version": ""
-}

@@ -1,9 +1,0 @@
-{ 
-  "org": "merriam-webster-inc", 
-  "name": "dictionary-merriam-webster",
-  "type": "APK",
-  "arch": "",
-  "dpi":"nodpi",
-  "package": "com.merriamwebster",
-  "version": ""
-}

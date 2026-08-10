@@ -1,9 +1,0 @@
-{
-    "org": "mimohello-gmbh",
-    "name": "mimo-learn-to-code",
-    "type": "APK", 
-    "arch": "universal",
-    "dpi": "nodpi",
-    "package" : "com.getmimo",
-    "version" : ""
-}

@@ -1,9 +1,0 @@
-{ 
-  "org": "cake-corp", 
-  "name": "cake-lesson-updates-every-day",
-  "type": "APK",
-  "arch": "",
-  "dpi":"nodpi",
-  "package": "me.mycake",
-  "version": ""
-}

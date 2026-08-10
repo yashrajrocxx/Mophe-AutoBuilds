@@ -1,9 +1,0 @@
-{
-    "org": "cricket-exchange",
-    "name": "cricket-exchange-live-score-analysis",
-    "type": "BUNDLE", 
-    "arch": "universal",
-    "dpi": "120-640dpi",
-    "package" : "in.cricketexchange.app.cricketexchange",
-    "version" : ""
-}

@@ -1,9 +1,0 @@
-{
-    "org": "apryse-software-inc",
-    "name": "xodo-pdf-reader-editor",
-    "type": "APK", 
-    "arch": "armeabi-v7a",
-    "dpi": "nodpi",
-    "package" : "com.xodo.pdf.reader",
-    "version" : ""
-}
