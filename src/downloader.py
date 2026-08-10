@@ -168,7 +168,18 @@ def download_platform(
         for version in candidates:
             if not version:
                 continue
+            
+            # Try with requested arch
             result = platform_module.get_download_link(version, app_name, config)
+            
+            # Fallback to universal if the requested arch wasn't found
+            if not result and arch and arch != "universal":
+                logging.info(f"Failed to find {arch} for {app_name} v{version} on {platform}, falling back to universal...")
+                config['arch'] = "universal"
+                result = platform_module.get_download_link(version, app_name, config)
+                # Restore original requested arch for the next version loop iteration
+                config['arch'] = arch
+
             if not result:
                 last_error = ValueError(f"No download link found for {app_name} version {version}")
                 continue
