@@ -357,7 +357,7 @@ jobs:
           cat > release_notes.md << 'EOF'
           # 🔧 Morphe APKs - Custom Build
           
-          Automated daily compilation of patched Android applications using official Morphe/ReVanced toolchains.
+          Automated daily compilation of custom patched Android applications using community ReVanced toolchains.
           
           ## 📱 Patched Assets in This Release
           

@@ -172,7 +172,9 @@ jobs:
           
           # 2. CREATE RELEASE NOTES
           cat > release_notes.md << EOF
-          # Morphe APKs
+          # 🔧 Morphe APKs - Custom Build
+          
+          Automated daily compilation of custom patched Android applications using community ReVanced toolchains.
           
           ## 📱 Available Apps
           EOF
