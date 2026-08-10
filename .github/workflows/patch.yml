@@ -175,7 +175,14 @@ jobs:
           GPLAYDL_TOKEN: ${{ secrets.GPLAYDL_TOKEN }}
         run: |
           if [ -n "$GPLAYDL_TOKEN" ]; then
-            gplaydl link "$GPLAYDL_TOKEN" && echo "✓ gplaydl account linked" || echo "⚠️ gplaydl link failed — falling back to scrapers"
+            mkdir -p ~/.config/gplaydl
+            cat > ~/.config/gplaydl/config.json << EOF
+            {
+              "dispenser": "https://dispenser.gplaydl.com",
+              "api_key": "$GPLAYDL_TOKEN"
+            }
+            EOF
+            echo "✓ gplaydl config created"
           else
             echo "⚠️ GPLAYDL_TOKEN secret not set — Google Play source will be skipped, falling back to scrapers"
           fi
