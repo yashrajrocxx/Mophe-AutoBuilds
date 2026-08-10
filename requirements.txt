@@ -4,3 +4,4 @@ beautifulsoup4
 curl-cffi
 gplaydl
 
+python-dotenv

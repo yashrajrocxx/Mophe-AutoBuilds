@@ -5,6 +5,11 @@ import json
 import subprocess
 import shutil
 from pathlib import Path
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 def check_prerequisites():
     print("🔍 Checking local build prerequisites...")

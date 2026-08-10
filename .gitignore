@@ -8,3 +8,4 @@ local_logs/
 *.log
 # PlaystoreDownloader temp split folders
 playstore_splits_*/
+.env

@@ -5,6 +5,10 @@ from sys import exit
 from pathlib import Path
 from os import getenv
 import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from src import (
     r2,
     utils,
