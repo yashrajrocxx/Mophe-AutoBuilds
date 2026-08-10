@@ -176,12 +176,7 @@ jobs:
         run: |
           if [ -n "$GPLAYDL_TOKEN" ]; then
             mkdir -p ~/.config/gplaydl
-            cat > ~/.config/gplaydl/config.json << EOF
-            {
-              "dispenser": "https://dispenser.gplaydl.com",
-              "api_key": "$GPLAYDL_TOKEN"
-            }
-            EOF
+            jq -n --arg token "$GPLAYDL_TOKEN" '{dispenser: "https://dispenser.gplaydl.com", api_key: $token}' > ~/.config/gplaydl/config.json
             echo "✓ gplaydl config created"
           else
             echo "⚠️ GPLAYDL_TOKEN secret not set — Google Play source will be skipped, falling back to scrapers"
