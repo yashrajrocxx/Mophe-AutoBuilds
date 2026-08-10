@@ -130,17 +130,6 @@ def get_download_link(version: str, app_name: str, config: dict) -> str:
                     break
                 page += 1
 
-            # Exact version not found on this uptodown name — try closest match
-            if closest_entry:
-                closest_ver = closest_entry.get("version", "?")
-                logging.warning(
-                    f"Exact version {version} not found on Uptodown; "
-                    f"trying closest available '{closest_ver}' for {app_name}"
-                )
-                dl = _fetch_version_url(base_url, data_code, closest_entry, session)
-                if dl:
-                    return dl
-
         except Exception as e:
             logging.debug(f"Pattern {uptodown_name} failed: {str(e)[:50]}...")
             continue

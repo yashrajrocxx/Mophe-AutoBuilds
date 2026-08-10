@@ -113,27 +113,22 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
         downloader.download_github,      # 6. GitHub releases
     ]
 
-    input_apk = None
-    version = None
-    candidates: list[str] = []
-    used_method = None
-    for method in download_methods:
-        input_apk, version, candidates = method(app_name, str(cli), str(patches), arch)
-        if input_apk:
-            used_method = method
-            break
-
-    if input_apk is None or not used_method or not version:
-        logging.error(f"❌ Failed to download APK for {app_name}")
-        logging.error("All download sources failed. Skipping this app.")
-        return None
-
-    # Try the downloaded version first, then (if available) older compatible
-    # versions from the patch set. This prevents a single bad/overstated
-    # compatibility entry from breaking the whole build.
-    versions_to_try: list[str] = [version]
-    if candidates and version in candidates:
-        versions_to_try += [v for v in candidates if v != version]
+    # 1. Fetch package name
+    package_name = None
+    for platform in ["playstore", "apkmirror", "uptodown", "apkpure"]:
+        config_path = Path("apps") / platform / f"{app_name}.json"
+        if config_path.exists():
+            with config_path.open() as f:
+                package_name = json.load(f).get("package")
+            if package_name:
+                break
+    
+    # 2. Get supported versions from CLI
+    supported_versions = utils.get_supported_versions(package_name, str(cli), str(patches)) if package_name else []
+    if not supported_versions:
+        # Fallback to a single attempt with latest
+        supported_versions = [None]
+        logging.warning("No supported versions found, will attempt to fetch latest.")
 
     exclude_patches = []
     include_patches = []
@@ -148,21 +143,28 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                 elif line.startswith('+'):
                     include_patches.extend(["-e", line[1:].strip()])
 
-    for attempt_idx, ver in enumerate(versions_to_try):
-        if attempt_idx > 0:
-            logging.warning(
-                f"Retrying {app_name}/{source}/{arch} with older version {ver} due to patch failure..."
-            )
-            # Cleanup any previous attempt artifacts.
+    # Start the grand loop!
+    for attempt_idx, ver in enumerate(supported_versions):
+        if ver:
+            logging.info(f"Targeting version: {ver}")
+        
+        input_apk = None
+        version = None
+        
+        # Source fallback loop
+        for method in download_methods:
             try:
-                input_apk.unlink(missing_ok=True)
-            except Exception:
-                pass
-
-            input_apk, version, _ = used_method(app_name, str(cli), str(patches), arch, override_version=ver)
-            if input_apk is None:
+                input_apk, dl_ver, _ = method(app_name, str(cli), str(patches), arch, override_version=ver)
+                if input_apk:
+                    version = dl_ver
+                    break
+            except Exception as e:
+                logging.debug(f"{method.__name__} failed: {e}")
                 continue
-            version = ver
+                
+        if not input_apk or not version:
+            logging.warning(f"Failed to download version {ver or 'latest'} from all sources.")
+            continue # Try next version
 
         # --- Normalize/merge input into .apk when needed ---
         if input_apk.suffix != ".apk":
@@ -303,7 +305,7 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
             input_apk.unlink(missing_ok=True)
             output_apk.unlink(missing_ok=True)
 
-            if attempt_idx < len(versions_to_try) - 1 and _should_retry_with_older_version(getattr(e, "output", None)):
+            if attempt_idx < len(supported_versions) - 1 and _should_retry_with_older_version(getattr(e, "output", None)):
                 continue
             raise
 

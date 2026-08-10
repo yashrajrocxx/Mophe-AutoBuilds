@@ -148,56 +148,42 @@ def download_platform(
 
         platform_module = globals()[platform]
 
-        # Candidate versions (highest -> lowest) for universal robustness:
-        # - If config pins a version: only try that.
-        # - Else if override provided (retry path): try only that.
-        # - Else ask the patching CLI for compatible versions and try those.
-        # - If none returned: fall back to latest available from the store.
+        # Only try the explicitly requested version (or pinned version from config)
         pinned = (config.get("version") or "").strip()
-        if override_version:
-            candidates = [override_version]
-        elif pinned:
-            candidates = [pinned]
-        else:
-            candidates = utils.get_supported_versions(config["package"], cli, patches)
-            if not candidates:
-                latest = platform_module.get_latest_version(app_name, config)
-                candidates = [latest] if latest else []
+        target_version = override_version or pinned
 
-        last_error: Exception | None = None
-        for version in candidates:
-            if not version:
-                continue
+        if not target_version:
+            # If __main__.py didn't pass a version (e.g. no versions found in CLI), fetch latest
+            target_version = platform_module.get_latest_version(app_name, config)
+            if not target_version:
+                return None, None, []
+
+        result = platform_module.get_download_link(target_version, app_name, config)
+        
+        # Fallback to universal if the requested arch wasn't found
+        if not result and arch and arch != "universal":
+            logging.info(f"Failed to find {arch} for {app_name} v{target_version} on {platform}, falling back to universal...")
+            config['arch'] = "universal"
+            result = platform_module.get_download_link(target_version, app_name, config)
+            config['arch'] = arch
+
+        if not result:
+            logging.debug(f"No download link found for {app_name} version {target_version} on {platform}")
+            return None, None, []
+
+        try:
+            # PlaystoreDownloader returns a local file path, not an HTTP URL.
+            result_path = Path(result)
+            if result_path.exists() and result_path.is_file():
+                logging.info(f"Using local file from {platform}: {result_path}")
+                return result_path, target_version, []
             
-            # Try with requested arch
-            result = platform_module.get_download_link(version, app_name, config)
-            
-            # Fallback to universal if the requested arch wasn't found
-            if not result and arch and arch != "universal":
-                logging.info(f"Failed to find {arch} for {app_name} v{version} on {platform}, falling back to universal...")
-                config['arch'] = "universal"
-                result = platform_module.get_download_link(version, app_name, config)
-                # Restore original requested arch for the next version loop iteration
-                config['arch'] = arch
-
-            if not result:
-                last_error = ValueError(f"No download link found for {app_name} version {version}")
-                continue
-            try:
-                # PlaystoreDownloader returns a local file path, not an HTTP URL.
-                # Detect this by checking whether the result looks like a local path.
-                result_path = Path(result)
-                if result_path.exists() and result_path.is_file():
-                    logging.info(f"Using local file from {platform}: {result_path}")
-                    return result_path, version, candidates
-                # All other sources return an HTTP URL — download it.
-                filepath = download_resource(result)
-                return filepath, version, candidates
-            except Exception as e:
-                last_error = e
-                continue
-
-        raise last_error or ValueError(f"No downloadable versions found for {app_name} on {platform}")
+            # All other sources return an HTTP URL — download it.
+            filepath = download_resource(result)
+            return filepath, target_version, []
+        except Exception as e:
+            logging.error(f"Download failed for {app_name} v{target_version} on {platform}: {e}")
+            return None, None, []
 
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
