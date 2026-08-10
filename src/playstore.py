@@ -26,9 +26,18 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
+import requests
 
 _TOOL = "gplaydl"
 _ARCH = "arm64"   # gplaydl uses 'arm64', not 'arm64-v8a'
+
+_exodus_cache = {}
+
+class VersionNotFound(Exception):
+    pass
+
+class ExodusApiError(Exception):
+    pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -46,6 +55,61 @@ def _tool_available() -> bool:
 def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     logging.info(f"PlayStore: {' '.join(cmd)}")
     return subprocess.run(cmd, **kwargs)
+
+def resolve_version_code(package_name: str, version_name: str) -> int:
+    cache_key = f"{package_name}:{version_name}"
+    if cache_key in _exodus_cache:
+        return _exodus_cache[cache_key]
+
+    api_key = os.environ.get("EXODUS_API_KEY")
+    if not api_key:
+        raise ExodusApiError("EXODUS_API_KEY environment variable is not set")
+
+    base_url = os.environ.get(
+        "EXODUS_SEARCH_URL", 
+        "https://reports.exodus-privacy.eu.org/api/search/"
+    )
+    url = f"{base_url}{package_name}"
+    
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Token {api_key}"
+    }
+
+    logging.info(f"PlayStore: Resolving versionCode for {package_name} {version_name}")
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise ExodusApiError(f"HTTP error resolving version from Exodus: {e}")
+
+    try:
+        data = response.json()
+    except ValueError:
+        raise ExodusApiError("Malformed JSON response from Exodus API")
+
+    if package_name not in data or "reports" not in data[package_name]:
+        raise ExodusApiError(f"Missing reports array for {package_name} in Exodus API response")
+
+    reports = data[package_name]["reports"]
+    matching_codes = []
+
+    for report in reports:
+        if report.get("version") == version_name:
+            code_str = report.get("version_code")
+            if code_str is not None:
+                try:
+                    matching_codes.append(int(code_str))
+                except ValueError:
+                    raise ValueError(f"Malformed versionCode '{code_str}' in Exodus API response")
+
+    if not matching_codes:
+        raise VersionNotFound(f"Version '{version_name}' not found in Exodus reports for {package_name}")
+
+    resolved_code = max(matching_codes)
+    _exodus_cache[cache_key] = resolved_code
+    return resolved_code
 
 
 def _get_version_code(package: str) -> str | None:
@@ -261,44 +325,20 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         logging.error(f"PlayStore: no package in config for {app_name}")
         return None
 
-    # Resolve the numeric version code that matches the requested version name.
-    # We get the latest from Play, then check if it matches; if not, we proceed
-    # without a version pin (gets latest, which is what patches usually want).
-    version_code: str | None = None
-
-    latest_info = _run(
-        [_TOOL, "info", package, "--arch", _ARCH],
-        capture_output=True, text=True, timeout=60
-    )
-    if latest_info.returncode == 0:
-        play_version = None
-        play_code = None
-        for line in latest_info.stdout.splitlines():
-            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
-            if m:
-                play_version = m.group(1)
-                play_code = m.group(2)
-
-        if play_version and play_code:
-            logging.info(
-                f"PlayStore: Play has {app_name} {play_version} "
-                f"(code {play_code}), target is {version}"
-            )
-            # If Play's latest matches our target (exact or prefix), use the code
-            if (play_version == version
-                    or play_version.startswith(version + ".")
-                    or play_version.startswith(version + "-")):
-                version_code = play_code
-                logging.info(f"PlayStore: version match ✓ using code {version_code}")
-            else:
-                # Target version differs, Play Store only gives the latest.
-                # We MUST fail here so the downloader falls back to scrapers
-                # (Uptodown/APKMirror) which can fetch older versions.
-                logging.warning(
-                    f"PlayStore: target={version} but Play only serves {play_version}. "
-                    f"Failing to trigger scraper fallback."
-                )
-                return None
+    # Resolve the numeric version code corresponding to the requested version name.
+    try:
+        version_code_int = resolve_version_code(package, version)
+        version_code = str(version_code_int)
+        logging.info(f"PlayStore: Resolved {version} to versionCode {version_code}")
+    except VersionNotFound as e:
+        logging.warning(f"PlayStore: {e} - Triggering scraper fallback.")
+        return None
+    except ExodusApiError as e:
+        logging.warning(f"PlayStore: Exodus API unavailable ({e}) - Triggering scraper fallback.")
+        return None
+    except Exception as e:
+        logging.warning(f"PlayStore: Unexpected error resolving version ({e}) - Triggering scraper fallback.")
+        return None
 
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
     splits_dir = Path(f"playstore_splits_{package}")
