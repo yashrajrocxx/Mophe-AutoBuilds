@@ -44,20 +44,36 @@ A sophisticated, automated pipeline that builds ready-to-install Morphe applicat
 
 | Mirror | Description | Link |
 | :--- | :--- | :--- |
-| **GitHub Releases** | Primary source. Contains all builds. | [**Download Latest Release**](https://RookieEnough/morphe-AutoBuilds/releases/latest) |
+| **GitHub Releases** | Primary source. Contains all builds. | [**Download Latest Release**](https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/latest) |
 
-### 📱 Supported Apps & Architectures
+### 📱 Supported Apps & Patch Repositories
 
-| Application | arm64-v8a | armeabi-v7a | Universal |
-| :--- | :---: | :---: | :---: |
-| **YouTube** | ✅ | ✅ | ✅ |
-| **YouTube Music** | ✅ | ✅ | ❌ |
-| **Reddit** | ❌ | ❌ | ✅ |
-| **Twitter (X)** | ✅ | ❌ | ❌ |
-| **TikTok** | ❌ | ❌ | ✅ |
-| **Spotify** | ❌ | ❌ | ✅ |
+This repository compiles optimized **arm64-v8a** builds using specific community patch repositories for each application:
 
-*( Legend: ✅ = Available / ❌ = Not configured )*
+| Application | Package Name | Patch Repository | arm64-v8a |
+| :--- | :--- | :--- | :---: |
+| **YouTube** | `com.google.android.youtube` | [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches) | ✅ |
+| **YouTube Music** | `com.google.android.apps.youtube.music` | [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches) | ✅ |
+| **Reddit** | `com.reddit.frontpage` | [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches) | ✅ |
+| **Instagram** | `com.instagram.android` | [krvstek/piko-patches](https://github.com/krvstek/piko-patches) | ✅ |
+| **Pinterest** | `com.pinterest` | [browzomje/morphe-patches](https://github.com/browzomje/morphe-patches) | ✅ |
+| **Telegram** | `org.telegram.messenger` | [pareshdev/morphe-patches](https://github.com/pareshdev/morphe-patches) | ✅ |
+| **JioHotstar Mobile** | `in.startv.hotstar` (Mobile) | [pareshdev/morphe-patches](https://github.com/pareshdev/morphe-patches) | ✅ |
+| **VN Video Editor** | `com.frontrow.vlog` | [pareshdev/morphe-patches](https://github.com/pareshdev/morphe-patches) | ✅ |
+| **SD Maid SE** | `eu.darken.sdmse` | [pareshdev/morphe-patches](https://github.com/pareshdev/morphe-patches) | ✅ |
+| **Threads** | `com.instagram.threads` | [RookieEnough/revanced-patches](https://github.com/RookieEnough/revanced-patches) | ✅ |
+| **Google Photos** | `com.google.android.apps.photos` | [RookieEnough/revanced-patches](https://github.com/RookieEnough/revanced-patches) | ✅ |
+| **X (Twitter)** | `com.twitter.android` | [krvstek/piko-patches](https://github.com/krvstek/piko-patches) | ✅ |
+| **Canva** | `com.canva.editor` | [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches) | ✅ |
+| **TradingView** | `com.tradingview.tradingviewapp` | [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches) | ✅ |
+| **Depth Live Wallpaper** | `com.jndapp.depth.live.wallpaper` | [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches) | ✅ |
+| **Pocket Casts** | `au.com.shiftyjelly.pocketcasts` | [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches) | ✅ |
+| **Minimal Widgets** | `com.jndapp.minimal.widgets` | [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches) | ✅ |
+| **JioTV+** | `com.jio.media.jiotvplus` | [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches) | ✅ |
+| **JioHotstar TV** | `in.startv.hotstar` (Android TV) | [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches) | ✅ |
+| **Brave Browser** | `com.brave.browser` | [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches) | ✅ |
+
+*(All builds are target-optimized for `arm64-v8a` to reduce bundle sizes and increase device efficiency).*
 
 ---
 

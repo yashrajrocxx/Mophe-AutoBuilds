@@ -343,38 +343,50 @@ jobs:
           sort -u current_assets.txt > release_assets.txt
 
           cat > release_notes.md << 'EOF'
-          # Morphe APKs - Auto Built
+          # 🔧 Morphe APKs - Custom Build
           
-          ## 📱 Available Apps
+          Automated daily compilation of patched Android applications using official Morphe/ReVanced toolchains.
           
+          ## 📱 Patched Assets in This Release
+          
+          | Application File | Architecture | Direct Download |
+          | :--- | :---: | :--- |
           EOF
 
           while read -r filename; do
             [ -n "$filename" ] || continue
-            echo "- $filename" >> release_notes.md
+            if [ "$filename" = "manifest.json" ]; then
+              continue
+            fi
+            arch="arm64-v8a"
+            if [[ "$filename" == *"universal"* ]]; then
+              arch="universal"
+            elif [[ "$filename" == *"armeabi-v7a"* ]]; then
+              arch="armeabi-v7a"
+            fi
+            echo "| **$filename** | `$arch` | [Download](https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/$filename) |" >> release_notes.md
           done < release_assets.txt
 
           cat >> release_notes.md << 'EOF'
+          
           ---
           
-          ## ⚙️ Build Information
-          - **Auto-built daily at 6 AM UTC**
-          - **Multiple architecture support** (arm64-v8a, armeabi-v7a, universal)
-          - **Latest Morphe patches**
-          - **Updated automatically**
+          ## 🛠️ Credits & References
           
-          ## 📊 Architecture Guide
-          - **arm64-v8a**: Modern ARM devices (2014+)
-          - **armeabi-v7a**: Older ARM devices
-          - **universal**: All ARM devices (larger file)
+          This project is powered by [Morphe](https://github.com/MorpheApp) tools. Credits to all patch developers:
+          - **Morphe/ReVanced Patches:** [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches)
+          - **Piko Patches:** [krvstek/piko-patches](https://github.com/krvstek/piko-patches)
+          - **Paresh Patches:** [pareshdev/morphe-patches](https://github.com/pareshdev/morphe-patches)
+          - **Durgesh/Chiggi Patches:** [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches)
+          - **Rookie Patches:** [RookieEnough/revanced-patches](https://github.com/RookieEnough/revanced-patches)
+          - **Rushi Patches:** [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches)
+          - **Browzomje Patches:** [browzomje/morphe-patches](https://github.com/browzomje/morphe-patches)
+          - **dh6k Patches:** [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches)
+          
+          ---
           
           ## ⚠️ Disclaimer
-          These APKs are built automatically. Use at your own risk.
-          
-          ## 🔄 Update Schedule
-          - Automatic updates daily at 6 AM UTC
-          - Manual updates available via workflow dispatch
-          - Creates `latest` if missing and uploads rebuilt assets in place
+          These APKs are built automatically. Use at your own risk. Non-root GmsCore/MicroG-RE is required for Google-dependent apps.
           EOF
       
       - name: Upload Or Create Release

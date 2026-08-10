@@ -1,7 +1,7 @@
 {
     "org": "google-inc",
     "name": "google-photos",
-    "type": "APK",
+    "type": "BUNDLE",
     "arch": "universal",
     "dpi": "nodpi",
     "package": "com.google.android.apps.photos",
