@@ -12,6 +12,8 @@ HEADERS = {
 }
 
 def get_latest_version(app_name: str, config: str) -> str: 
+    import time
+    time.sleep(1.5)  # Avoid rate limiting
     url = f"https://apkpure.net/{config['name']}/{config['package']}/versions"
 
     try:
@@ -34,6 +36,8 @@ def get_latest_version(app_name: str, config: str) -> str:
     return None
 
 def get_download_link(version: str, app_name: str, config: str) -> str:
+    import time
+    time.sleep(1.5)  # Avoid rate limiting
     # APKPure often uses a specific structure for download pages
     url = f"https://apkpure.net/{config['name']}/{config['package']}/download/{version}"
 

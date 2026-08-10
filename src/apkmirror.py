@@ -35,6 +35,8 @@ def _cf_get(url, **kwargs):
     if _blocked_by_cloudflare:
         raise ApkMirrorBlocked("APKMirror blocked this runner earlier in the build")
 
+    import time
+    time.sleep(1.5)  # Add sleep to prevent hammering the server
     kwargs.setdefault("timeout", 20)
     response = session.get(url, **kwargs)
     if response.status_code == 403:

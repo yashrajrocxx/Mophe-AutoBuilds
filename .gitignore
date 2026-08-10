@@ -4,3 +4,5 @@ NUL
 *.jar
 *.mpp
 morphe-data/
+local_logs/
+*.log
