@@ -1,0 +1,9 @@
+{
+    "org": "automattic-inc",
+    "name": "pocket-casts",
+    "type": "BUNDLE",
+    "arch": "arm64-v8a",
+    "dpi": "nodpi",
+    "package": "au.com.shiftyjelly.pocketcasts",
+    "version": ""
+}

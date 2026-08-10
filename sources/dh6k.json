@@ -1,0 +1,15 @@
+[
+    {
+      "name": "dh6k-patches"
+    },
+    {
+      "user": "MorpheApp",
+      "repo": "morphe-cli",
+      "tag": "latest"
+    },
+    {
+      "user": "dh6k",
+      "repo": "morphe-patches",
+      "tag": "latest"
+    }
+]

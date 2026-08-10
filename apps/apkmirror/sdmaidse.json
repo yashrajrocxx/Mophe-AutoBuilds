@@ -1,0 +1,9 @@
+{
+    "org": "darken",
+    "name": "sd-maid-se",
+    "type": "BUNDLE",
+    "arch": "arm64-v8a",
+    "dpi": "nodpi",
+    "package": "eu.darken.sdmse",
+    "version": ""
+}

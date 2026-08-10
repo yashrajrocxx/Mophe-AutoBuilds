@@ -1,0 +1,9 @@
+{
+    "org": "novi-digital-entertainment-pvt-ltd",
+    "name": "disney-hotstar",
+    "type": "BUNDLE",
+    "arch": "arm64-v8a",
+    "dpi": "nodpi",
+    "package": "in.startv.hotstar",
+    "version": ""
+}

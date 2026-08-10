@@ -1,0 +1,2 @@
+# JioHotstar TV durgesh Patches
+# Left empty to apply all default recommended patches automatically (VPN proxy bypass, rename).

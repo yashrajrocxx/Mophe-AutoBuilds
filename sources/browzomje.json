@@ -1,0 +1,15 @@
+[
+  {
+    "name": "browzomje-patches"
+  },
+  {
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  },
+  {
+    "user": "browzomje",
+    "repo": "browzomje-patches",
+    "tag": "latest"
+  }
+]

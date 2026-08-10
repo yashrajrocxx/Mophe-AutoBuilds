@@ -1,0 +1,9 @@
+{
+    "org": "canva",
+    "name": "canva",
+    "type": "APK",
+    "arch": "universal",
+    "dpi": "nodpi",
+    "package": "com.canva.editor",
+    "version": ""
+}

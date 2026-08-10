@@ -1,0 +1,2 @@
+# Threads rookie Patches
+# Left empty to apply default recommended patches.

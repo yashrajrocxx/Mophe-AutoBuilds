@@ -1,0 +1,3 @@
+# Pinterest browzomje Patches
+# This file is intentionally left empty (excluding any custom rules)
+# to automatically apply all default recommended patches.
