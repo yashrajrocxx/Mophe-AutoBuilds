@@ -1,10 +1,11 @@
 import os
 import logging
 from curl_cffi import requests
-from curl_cffi.requests.impersonate import DEFAULT_CHROME
 from github import Github
 
-session = requests.Session(impersonate=DEFAULT_CHROME)
+# Use Safari fingerprint to bypass Cloudflare. 
+# Cloudflare aggressively flags Chrome fingerprints (DEFAULT_CHROME).
+session = requests.Session(impersonate="safari17_0")
 
 # Logging
 logging.basicConfig(
