@@ -4,7 +4,7 @@
     "release_prefix": "vn-ai-video-editor",  
     "type": "BUNDLE", 
     "arch": "arm64-v8a + armeabi-v7a",
-    "dpi": "120-640dpi",
-    "package" : "com.intsig.camscanner",
+    "dpi": "",
+    "package" : "com.frontrow.vlog",
     "version" : ""
 }

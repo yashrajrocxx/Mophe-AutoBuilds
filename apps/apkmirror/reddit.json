@@ -1,8 +1,8 @@
 {
     "org": "redditinc",
     "name": "reddit",
-    "type": "", 
-    "arch": "",
+    "type": "BUNDLE", 
+    "arch": "universal",
     "dpi": "",
     "package" : "com.reddit.frontpage",
     "version" : ""

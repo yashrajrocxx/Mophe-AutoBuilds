@@ -1,0 +1,9 @@
+{
+    "org": "instagram",
+    "name": "instagram",
+    "type": "BUNDLE",
+    "arch": "universal",
+    "dpi": "",
+    "package": "com.instagram.android",
+    "version": ""
+}
