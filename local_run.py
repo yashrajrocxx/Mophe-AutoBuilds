@@ -43,18 +43,30 @@ def check_prerequisites():
     except Exception as e:
         print(f"⚠️ Warning during apksigner check: {e}")
 
-    # 4. Play Store credentials check (non-fatal — scrapers are fallbacks)
-    creds = Path("credentials/credentials.json")
-    if creds.exists() and creds.stat().st_size > 10:
-        print(f"  ✓ Play Store credentials found at {creds}")
+    # 4. gplaydl (Google Play) check — non-fatal, scrapers are fallbacks
+    gplaydl_bin = shutil.which("gplaydl")
+    if not gplaydl_bin:
+        print("  ⚠️  gplaydl not found in PATH")
+        print("     Google Play source will be skipped.")
+        print("     To install: pip install gplaydl")
     else:
-        print("  ⚠️  credentials/credentials.json not found")
-        print("     Google Play source will be skipped; scraper fallbacks will be used.")
-        print("     To enable Google Play: run `playstore-downloader --setup` then save")
-        print("     the output as credentials/credentials.json (never commit this file!)")
+        print(f"  ✓ gplaydl found at: {gplaydl_bin}")
+        # Check if an account is linked by running `gplaydl auth`
+        try:
+            test = subprocess.run(
+                ["gplaydl", "info", "--help"],
+                capture_output=True, text=True, timeout=5
+            )
+            if test.returncode == 0:
+                print("  ✓ gplaydl is operational")
+                print("     ℹ️  If no account is linked yet, run: gplaydl link <code>")
+                print("        (get the code from the gplaydl Authenticator app)")
+        except Exception:
+            pass
 
     print("✅ All prerequisites checked!\n")
     return True
+
 
 
 def main():

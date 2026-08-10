@@ -170,16 +170,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Inject Play Store Credentials
+      - name: Link Google Play Account (gplaydl)
         env:
-          PLAYSTORE_CREDENTIALS_JSON: ${{ secrets.PLAYSTORE_CREDENTIALS_JSON }}
+          GPLAYDL_TOKEN: ${{ secrets.GPLAYDL_TOKEN }}
         run: |
-          if [ -n "$PLAYSTORE_CREDENTIALS_JSON" ]; then
-            mkdir -p credentials
-            echo "$PLAYSTORE_CREDENTIALS_JSON" > credentials/credentials.json
-            echo "✓ Play Store credentials injected"
+          if [ -n "$GPLAYDL_TOKEN" ]; then
+            gplaydl link "$GPLAYDL_TOKEN" && echo "✓ gplaydl account linked" || echo "⚠️ gplaydl link failed — falling back to scrapers"
           else
-            echo "⚠️ PLAYSTORE_CREDENTIALS_JSON secret not set — Google Play source will be skipped, falling back to scrapers"
+            echo "⚠️ GPLAYDL_TOKEN secret not set — Google Play source will be skipped, falling back to scrapers"
           fi
 
       - name: Build APK

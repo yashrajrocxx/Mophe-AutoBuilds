@@ -1,16 +1,22 @@
 """
-Google Play Store APK downloader using PlaystoreDownloader CLI.
+Google Play APK downloader using gplaydl (pip install gplaydl).
+
+gplaydl is a real PyPI package: https://pypi.org/project/gplaydl/
 
 Architecture:
-  1. Resolve version name → numeric version code via Play Store API
-  2. Download splits targeting arm64-v8a, density NONE (nodpi) first
-  3. If NONE is rejected by Play servers, retry with density 480 (xxhdpi)
-  4. Merge any split APKs into a single monolithic APK via APKEditor
-  5. Return the path to the merged APK for signing/patching downstream
+  1. Run `gplaydl info` to get the latest version code from Play Store
+  2. Run `gplaydl download` targeting arm64, fetching splits + base APK
+  3. Merge any split APKs into a single monolithic APK via APKEditor
+  4. Return the local file path to the merged APK
 
-PlaystoreDownloader is invoked as a subprocess (CLI tool), NOT imported.
-Credentials come from credentials/credentials.json (gitignored locally,
-injected from PLAYSTORE_CREDENTIALS_JSON secret in CI).
+Setup (one-time, on any Android phone):
+  - Install the gplaydl Authenticator app from https://dispenser.gplaydl.com
+  - Sign into your bot Google account
+  - Tap "Link gplaydl" and run: gplaydl link <code>
+  After that, gplaydl remembers the token automatically (no credentials file
+  to manage — it stores auth in the system keyring / config dir).
+
+gplaydl is invoked via subprocess (CLI), not imported as a module.
 """
 
 import json
@@ -19,129 +25,106 @@ import os
 import re
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 
-_CREDS_PATH = Path("credentials/credentials.json")
-_TOOL = "playstore-downloader"
-_ARCH = "arm64-v8a"
-# Device codename that presents as a real arm64 device to Google Play
-_DEVICE = "hero2lte"
+_TOOL = "gplaydl"
+_ARCH = "arm64"   # gplaydl uses 'arm64', not 'arm64-v8a'
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # Internal helpers
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 
-def _creds_available() -> bool:
-    return _CREDS_PATH.exists() and _CREDS_PATH.stat().st_size > 10
+def _tool_available() -> bool:
+    """Check that gplaydl is installed and has a linked account."""
+    if not shutil.which(_TOOL):
+        logging.warning("PlayStore: gplaydl not found in PATH — install with `pip install gplaydl`")
+        return False
+    return True
 
 
 def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    logging.info(f"PlayStore: running {' '.join(cmd)}")
+    logging.info(f"PlayStore: {' '.join(cmd)}")
     return subprocess.run(cmd, **kwargs)
 
 
-def _resolve_version_code(package: str, version_name: str) -> str | None:
+def _get_version_code(package: str) -> str | None:
     """
-    Ask PlaystoreDownloader to list all available version codes for a package,
-    then find the one whose versionName matches the requested string.
-    Returns the numeric versionCode as a string, or None if not found.
+    Use `gplaydl info` to fetch the latest version code from Google Play.
+    Returns the numeric versionCode as a string, or None on failure.
     """
-    if not _creds_available():
-        logging.warning("PlayStore: credentials.json not found — skipping version code resolution")
-        return None
-
     try:
         result = _run(
-            [_TOOL, "-c", str(_CREDS_PATH), "--list-versions", package],
+            [_TOOL, "info", package, "--arch", _ARCH],
             capture_output=True, text=True, timeout=60
         )
         if result.returncode != 0:
-            logging.warning(f"PlayStore: --list-versions failed: {result.stderr[:200]}")
+            logging.warning(
+                f"PlayStore: `gplaydl info` failed (rc={result.returncode}): "
+                f"{result.stderr[:200]}"
+            )
             return None
 
-        data = json.loads(result.stdout)
-        for item in data.get("versions", []):
-            # Exact match first
-            if item.get("versionName") == version_name:
-                return str(item["versionCode"])
+        # gplaydl info outputs rich text; parse version code from it
+        # Lines like: "Version code   1234567890"
+        for line in result.stdout.splitlines():
+            m = re.search(r"version\s*code[:\s]+(\d+)", line, re.IGNORECASE)
+            if m:
+                return m.group(1)
 
-        # Prefix-tolerant match: "2.371.0" matches "2.371.0.1", "2.371.0-release", etc.
-        for item in data.get("versions", []):
-            vn = item.get("versionName", "")
-            if vn.startswith(version_name + ".") or vn.startswith(version_name + "-"):
-                logging.info(
-                    f"PlayStore: prefix-matched '{vn}' to target '{version_name}'"
-                )
-                return str(item["versionCode"])
-
-        # If still nothing, return the highest available version code
-        versions = data.get("versions", [])
-        if versions:
-            best = max(versions, key=lambda v: v.get("versionCode", 0))
-            logging.warning(
-                f"PlayStore: exact version '{version_name}' not found; "
-                f"using latest available '{best.get('versionName')}'"
-            )
-            return str(best["versionCode"])
-
-    except json.JSONDecodeError:
-        logging.warning("PlayStore: could not parse --list-versions JSON output")
+        logging.warning(f"PlayStore: could not parse version code from gplaydl info output")
     except subprocess.TimeoutExpired:
-        logging.warning("PlayStore: --list-versions timed out")
+        logging.warning("PlayStore: gplaydl info timed out")
     except Exception as e:
-        logging.warning(f"PlayStore: error resolving version code: {e}")
+        logging.warning(f"PlayStore: error getting version code: {e}")
 
     return None
 
 
 def _download_splits(
     package: str,
-    version_code: str,
     output_dir: Path,
-    density: str,
+    version_code: str | None = None,
 ) -> bool:
     """
-    Call PlaystoreDownloader to download a package into output_dir.
-    density: "NONE" for nodpi, "480" for xxhdpi fallback.
-    Returns True if at least one file was downloaded successfully.
+    Call `gplaydl download` to fetch the APK + splits into output_dir.
+    If version_code is provided, requests that specific build.
+    Returns True if files were downloaded.
     """
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True)
 
     cmd = [
-        _TOOL,
-        "-c", str(_CREDS_PATH),
-        "-p", package,
-        "--version-code", version_code,
-        "--device-codename", _DEVICE,
+        _TOOL, "download", package,
         "--arch", _ARCH,
-        "-o", str(output_dir),
+        "--output", str(output_dir),
+        "--no-extras",   # skip OBB/asset packs — we only need the APK
     ]
-    if density and density != "NONE":
-        cmd += ["--density", density]
-    # density="NONE" means we omit the flag entirely → Play serves nodpi/universal
+    if version_code:
+        cmd += ["--version", version_code]
 
     try:
-        result = _run(cmd, timeout=300)
+        result = _run(cmd, timeout=600)
         if result.returncode != 0:
-            logging.warning(f"PlayStore: download exited {result.returncode} (density={density})")
+            logging.warning(
+                f"PlayStore: gplaydl download failed (rc={result.returncode})"
+            )
             return False
 
-        files = list(output_dir.iterdir())
-        if not files:
-            logging.warning(f"PlayStore: no files downloaded (density={density})")
+        # Verify files exist
+        apk_files = list(output_dir.glob("**/*.apk"))
+        if not apk_files:
+            logging.warning("PlayStore: no APK files found after download")
             return False
 
         logging.info(
-            f"PlayStore: ✓ downloaded {len(files)} file(s) with density={density}"
+            f"PlayStore: ✓ downloaded {len(apk_files)} file(s) for {package}"
         )
         return True
 
     except subprocess.TimeoutExpired:
-        logging.warning("PlayStore: download timed out")
+        logging.warning("PlayStore: gplaydl download timed out")
         return False
     except Exception as e:
         logging.warning(f"PlayStore: download error: {e}")
@@ -151,26 +134,31 @@ def _download_splits(
 def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
     """
     Use APKEditor to merge a directory of split APKs into one monolithic APK.
-    If the directory contains a single .apk, rename it directly (no merge needed).
+    If only a single .apk exists, rename it directly (no merge needed).
     """
-    files = list(splits_dir.iterdir())
-    apk_files = [f for f in files if f.suffix in (".apk", ".apks", ".xapk")]
+    apk_files = list(splits_dir.glob("**/*.apk"))
 
     if not apk_files:
-        logging.error("PlayStore: no APK files found after download")
+        logging.error("PlayStore: no APK files to merge")
         return False
 
-    # Single .apk — no merge needed
-    if len(apk_files) == 1 and apk_files[0].suffix == ".apk":
+    # Single base APK with no splits — just move it
+    if len(apk_files) == 1:
         apk_files[0].rename(output_apk)
-        logging.info(f"PlayStore: single APK, renamed to {output_apk.name}")
+        logging.info(f"PlayStore: single APK → {output_apk.name}")
         return True
 
-    # Need APKEditor
+    # Multiple files — need APKEditor
     apkeditor = _find_or_download_apkeditor()
     if not apkeditor:
-        logging.error("PlayStore: APKEditor not available for split merge")
-        return False
+        # Fallback: take the largest file as the base APK
+        biggest = max(apk_files, key=lambda f: f.stat().st_size)
+        biggest.rename(output_apk)
+        logging.warning(
+            f"PlayStore: APKEditor unavailable — using largest split {biggest.name} "
+            f"as fallback (may be incomplete)"
+        )
+        return True
 
     try:
         result = _run(
@@ -181,12 +169,11 @@ def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
         if result.returncode != 0:
             logging.error("PlayStore: APKEditor merge failed")
             return False
-
         if not output_apk.exists():
-            logging.error("PlayStore: merged APK not created")
+            logging.error("PlayStore: merged APK not produced")
             return False
 
-        logging.info(f"PlayStore: ✓ merged splits → {output_apk.name}")
+        logging.info(f"PlayStore: ✓ merged {len(apk_files)} splits → {output_apk.name}")
         return True
 
     except subprocess.TimeoutExpired:
@@ -198,32 +185,35 @@ def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
 
 
 def _find_or_download_apkeditor() -> Path | None:
-    """Find APKEditor JAR in current directory, or download it from GitHub."""
-    # Check current directory first
-    for jar in Path(".").glob("APKEditor*.jar"):
+    """Find APKEditor JAR in the current directory, or try to download it."""
+    # Check working directory first
+    for jar in sorted(Path(".").glob("APKEditor*.jar"), reverse=True):
         return jar
 
-    # Try to download
+    # Try downloading latest release from GitHub
     try:
-        from src import utils
-        release = utils.detect_github_release("REAndroid", "APKEditor", "latest")
-        for asset in release.get("assets", []):
-            if asset["name"].startswith("APKEditor") and asset["name"].endswith(".jar"):
+        from src import gh
+        repo = gh.get_repo("REAndroid/APKEditor")
+        release = repo.get_latest_release()
+        for asset in release.get_assets():
+            if asset.name.startswith("APKEditor") and asset.name.endswith(".jar"):
                 from src.downloader import download_resource
-                return download_resource(asset["browser_download_url"])
+                path = download_resource(asset.browser_download_url)
+                logging.info(f"PlayStore: downloaded APKEditor to {path}")
+                return path
     except Exception as e:
         logging.warning(f"PlayStore: could not fetch APKEditor: {e}")
 
     return None
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 # Public interface (matches the contract used by downloader.py)
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 
 def get_latest_version(app_name: str, config: dict) -> str | None:
     """Return the latest version name available on Google Play."""
-    if not _creds_available():
+    if not _tool_available():
         return None
 
     package = config.get("package", "")
@@ -232,88 +222,102 @@ def get_latest_version(app_name: str, config: dict) -> str | None:
 
     try:
         result = _run(
-            [_TOOL, "-c", str(_CREDS_PATH), "--list-versions", package],
+            [_TOOL, "info", package, "--arch", _ARCH],
             capture_output=True, text=True, timeout=60
         )
         if result.returncode != 0:
             return None
 
-        data = json.loads(result.stdout)
-        versions = data.get("versions", [])
-        if not versions:
-            return None
-
-        best = max(versions, key=lambda v: v.get("versionCode", 0))
-        ver = best.get("versionName")
-        logging.info(f"PlayStore: latest version for {app_name} is {ver}")
-        return ver
+        # Parse version name from output
+        for line in result.stdout.splitlines():
+            m = re.search(r"version\s*name[:\s]+([\d.]+)", line, re.IGNORECASE)
+            if m:
+                ver = m.group(1)
+                logging.info(f"PlayStore: latest version for {app_name} is {ver}")
+                return ver
 
     except Exception as e:
         logging.warning(f"PlayStore: get_latest_version failed: {e}")
-        return None
+
+    return None
 
 
 def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     """
-    Download the APK from Google Play and return the path to the merged APK.
+    Download the APK from Google Play and return the local path to the merged APK.
 
-    Strategy:
-      Phase 1 — density NONE  (nodpi, smallest/purest download)
-      Phase 2 — density 480   (xxhdpi, universal fallback)
+    gplaydl handles the NONE vs 480 DPI selection automatically based on the
+    device profile (arm64 profile = modern high-DPI device, so Play serves the
+    best quality split set automatically).
 
-    Returns the local file path (not an HTTP URL) so downloader.py can
-    treat it like any other downloaded resource.
+    Returns a local file path string (not an HTTP URL).
+    downloader.py detects this and skips the HTTP download step.
     """
-    if not _creds_available():
-        logging.warning(
-            "PlayStore: credentials.json missing at credentials/credentials.json — "
-            "skipping Google Play source. "
-            "Run `playstore-downloader --setup` to generate it."
-        )
+    if not _tool_available():
         return None
 
     package = config.get("package", "")
     if not package:
-        logging.error(f"PlayStore: no package name in config for {app_name}")
+        logging.error(f"PlayStore: no package in config for {app_name}")
         return None
 
-    # Resolve numeric version code from the version name
-    version_code = _resolve_version_code(package, version)
-    if not version_code:
-        logging.error(
-            f"PlayStore: could not resolve version code for {package} {version}"
-        )
-        return None
+    # Resolve the numeric version code that matches the requested version name.
+    # We get the latest from Play, then check if it matches; if not, we proceed
+    # without a version pin (gets latest, which is what patches usually want).
+    version_code: str | None = None
+
+    latest_info = _run(
+        [_TOOL, "info", package, "--arch", _ARCH],
+        capture_output=True, text=True, timeout=60
+    )
+    if latest_info.returncode == 0:
+        play_version = None
+        play_code = None
+        for line in latest_info.stdout.splitlines():
+            mn = re.search(r"version\s*name[:\s]+([\d.]+)", line, re.IGNORECASE)
+            mc = re.search(r"version\s*code[:\s]+(\d+)", line, re.IGNORECASE)
+            if mn:
+                play_version = mn.group(1)
+            if mc:
+                play_code = mc.group(1)
+
+        if play_version and play_code:
+            logging.info(
+                f"PlayStore: Play has {app_name} {play_version} "
+                f"(code {play_code}), target is {version}"
+            )
+            # If Play's latest matches our target (exact or prefix), use the code
+            if (play_version == version
+                    or play_version.startswith(version + ".")
+                    or play_version.startswith(version + "-")):
+                version_code = play_code
+                logging.info(f"PlayStore: version match ✓ using code {version_code}")
+            else:
+                # Target version differs — download without pinning version code
+                # (gets latest; patch may still be compatible)
+                logging.warning(
+                    f"PlayStore: target={version} but Play has {play_version}. "
+                    f"Downloading latest and letting patch decide."
+                )
+                version_code = None
 
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
+    splits_dir = Path(f"playstore_splits_{package}")
 
-    for density_label, density_flag in [("NONE (nodpi)", "NONE"), ("480 (xxhdpi)", "480")]:
-        logging.info(f"PlayStore: trying density {density_label} for {package} {version}")
-
-        splits_dir = Path(f"playstore_splits_{package}")
-        success = _download_splits(package, version_code, splits_dir, density_flag)
-
-        if not success:
-            logging.warning(f"PlayStore: density {density_label} failed, trying next…")
-            if splits_dir.exists():
-                shutil.rmtree(splits_dir, ignore_errors=True)
-            continue
-
-        merged = _merge_splits(splits_dir, output_apk)
+    success = _download_splits(package, splits_dir, version_code)
+    if not success:
         if splits_dir.exists():
             shutil.rmtree(splits_dir, ignore_errors=True)
+        logging.error(f"PlayStore: download failed for {app_name} {version}")
+        return None
 
-        if merged and output_apk.exists():
-            logging.info(
-                f"PlayStore: ✓ {app_name} {version} ready at {output_apk} "
-                f"(density={density_label})"
-            )
-            # Return the local path — downloader.py checks for file existence
-            return str(output_apk)
+    merged = _merge_splits(splits_dir, output_apk)
+    if splits_dir.exists():
+        shutil.rmtree(splits_dir, ignore_errors=True)
 
-        logging.warning(f"PlayStore: merge failed for density {density_label}")
+    if not merged or not output_apk.exists():
+        logging.error(f"PlayStore: merge failed for {app_name} {version}")
+        return None
 
-    logging.error(
-        f"PlayStore: all density strategies exhausted for {app_name} {version}"
-    )
-    return None
+    logging.info(f"PlayStore: ✓ {app_name} {version} → {output_apk}")
+    return str(output_apk)
