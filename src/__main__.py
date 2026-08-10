@@ -29,6 +29,41 @@ def _should_retry_with_older_version(output: str | None) -> bool:
         or "patching aborted" in t
     )
 
+def _record_failed_patches(app_name: str, output: str):
+    """Scan CLI output for failed patches and record them."""
+    if not output:
+        return
+        
+    failed_patches = []
+    # Match lines like "FAILED: Disable email confirmation dialog" or "Failed to apply patch: ..."
+    for line in output.splitlines():
+        match = re.search(r'(?:FAILED:\s+|Failed to apply patch:\s*)(.+?)$', line, re.IGNORECASE)
+        if match:
+            patch_name = match.group(1).strip()
+            # Avoid recording duplicates
+            if patch_name not in failed_patches:
+                failed_patches.append(patch_name)
+    
+    if failed_patches:
+        import json
+        out_path = Path("release-apks/failed_patches.json")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Load existing
+        data = {}
+        if out_path.exists():
+            try:
+                with open(out_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception:
+                pass
+                
+        # Update and save
+        data[app_name] = failed_patches
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            
+
 def run_build(app_name: str, source: str, arch: str = "universal") -> str:
     """Build APK for specific architecture"""
     download_files, name = downloader.download_required(source)
@@ -258,7 +293,8 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                         "--out", str(output_apk), str(input_apk),
                         *exclude_patches, *include_patches
                     ]
-                    utils.run_process(morphe_cmd, capture=True, stream=True)
+                    output = utils.run_process(morphe_cmd, capture=True, stream=True)
+                    _record_failed_patches(app_name, output)
                 except subprocess.CalledProcessError as e:
                     # Remember the original failure so the retry logic below can
                     # decide whether to fall back to an older version. We still
@@ -273,7 +309,8 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                         "--output", str(output_apk)
                     ]
                     try:
-                        utils.run_process(morphe_cmd, capture=True, stream=True)
+                        output = utils.run_process(morphe_cmd, capture=True, stream=True)
+                        _record_failed_patches(app_name, output)
                     except subprocess.CalledProcessError as e2:
                         raise e2 from e
                 if patch_error is not None:
@@ -287,19 +324,23 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                 )
 
                 if is_revanced_v6_or_newer:
-                    utils.run_process([
+                    output = utils.run_process([
                         "java", "-jar", str(cli),
                         "patch", "-p", str(patches), "-b",
                         "--out", str(output_apk), str(input_apk),
                         *exclude_patches, *include_patches
                     ], capture=True, stream=True)
+                    _record_failed_patches(app_name, output)
                 else:
-                    utils.run_process([
+                    output = utils.run_process([
                         "java", "-jar", str(cli),
-                        "patch", "--patches", str(patches),
-                        "--out", str(output_apk), str(input_apk),
+                        "-m", str(integrations),
+                        "-b", str(patches),
+                        "-a", str(input_apk),
+                        "-o", str(output_apk),
                         *exclude_patches, *include_patches
                     ], capture=True, stream=True)
+                    _record_failed_patches(app_name, output)
 
         except subprocess.CalledProcessError as e:
             # Remove temp input apk; we'll re-download if retrying.
