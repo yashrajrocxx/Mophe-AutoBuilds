@@ -288,12 +288,17 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         # Inject dynamic global patches based on download source
         # Note: In morphe-cli, -e stands for --enable (not exclude)
         dynamic_includes = []
+        
+        # Determine correct patch names based on CLI type
+        patch_playstore = "Disable Play Store updates" if is_morphe else "disable-play-store-updates"
+        patch_installer = "Change installer source" if is_morphe else "change-installer-source"
+        
         if dl_method_name:
-            if "disable-play-store-updates" not in include_patches and "disable-play-store-updates" not in exclude_patches:
-                dynamic_includes.extend(["-e", "disable-play-store-updates"])
+            if patch_playstore not in include_patches and patch_playstore not in exclude_patches:
+                dynamic_includes.extend(["-i", patch_playstore])
             if dl_method_name != "download_playstore":
-                if "change-installer-source" not in include_patches and "change-installer-source" not in exclude_patches:
-                    dynamic_includes.extend(["-e", "change-installer-source"])
+                if patch_installer not in include_patches and patch_installer not in exclude_patches:
+                    dynamic_includes.extend(["-i", patch_installer])
         
         current_include_patches = include_patches + dynamic_includes
 
@@ -303,7 +308,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             report["patches"] = current_include_patches
             
         if dynamic_includes:
-            logging.info(f"💉 Dynamically injected global patches: {[p for p in dynamic_includes if p != '-e']}")
+            logging.info(f"💉 Dynamically injected global patches: {[p for p in dynamic_includes if p != '-i']}")
 
         # Include architecture in output filename
         output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
