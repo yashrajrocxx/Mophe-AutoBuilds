@@ -286,10 +286,10 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         # Note: In morphe-cli, -e stands for --enable (not exclude)
         dynamic_includes = []
         if dl_method_name:
-            if "disable-play-store-updates" not in include_patches and "-e disable-play-store-updates" not in include_patches:
+            if "disable-play-store-updates" not in include_patches and "disable-play-store-updates" not in exclude_patches:
                 dynamic_includes.extend(["-e", "disable-play-store-updates"])
             if dl_method_name != "download_playstore":
-                if "change-installer-source" not in include_patches and "-e change-installer-source" not in include_patches:
+                if "change-installer-source" not in include_patches and "change-installer-source" not in exclude_patches:
                     dynamic_includes.extend(["-e", "change-installer-source"])
         
         current_include_patches = include_patches + dynamic_includes
