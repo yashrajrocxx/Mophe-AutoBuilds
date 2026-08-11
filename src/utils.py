@@ -163,6 +163,22 @@ def run_process(
         # version/source or emit a clearer error message.
         raise e
 
+def find_files(files: list[Path], prefix: str = None, suffix: str = None, contains: str = None, exclude: list = None) -> list[Path]:
+    exclude = exclude or []
+    matches = []
+    for file in files:
+        name = file.name.lower()
+        if prefix and not name.startswith(prefix.lower()):
+            continue
+        if suffix and not name.endswith(suffix.lower()):
+            continue
+        if contains and contains.lower() not in name:
+            continue
+        if exclude and any(x.lower() in name for x in exclude):
+            continue
+        matches.append(file)
+    return matches
+
 def normalize_version(version: str) -> list[int]:
     parts = version.split('.')
     normalized = []
@@ -194,7 +210,7 @@ def get_highest_version(versions: list[str]) -> str | None:
             highest_version = v
     return highest_version
 
-def get_supported_versions(package_name: str, cli: str, patches: str) -> list[str]:
+def get_supported_versions(package_name: str, cli: str, patches: list[Path]) -> list[str]:
     # Morphe CLI and ReVanced CLI have different list-versions syntax
     cli_name = Path(cli).name.lower()
     is_morphe_cli = 'morphe' in cli_name
@@ -210,24 +226,28 @@ def get_supported_versions(package_name: str, cli: str, patches: str) -> list[st
         cmd = [
             'java', '-jar', cli,
             'list-versions',
-            '-f', package_name,
-            '--patches', patches
+            '-f', package_name
         ]
+        for p in patches:
+            cmd.extend(['--patches', str(p)])
     elif is_revanced_v6_or_newer:
         cmd = [
             'java', '-jar', cli,
             'list-versions',
-            '-p', patches, '-b',
             '-f', package_name
         ]
+        for p in patches:
+            cmd.extend(['-p', str(p)])
+        cmd.append('-b')
     else:
         # ReVanced CLI: pass patches as positional arg
         cmd = [
             'java', '-jar', cli,
             'list-versions',
-            '-f', package_name,
-            patches
+            '-f', package_name
         ]
+        for p in patches:
+            cmd.append(str(p))
 
     # We want the raw output even if the CLI returns a non-zero exit code (bad
     # args, missing patches, etc.) so we can decide what to do.
@@ -275,9 +295,10 @@ def get_supported_versions(package_name: str, cli: str, patches: str) -> list[st
                 "java", "-jar", cli,
                 "list-patches",
                 "--with-packages",
-                "--with-versions",
-                patches,
+                "--with-versions"
             ]
+            for p in patches:
+                alt_cmd.extend(['--patches', str(p)])
             alt_out = run_process(alt_cmd, capture=True, silent=True, check=False) or ""
             derived: list[str] = []
             for ln in alt_out.splitlines():
@@ -301,7 +322,7 @@ def get_supported_versions(package_name: str, cli: str, patches: str) -> list[st
     return versions
 
 
-def get_supported_version(package_name: str, cli: str, patches: str) -> Optional[str]:
+def get_supported_version(package_name: str, cli: str, patches: list[Path]) -> Optional[str]:
     """Backwards compatible helper: returns the highest compatible version, if any."""
     versions = get_supported_versions(package_name, cli, patches)
     return versions[0] if versions else None

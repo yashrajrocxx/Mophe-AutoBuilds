@@ -130,7 +130,7 @@ def download_platform(
     app_name: str,
     platform: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -196,7 +196,7 @@ def download_platform(
 def download_playstore(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -206,7 +206,7 @@ def download_playstore(
 def download_apkmirror(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -215,7 +215,7 @@ def download_apkmirror(
 def download_github(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -224,7 +224,7 @@ def download_github(
 def download_apkpure(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -233,7 +233,7 @@ def download_apkpure(
 def download_aptoide(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
@@ -242,7 +242,7 @@ def download_aptoide(
 def download_uptodown(
     app_name: str,
     cli: str,
-    patches: str,
+    patches: list[Path],
     arch: str = None,
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:

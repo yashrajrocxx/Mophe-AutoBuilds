@@ -11,5 +11,10 @@
       "user": "dh6k",
       "repo": "morphe-patches",
       "tag": "latest"
+    },
+    {
+      "user": "MorpheApp",
+      "repo": "morphe-patches",
+      "tag": "latest"
     }
 ]

@@ -97,6 +97,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 break
 
     # If still not detected, fallback to source name
+    integrations = None
     if not is_morphe and not is_revanced:
         is_morphe = "morphe" in source.lower() or "custom" in source.lower()
         is_revanced = not is_morphe  # Default to ReVanced if not Morphe
@@ -113,18 +114,20 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         
         if not cli:
             cli = utils.find_file(download_files, suffix=".jar")
-        patches = utils.find_file(download_files, contains="patches", suffix=".mpp")
+        patches = utils.find_files(download_files, contains="patches", suffix=".mpp")
         if not patches:
             # Fallback to any .mpp file
-            patches = utils.find_file(download_files, suffix=".mpp")
+            patches = utils.find_files(download_files, suffix=".mpp")
     else:
         # Find ReVanced files
         cli = utils.find_file(download_files, contains="revanced-cli", suffix=".jar")
-        patches = utils.find_file(download_files, contains="patches", suffix=".rvp")
+        patches = utils.find_files(download_files, contains="patches", suffix=".rvp")
         
         if not patches:
             # Try .jar extension for patches
-            patches = utils.find_file(download_files, contains="patches", suffix=".jar")
+            patches = utils.find_files(download_files, contains="patches", suffix=".jar")
+            
+        integrations = utils.find_file(download_files, contains="integrations", suffix=".apk")
 
     # Validate tools
     if not cli:
@@ -137,7 +140,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         return None
 
     logging.info(f"✅ Using CLI: {cli.name}")
-    logging.info(f"✅ Using patches: {patches.name}")
+    logging.info(f"✅ Using patches: {[p.name for p in patches]}")
 
     download_methods = [
         downloader.download_playstore,   # 1. Google Play (Canonical split fallback via gplaydl)
@@ -159,7 +162,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 break
     
     # 2. Get supported versions from CLI
-    supported_versions = utils.get_supported_versions(package_name, str(cli), str(patches)) if package_name else []
+    supported_versions = utils.get_supported_versions(package_name, str(cli), patches) if package_name else []
     if not supported_versions:
         # Fallback to a single attempt with latest
         supported_versions = [None]
@@ -190,7 +193,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         dl_method_name = None
         for method in download_methods:
             try:
-                input_apk, dl_ver, _ = method(app_name, str(cli), str(patches), arch, override_version=ver)
+                input_apk, dl_ver, _ = method(app_name, str(cli), patches, arch, override_version=ver)
                 if input_apk:
                     version = dl_ver
                     dl_method_name = method.__name__
@@ -313,10 +316,14 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 try:
                     morphe_cmd = [
                         "java", "-jar", str(cli),
-                        "patch", "--continue-on-error", "--patches", str(patches),
+                        "patch", "--continue-on-error"
+                    ]
+                    for p in patches:
+                        morphe_cmd.extend(["--patches", str(p)])
+                    morphe_cmd.extend([
                         "--out", str(output_apk), str(input_apk),
                         *exclude_patches, *current_include_patches
-                    ]
+                    ])
                     output = utils.run_process(morphe_cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
                 except subprocess.CalledProcessError as e:
@@ -327,11 +334,14 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     logging.info("Trying alternative Morphe command format...")
                     morphe_cmd = [
                         "java", "-jar", str(cli),
-                        "--continue-on-error",
-                        "--patches", str(patches),
+                        "--continue-on-error"
+                    ]
+                    for p in patches:
+                        morphe_cmd.extend(["--patches", str(p)])
+                    morphe_cmd.extend([
                         "--input", str(input_apk),
                         "--output", str(output_apk)
-                    ]
+                    ])
                     try:
                         output = utils.run_process(morphe_cmd, capture=True, stream=True)
                         _record_failed_patches(app_name, output)
@@ -348,22 +358,32 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 )
 
                 if is_revanced_v6_or_newer:
-                    output = utils.run_process([
+                    cmd = [
                         "java", "-jar", str(cli),
-                        "patch", "-p", str(patches), "-b",
+                        "patch"
+                    ]
+                    for p in patches:
+                        cmd.extend(["-p", str(p)])
+                    cmd.extend([
+                        "-b",
                         "--out", str(output_apk), str(input_apk),
                         *exclude_patches, *current_include_patches
-                    ], capture=True, stream=True)
+                    ])
+                    output = utils.run_process(cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
                 else:
-                    output = utils.run_process([
+                    cmd = [
                         "java", "-jar", str(cli),
-                        "-m", str(integrations),
-                        "-b", str(patches),
+                        "-m", str(integrations)
+                    ]
+                    for p in patches:
+                        cmd.extend(["-b", str(p)])
+                    cmd.extend([
                         "-a", str(input_apk),
                         "-o", str(output_apk),
                         *exclude_patches, *current_include_patches
-                    ], capture=True, stream=True)
+                    ])
+                    output = utils.run_process(cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
 
         except subprocess.CalledProcessError as e:
