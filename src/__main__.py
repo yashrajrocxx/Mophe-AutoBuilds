@@ -140,9 +140,9 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
     logging.info(f"✅ Using patches: {patches.name}")
 
     download_methods = [
-        downloader.download_apkmirror,   # 1. APKMirror (Fastest scraper, high availability of universal packages)
-        downloader.download_uptodown,    # 2. Uptodown (Robust scraper alternative)
-        downloader.download_playstore,   # 3. Google Play (Canonical split fallback via gplaydl)
+        downloader.download_playstore,   # 1. Google Play (Canonical split fallback via gplaydl)
+        downloader.download_apkmirror,   # 2. APKMirror (Fastest scraper, high availability of universal packages)
+        downloader.download_uptodown,    # 3. Uptodown (Robust scraper alternative)
         downloader.download_apkpure,     # 4. APKPure
         downloader.download_aptoide,     # 5. Aptoide
         downloader.download_github,      # 6. GitHub releases
@@ -187,11 +187,13 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
         version = None
         
         # Source fallback loop
+        dl_method_name = None
         for method in download_methods:
             try:
                 input_apk, dl_ver, _ = method(app_name, str(cli), str(patches), arch, override_version=ver)
                 if input_apk:
                     version = dl_ver
+                    dl_method_name = method.__name__
                     break
             except Exception as e:
                 logging.debug(f"{method.__name__} failed: {e}")
@@ -278,6 +280,20 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
         except Exception as e:
             logging.warning(f"Could not check/fix APK: {e}")
 
+        # Inject dynamic global patches based on download source
+        dynamic_includes = []
+        if dl_method_name:
+            if "disable-play-store-updates" not in include_patches:
+                dynamic_includes.extend(["-e", "disable-play-store-updates"])
+            if dl_method_name != "download_playstore":
+                if "change-installer-source" not in include_patches:
+                    dynamic_includes.extend(["-e", "change-installer-source"])
+        
+        current_include_patches = include_patches + dynamic_includes
+
+        if dynamic_includes:
+            logging.info(f"💉 Dynamically injected global patches: {[p for p in dynamic_includes if p != '-e']}")
+
         # Include architecture in output filename
         output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
 
@@ -291,7 +307,7 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                         "java", "-jar", str(cli),
                         "patch", "--continue-on-error", "--patches", str(patches),
                         "--out", str(output_apk), str(input_apk),
-                        *exclude_patches, *include_patches
+                        *exclude_patches, *current_include_patches
                     ]
                     output = utils.run_process(morphe_cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
@@ -328,7 +344,7 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                         "java", "-jar", str(cli),
                         "patch", "-p", str(patches), "-b",
                         "--out", str(output_apk), str(input_apk),
-                        *exclude_patches, *include_patches
+                        *exclude_patches, *current_include_patches
                     ], capture=True, stream=True)
                     _record_failed_patches(app_name, output)
                 else:
@@ -338,7 +354,7 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                         "-b", str(patches),
                         "-a", str(input_apk),
                         "-o", str(output_apk),
-                        *exclude_patches, *include_patches
+                        *exclude_patches, *current_include_patches
                     ], capture=True, stream=True)
                     _record_failed_patches(app_name, output)
 
