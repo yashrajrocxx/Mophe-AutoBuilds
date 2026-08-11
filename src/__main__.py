@@ -177,9 +177,9 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             for line in patches_file:
                 line = line.strip()
                 if line.startswith('-'):
-                    exclude_patches.extend(["-d", line[1:].strip()])
+                    exclude_patches.append(line[1:].strip())
                 elif line.startswith('+'):
-                    include_patches.extend(["-e", line[1:].strip()])
+                    include_patches.append(line[1:].strip())
 
     # Start the grand loop!
     for attempt_idx, ver in enumerate(supported_versions):
@@ -295,10 +295,10 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         
         if dl_method_name:
             if patch_playstore not in include_patches and patch_playstore not in exclude_patches:
-                dynamic_includes.extend(["-i", patch_playstore])
+                dynamic_includes.append(patch_playstore)
             if dl_method_name != "download_playstore":
                 if patch_installer not in include_patches and patch_installer not in exclude_patches:
-                    dynamic_includes.extend(["-i", patch_installer])
+                    dynamic_includes.append(patch_installer)
         
         current_include_patches = include_patches + dynamic_includes
 
@@ -308,7 +308,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             report["patches"] = current_include_patches
             
         if dynamic_includes:
-            logging.info(f"💉 Dynamically injected global patches: {[p for p in dynamic_includes if p != '-i']}")
+            logging.info(f"💉 Dynamically injected global patches: {dynamic_includes}")
 
         # Include architecture in output filename
         output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
@@ -326,8 +326,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])
                     
+                    for p in exclude_patches:
+                        morphe_cmd.extend(["-d", str(p)])
+                    for p in current_include_patches:
+                        morphe_cmd.extend(["-e", str(p)])
+
                     morphe_cmd.extend([
-                        *exclude_patches, *current_include_patches,
                         "--out", str(output_apk), str(input_apk)
                     ])
                     output = utils.run_process(morphe_cmd, capture=True, stream=True)
@@ -345,8 +349,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])
                     
+                    for p in exclude_patches:
+                        morphe_cmd.extend(["-d", str(p)])
+                    for p in current_include_patches:
+                        morphe_cmd.extend(["-e", str(p)])
+
                     morphe_cmd.extend([
-                        *exclude_patches, *current_include_patches,
                         "--input", str(input_apk),
                         "--output", str(output_apk)
                     ])
@@ -374,9 +382,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                         cmd.extend(["-p", str(p)])
                     cmd.extend([
                         "-b",
-                        "--out", str(output_apk), str(input_apk),
-                        *exclude_patches, *current_include_patches
+                        "--out", str(output_apk), str(input_apk)
                     ])
+                    for p in exclude_patches:
+                        cmd.extend(["-e", str(p)])
+                    for p in current_include_patches:
+                        cmd.extend(["-i", str(p)])
                     output = utils.run_process(cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
                 else:
@@ -388,9 +399,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                         cmd.extend(["-b", str(p)])
                     cmd.extend([
                         "-a", str(input_apk),
-                        "-o", str(output_apk),
-                        *exclude_patches, *current_include_patches
+                        "-o", str(output_apk)
                     ])
+                    for p in exclude_patches:
+                        cmd.extend(["-e", str(p)])
+                    for p in current_include_patches:
+                        cmd.extend(["-i", str(p)])
                     output = utils.run_process(cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
 
