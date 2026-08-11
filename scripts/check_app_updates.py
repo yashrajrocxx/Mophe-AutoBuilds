@@ -30,6 +30,8 @@ import logging
 import importlib
 import subprocess
 import traceback
+import requests
+from bs4 import BeautifulSoup
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
@@ -113,7 +115,8 @@ def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
     config file, or (None, None) if none exists. The platform name matches the
     provider module (apkmirror/apkpure/uptodown/aptoide) so the caller can use it
     to dispatch version lookups."""
-    for platform in ("apkmirror", "apkpure", "uptodown", "aptoide"):
+    # Playstore usually has the canonical package names now.
+    for platform in ("playstore", "apkmirror", "apkpure", "uptodown", "aptoide"):
         fp = APPS_DIR / platform / f"{app_name}.json"
         if fp.exists():
             try:
@@ -124,6 +127,27 @@ def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
                 continue
     return None, None
 
+def get_app_package_name(app_name: str) -> str:
+    config, _ = load_app_config(app_name)
+    if config:
+        return config.get("package", "")
+    return ""
+
+def fetch_app_icon(package: str) -> str:
+    """Scrapes the Google Play Store to fetch the app icon URL for the given package."""
+    if not package:
+        return ""
+    url = f"https://play.google.com/store/apps/details?id={package}"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.content, "html.parser")
+            img = soup.find("img", {"alt": "Icon image"})
+            if img and img.get("src"):
+                return img.get("src")
+    except Exception as e:
+        logging.warning(f"Failed to fetch icon for {package}: {e}")
+    return ""
 
 _latest_app_version_cache: Dict[str, str] = {}
 
@@ -827,6 +851,11 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         if not old_built_ver and carried_apk:
             old_built_ver = extract_version_from_filename(carried_apk)
 
+        package_name = get_app_package_name(app)
+        icon_url = (old or {}).get("icon_url", "")
+        if not icon_url and package_name:
+            icon_url = fetch_app_icon(package_name)
+        
         new_entries[mkey] = {
             "app_name": app,
             "source": src,
@@ -839,6 +868,9 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
             "apk": carried_apk,
             # Preserved verbatim; refreshed by the merge step after each build.
             "built_version": old_built_ver,
+            "built_at": (old or {}).get("built_at", ""),
+            "package": package_name,
+            "icon_url": icon_url,
         }
 
         reasons: List[str] = []
@@ -962,17 +994,16 @@ def emit_full_rebuild(reason: str) -> None:
     """Emergency fallback: build everything (preserves the previous behavior)."""
     logging.warning(f"Falling back to FULL rebuild: {reason}")
     full = build_full_matrix()
-    Path("build_matrix.json").write_text(json.dumps(full), encoding="utf-8")
-    Path("carry_over.json").write_text(json.dumps([]), encoding="utf-8")
-    # Empty manifest -> next run will treat everything as 'new-entry' until a
-    # successful build writes a fresh manifest.
+    build_mx, carry_over, new_entries = plan_incremental(full, {}, [])
+    Path("build_matrix.json").write_text(json.dumps(build_mx), encoding="utf-8")
+    Path("carry_over.json").write_text(json.dumps(carry_over), encoding="utf-8")
     Path("new_manifest.json").write_text(
-        json.dumps({"entries": {}}, indent=2), encoding="utf-8")
-    write_gh_output("build_matrix", json.dumps(full))
-    write_gh_output("has_updates", "true" if full else "false")
-    write_gh_output("update_count", str(len(full)))
+        json.dumps({"entries": new_entries}, indent=2), encoding="utf-8")
+    write_gh_output("build_matrix", json.dumps(build_mx))
+    write_gh_output("has_updates", "true" if build_mx else "false")
+    write_gh_output("update_count", str(len(build_mx)))
     write_gh_output("total_count", str(len(full)))
-    write_gh_output("carry_count", "0")
+    write_gh_output("carry_count", str(len(carry_over)))
     write_gh_output("incremental", "false")
 
 

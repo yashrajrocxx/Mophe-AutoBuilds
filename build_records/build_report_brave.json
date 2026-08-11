@@ -1,0 +1,1 @@
+[{"app": "brave", "arch": "arm64-v8a", "source": "dh6k", "status": "success", "version": "1.92.140", "patches": ["-e", "Disable Play Store updates"], "dl_method": "download_playstore", "apk": "brave-arm64-v8a-dh6k-patches-v1.92.140.apk"}]
