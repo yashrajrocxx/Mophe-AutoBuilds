@@ -1,0 +1,9 @@
+{
+    "org": "jndapp",
+    "name": "minimal-widgets",
+    "type": "BUNDLE",
+    "arch": "universal",
+    "dpi": "nodpi",
+    "package": "com.jndapp.minimal.widgets",
+    "version": ""
+}

@@ -1,0 +1,9 @@
+{
+    "org": "jndapp",
+    "name": "depth-live-wallpaper",
+    "type": "BUNDLE",
+    "arch": "universal",
+    "dpi": "nodpi",
+    "package": "com.jndapp.depth.live.wallpaper",
+    "version": ""
+}
