@@ -336,8 +336,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "📝 Generating release notes..."
-
+          
           if [ "${{ steps.check-release.outputs.release_exists }}" = "true" ]; then
+            python scripts/remove_orphaned_assets.py || echo "⚠️ remove_orphaned_assets.py failed; continuing..."
             gh release view latest --json assets --jq '.assets[].name' > current_assets.txt
           else
             : > current_assets.txt

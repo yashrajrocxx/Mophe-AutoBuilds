@@ -160,6 +160,7 @@ jobs:
           # We fetch the list of names via API so the release notes remain accurate
           # without needing to download the actual heavy APK files.
           if [ "${{ steps.check-release.outputs.release_exists }}" == "true" ]; then
+            python scripts/remove_orphaned_assets.py || echo "⚠️ remove_orphaned_assets.py failed; continuing..."
             gh release view latest --json assets --jq '.assets[].name' > current_assets.txt
           else
             touch current_assets.txt
