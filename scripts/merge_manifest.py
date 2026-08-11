@@ -67,6 +67,8 @@ def main() -> int:
                 entry["apk"] = apk
             if resolved_version:
                 entry["built_version"] = resolved_version
+            if rec.get("built_at"):
+                entry["built_at"] = rec.get("built_at")
             # Promote pending_source_sig -> source_sig now that the build
             # succeeded.  The planner deliberately keeps the OLD source_sig
             # for rebuild entries so that a failed build doesn't "consume"

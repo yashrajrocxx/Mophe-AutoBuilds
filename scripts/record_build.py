@@ -99,6 +99,9 @@ def main() -> int:
     # to "latest" never triggered a rebuild when a new APK version shipped.
     resolved_version = extract_version_from_filename(apk_name)
 
+    import datetime
+    built_at = datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+
     REC_DIR.mkdir(parents=True, exist_ok=True)
     record = {
         "key": f"{app}|{src}|{arch}",
@@ -107,6 +110,7 @@ def main() -> int:
         "app_name": app,
         "source": src,
         "arch": arch,
+        "built_at": built_at,
     }
 
     safe = f"{app}__{src}__{arch}".replace("/", "_")

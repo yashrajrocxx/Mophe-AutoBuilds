@@ -95,7 +95,8 @@ export function StorePage() {
                     <Clock size={14} className="opacity-70" />
                     <span>
                       {(() => {
-                        const dateStr = manifest.updated_at;
+                        const latestEntry = appEntries[0];
+                        const dateStr = latestEntry.built_at || manifest.updated_at;
                         return `Updated ${timeAgo(dateStr)}`;
                       })()}
                     </span>
