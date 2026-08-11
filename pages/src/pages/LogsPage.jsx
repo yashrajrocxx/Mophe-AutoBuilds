@@ -77,17 +77,21 @@ export function LogsPage() {
                   <div className="flex items-start gap-3 text-muted-foreground">
                     <Zap size={16} className="mt-0.5 shrink-0 text-amber-500" />
                     <div className="flex flex-col">
-                      <span className="font-medium text-foreground">Injected Patches</span>
-                      <div className="flex flex-wrap gap-1 mt-1.5">
+                      <span className="font-medium text-foreground">Patch Source Repository</span>
+                      <span className="text-sm">{report.source || 'Unknown Repo'}</span>
+                      <div className="flex flex-wrap gap-1 mt-2">
                         {report.patches && report.patches.length > 0 ? (
-                          report.patches.filter(p => p !== '-e').map((patch, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[11px] font-medium border border-accent/20">
-                              <Hash size={10} />
-                              {patch}
-                            </span>
-                          ))
+                          <>
+                            <span className="text-xs opacity-80 w-full mb-1">Global Overrides:</span>
+                            {report.patches.filter(p => p !== '-e').map((patch, i) => (
+                              <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[11px] font-medium border border-accent/20">
+                                <Hash size={10} />
+                                {patch}
+                              </span>
+                            ))}
+                          </>
                         ) : (
-                          <span className="text-xs opacity-60 italic">No global patches applied</span>
+                          <span className="text-xs opacity-60 italic mt-1">App-specific patches only (Auto)</span>
                         )}
                       </div>
                     </div>

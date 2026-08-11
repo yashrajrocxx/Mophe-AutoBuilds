@@ -11,6 +11,7 @@ Output:
 """
 import json
 import sys
+import datetime
 from pathlib import Path
 
 
@@ -23,6 +24,7 @@ def main() -> int:
     with new_manifest_path.open("r", encoding="utf-8") as f:
         manifest = json.load(f)
 
+    manifest["updated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     entries = manifest.setdefault("entries", {})
 
     rec_dir = Path("build_records")

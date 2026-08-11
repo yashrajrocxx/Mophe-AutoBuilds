@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Download, CheckCircle2, Box, Smartphone, Clock } from 'lucide-react';
 
+function timeAgo(dateString) {
+  if (!dateString) return "Recently";
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  if (seconds < 3600) return "Just now";
+  const hours = Math.floor(seconds / 3600);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days !== 1 ? 's' : ''} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months !== 1 ? 's' : ''} ago`;
+}
+
 export function StorePage() {
   const [manifest, setManifest] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +91,18 @@ export function StorePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock size={14} className="opacity-70" />
-                    <span>Latest automated build</span>
+                    <span>
+                      {(() => {
+                        const latestEntry = appEntries[0];
+                        // Try to parse the date from source_sig (format: ...@YYYY-MM-DDTHH:MM:SSZ@...)
+                        let dateStr = manifest.updated_at;
+                        if (latestEntry.source_sig) {
+                           const match = latestEntry.source_sig.match(/@(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)/);
+                           if (match) dateStr = match[1];
+                        }
+                        return `Updated ${timeAgo(dateStr)}`;
+                      })()}
+                    </span>
                   </div>
                 </div>
               </div>
