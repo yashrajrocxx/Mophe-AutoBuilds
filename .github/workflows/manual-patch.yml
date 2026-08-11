@@ -266,8 +266,25 @@ jobs:
         run: |
           echo "🔄 Updating Pages Data..."
           mkdir -p pages/public
-          cp ./build_records/manifest.json pages/public/manifest.json || true
-          cp ./build_records/build_report.json pages/public/build_report.json || true
+          python -c "
+          import json, os, datetime
+          try:
+              with open('build_records/build_report_${{ inputs.app_name }}.json', 'r') as f:
+                  reports = json.load(f)
+              report = reports[0] if reports else None
+              if report and report.get('status') == 'success':
+                  with open('pages/public/manifest.json', 'r') as f:
+                      manifest = json.load(f)
+                  for app in manifest:
+                      if app.get('app_name') == report['app']:
+                          app['version'] = report.get('version')
+                          app['built_at'] = datetime.datetime.now(datetime.timezone.utc).isoformat() + 'Z'
+                          break
+                  with open('pages/public/manifest.json', 'w') as f:
+                      json.dump(manifest, f, indent=2)
+          except Exception as e:
+              print(f'Failed to update manifest: {e}')
+          "
           
           # Only commit if there are changes to the data
           if [[ -n $(git status -s pages/public) ]]; then
