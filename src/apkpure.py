@@ -33,7 +33,7 @@ def _slug_candidates(config: dict) -> list[str]:
     parts = package.split(".")
     candidates = [name]
     if len(parts) >= 3:
-        # e.g. com.canva.editor -> canva-editor, editor
+        # e.g. com.instagram.android -> instagram, editor
         candidates.append(f"{parts[1]}-{parts[-1]}")
         candidates.append(parts[-1])
         candidates.append(parts[1])
@@ -58,7 +58,7 @@ def _discover_slug(package: str) -> str | None:
         if resp.status_code != 200:
             return None
         soup = BeautifulSoup(resp.content, "html.parser")
-        # APKPure search results: links like /canva/com.canva.editor
+        # APKPure search results: links like /instagram/com.instagram.android
         for a in soup.find_all("a", href=True):
             href = a["href"].strip("/")
             # Pattern: {slug}/{package}

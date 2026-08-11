@@ -17,7 +17,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "com.canva.editor": {
+            "com.instagram.android": {
                 "reports": [
                     {"version": "2.371.0", "version_code": "29652157"},
                     {"version": "2.369.0", "version_code": "29633241"}
@@ -26,7 +26,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         }
         mock_get.return_value = mock_response
 
-        code = playstore.resolve_version_code("com.canva.editor", "2.371.0")
+        code = playstore.resolve_version_code("com.instagram.android", "2.371.0")
         self.assertEqual(code, 29652157)
         mock_get.assert_called_once()
 
@@ -35,7 +35,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "com.canva.editor": {
+            "com.instagram.android": {
                 "reports": [
                     {"version": "2.369.0", "version_code": "29633241"}
                 ]
@@ -44,14 +44,14 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_get.return_value = mock_response
 
         with self.assertRaises(playstore.VersionNotFound):
-            playstore.resolve_version_code("com.canva.editor", "2.371.0")
+            playstore.resolve_version_code("com.instagram.android", "2.371.0")
 
     @patch('src.playstore.requests.get')
     def test_malformed_version_code(self, mock_get):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "com.canva.editor": {
+            "com.instagram.android": {
                 "reports": [
                     {"version": "2.371.0", "version_code": "not_an_int"}
                 ]
@@ -60,7 +60,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_get.return_value = mock_response
 
         with self.assertRaises(ValueError):
-            playstore.resolve_version_code("com.canva.editor", "2.371.0")
+            playstore.resolve_version_code("com.instagram.android", "2.371.0")
 
     @patch('src.playstore.requests.get')
     def test_http_error(self, mock_get):
@@ -71,7 +71,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_get.return_value = mock_response
 
         with self.assertRaises(playstore.ExodusApiError):
-            playstore.resolve_version_code("com.canva.editor", "2.371.0")
+            playstore.resolve_version_code("com.instagram.android", "2.371.0")
 
     @patch('src.playstore.requests.get')
     def test_missing_package_key(self, mock_get):
@@ -81,14 +81,14 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_get.return_value = mock_response
 
         with self.assertRaises(playstore.ExodusApiError):
-            playstore.resolve_version_code("com.canva.editor", "2.371.0")
+            playstore.resolve_version_code("com.instagram.android", "2.371.0")
             
     @patch('src.playstore.requests.get')
     def test_multiple_exact_matches(self, mock_get):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "com.canva.editor": {
+            "com.instagram.android": {
                 "reports": [
                     {"version": "2.371.0", "version_code": "100"},
                     {"version": "2.371.0", "version_code": "200"}
@@ -98,7 +98,7 @@ class TestPlaystoreResolver(unittest.TestCase):
         mock_get.return_value = mock_response
 
         # Should select max version code
-        code = playstore.resolve_version_code("com.canva.editor", "2.371.0")
+        code = playstore.resolve_version_code("com.instagram.android", "2.371.0")
         self.assertEqual(code, 200)
 
 if __name__ == '__main__':

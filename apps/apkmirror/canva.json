@@ -1,9 +1,0 @@
-{
-    "org": "canva",
-    "name": "canva",
-    "type": "BUNDLE",
-    "arch": "universal",
-    "dpi": "nodpi",
-    "package": "com.canva.editor",
-    "version": ""
-}

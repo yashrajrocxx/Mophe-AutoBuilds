@@ -56,18 +56,15 @@ This repository compiles optimized **arm64-v8a** builds using specific community
 | **X (Twitter)** | `com.twitter.android` | [piko-patches](https://github.com/krvstek/piko-patches) | ✅ |
 | **Pinterest** | `com.pinterest` | [browzomje](https://github.com/browzomje/morphe-patches) | ✅ |
 | **Telegram** | `org.telegram.messenger` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
-| **JioHotstar Mobile** | `in.startv.hotstar` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
 | **VN Video Editor** | `com.frontrow.vlog` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
 | **SD Maid SE** | `eu.darken.sdmse` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
 | **Threads** | `com.instagram.threads` | [RookieEnough](https://github.com/RookieEnough/revanced-patches) | ✅ |
 | **Google Photos** | `com.google.android.apps.photos` | [RookieEnough](https://github.com/RookieEnough/revanced-patches) | ✅ |
-| **Canva** | `com.canva.editor` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **TradingView** | `com.tradingview.tradingviewapp` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **Depth Live Wallpaper** | `com.jndapp.depth.live.wallpaper` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **Pocket Casts** | `au.com.shiftyjelly.pocketcasts` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **Minimal Widgets** | `com.jndapp.minimal.widgets` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **JioTV+** | `com.jio.media.jiotvplus` | [durgesh0505](https://github.com/durgesh0505/chiggi_morphe_patches) | ✅ |
-| **JioHotstar TV** | `in.startv.hotstar` | [durgesh0505](https://github.com/durgesh0505/chiggi_morphe_patches) | ✅ |
 | **Brave Browser** | `com.brave.browser` | [dh6k](https://github.com/dh6k/morphe-patches) | ✅ |
 
 *(All builds are target-optimized for `arm64-v8a` to reduce bundle sizes and increase device efficiency).*
@@ -117,8 +114,7 @@ Define which applications the pipeline should attempt to build.
 {
   "patch_list": [
     { "app_name": "youtube", "source": "morphe" },
-    { "app_name": "instagram", "source": "piko" },
-    { "app_name": "canva", "source": "rushiranpise" }
+    { "app_name": "instagram", "source": "piko" }
   ]
 }
 ```
@@ -179,8 +175,8 @@ pip install requests beautifulsoup4 python-dotenv
 4. **Run the build:**
 You can build for a specific app and source.
 ```bash
-export APP_NAME="canva"
-export SOURCE="rushiranpise"
+export APP_NAME="youtube"
+export SOURCE="morphe"
 python -m src
 ```
 
