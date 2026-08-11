@@ -93,13 +93,7 @@ export function StorePage() {
                     <Clock size={14} className="opacity-70" />
                     <span>
                       {(() => {
-                        const latestEntry = appEntries[0];
-                        // Try to parse the date from source_sig (format: ...@YYYY-MM-DDTHH:MM:SSZ@...)
-                        let dateStr = manifest.updated_at;
-                        if (latestEntry.source_sig) {
-                           const match = latestEntry.source_sig.match(/@(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)/);
-                           if (match) dateStr = match[1];
-                        }
+                        const dateStr = manifest.updated_at;
                         return `Updated ${timeAgo(dateStr)}`;
                       })()}
                     </span>
