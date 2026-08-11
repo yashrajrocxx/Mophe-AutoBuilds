@@ -218,7 +218,17 @@ jobs:
               echo "⚠️  cleanup_old_apks.py failed; continuing with clobber upload"
 
             # --clobber overwrites the file if it exists, adds it if it doesn't
-            gh release upload latest *.apk --clobber
+            for i in {1..3}; do
+              gh release upload latest *.apk --clobber && break || {
+                if [ $i -lt 3 ]; then
+                  echo "⚠️ Upload failed (attempt $i/3). Retrying in 10s..."
+                  sleep 10
+                else
+                  echo "❌ Upload failed after 3 attempts."
+                  exit 1
+                fi
+              }
+            done
 
             echo "📝 Updating release title and notes..."
             gh release edit latest \
@@ -227,11 +237,21 @@ jobs:
               
           else
             echo "🚀 Creating new release..."
-            gh release create "latest" \
-              --title "Morphe APKs - $(date +'%Y-%m-%d %H:%M')" \
-              --notes-file release_notes.md \
-              *.apk \
-              --latest
+            for i in {1..3}; do
+              gh release create "latest" \
+                --title "Morphe APKs - $(date +'%Y-%m-%d %H:%M')" \
+                --notes-file release_notes.md \
+                *.apk \
+                --latest && break || {
+                if [ $i -lt 3 ]; then
+                  echo "⚠️ Create release failed (attempt $i/3). Retrying in 10s..."
+                  sleep 10
+                else
+                  echo "❌ Create release failed after 3 attempts."
+                  exit 1
+                fi
+              }
+            done
           fi
           
           echo "✅ Release updated successfully!"

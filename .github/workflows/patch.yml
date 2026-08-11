@@ -446,18 +446,38 @@ jobs:
             python scripts/cleanup_old_apks.py --release latest --keep-file keep_apks.txt || \
               echo "⚠️  cleanup_old_apks.py failed; continuing with exact-name cleanup"
 
-            # Upload new APKs and manifest
-            gh release upload latest "${ASSETS[@]}" --clobber
+            # Upload new APKs and manifest with retry logic for GitHub 502 API errors
+            for i in {1..3}; do
+              gh release upload latest "${ASSETS[@]}" --clobber && break || {
+                if [ $i -lt 3 ]; then
+                  echo "⚠️ Upload failed (attempt $i/3). Retrying in 10s..."
+                  sleep 10
+                else
+                  echo "❌ Upload failed after 3 attempts."
+                  exit 1
+                fi
+              }
+            done
             gh release edit latest \
               --title "Morphe APKs - $(date +'%Y-%m-%d %H:%M')" \
               --notes-file release_notes.md
           else
             echo "🆕 Creating 'latest' release..."
-            gh release create "latest" \
-              --title "Morphe APKs - $(date +'%Y-%m-%d %H:%M')" \
-              --notes-file release_notes.md \
-              "${ASSETS[@]}" \
-              --latest
+            for i in {1..3}; do
+              gh release create "latest" \
+                --title "Morphe APKs - $(date +'%Y-%m-%d %H:%M')" \
+                --notes-file release_notes.md \
+                "${ASSETS[@]}" \
+                --latest && break || {
+                if [ $i -lt 3 ]; then
+                  echo "⚠️ Create release failed (attempt $i/3). Retrying in 10s..."
+                  sleep 10
+                else
+                  echo "❌ Create release failed after 3 attempts."
+                  exit 1
+                fi
+              }
+            done
           fi
 
           echo "✅ Release publish step completed successfully!"
