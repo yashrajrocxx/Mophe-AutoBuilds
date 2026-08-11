@@ -137,8 +137,8 @@ def download_platform(
     try:
         config_path = Path("apps") / platform / f"{app_name}.json"
         if not config_path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
-
+            logging.debug(f"Config file not found for {app_name} on {platform}, skipping.")
+            return None, None, []
         with config_path.open() as json_file:
             config = json.load(json_file)
 
