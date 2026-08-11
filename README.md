@@ -58,7 +58,7 @@ This repository compiles optimized **arm64-v8a** builds using specific community
 | **Telegram** | `org.telegram.messenger` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
 | **VN Video Editor** | `com.frontrow.vlog` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
 | **SD Maid SE** | `eu.darken.sdmse` | [pareshdev](https://github.com/pareshdev/morphe-patches) | ✅ |
-| **Threads** | `com.instagram.threads` | [RookieEnough](https://github.com/RookieEnough/revanced-patches) | ✅ |
+| **Threads** | `com.instagram.barcelona` | [RookieEnough](https://github.com/RookieEnough/revanced-patches) | ✅ |
 | **Google Photos** | `com.google.android.apps.photos` | [RookieEnough](https://github.com/RookieEnough/revanced-patches) | ✅ |
 | **TradingView** | `com.tradingview.tradingviewapp` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
 | **Depth Live Wallpaper** | `com.jndapp.depth.live.wallpaper` | [rushiranpise](https://github.com/rushiranpise/morphe-patches) | ✅ |
