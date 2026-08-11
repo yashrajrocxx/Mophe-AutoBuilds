@@ -320,9 +320,10 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     ]
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])
+                    
                     morphe_cmd.extend([
-                        "--out", str(output_apk), str(input_apk),
-                        *exclude_patches, *current_include_patches
+                        *exclude_patches, *current_include_patches,
+                        "--out", str(output_apk), str(input_apk)
                     ])
                     output = utils.run_process(morphe_cmd, capture=True, stream=True)
                     _record_failed_patches(app_name, output)
@@ -338,7 +339,9 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     ]
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])
+                    
                     morphe_cmd.extend([
+                        *exclude_patches, *current_include_patches,
                         "--input", str(input_apk),
                         "--output", str(output_apk)
                     ])
