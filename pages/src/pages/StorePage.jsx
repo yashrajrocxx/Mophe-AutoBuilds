@@ -6,7 +6,7 @@ export function StorePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/manifest.json')
+    fetch(`${import.meta.env.BASE_URL}manifest.json`)
       .then(res => res.json())
       .then(data => {
         setManifest(data);

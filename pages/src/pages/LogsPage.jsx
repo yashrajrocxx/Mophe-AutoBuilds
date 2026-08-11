@@ -6,7 +6,7 @@ export function LogsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/build_report.json')
+    fetch(`${import.meta.env.BASE_URL}build_report.json`)
       .then(res => res.json())
       .then(data => {
         setReports(data);

@@ -491,6 +491,26 @@ jobs:
 
           echo "✅ Release publish step completed successfully!"
       
+      - name: Update Pages Data
+        if: steps.check-apks.outputs.skip_release == 'false'
+        run: |
+          echo "🔄 Updating Pages Data..."
+          mkdir -p pages/public
+          cp ./release-apks/manifest.json pages/public/manifest.json || true
+          cp ./release-apks/build_report.json pages/public/build_report.json || true
+          
+          # Only commit if there are changes to the data
+          if [[ -n $(git status -s pages/public) ]]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add pages/public/manifest.json pages/public/build_report.json
+            git commit -m "chore: auto-update App Store data" || true
+            git push
+            echo "✅ Pages data pushed successfully!"
+          else
+            echo "No changes to pages data, skipping push."
+          fi
+
       - name: Display Release URL
         if: steps.check-apks.outputs.skip_release == 'false'
         env:
