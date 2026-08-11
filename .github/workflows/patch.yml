@@ -433,6 +433,10 @@ jobs:
             ASSETS+=( ./release-apks/manifest.json )
             echo "📎 Including manifest.json"
           fi
+          if [ -f ./release-apks/build_report.json ]; then
+            ASSETS+=( ./release-apks/build_report.json )
+            echo "📎 Including build_report.json"
+          fi
 
           if [ "${{ steps.check-release.outputs.release_exists }}" = "true" ]; then
             echo "⬆️ Uploading rebuilt assets in place and refreshing release metadata..."
