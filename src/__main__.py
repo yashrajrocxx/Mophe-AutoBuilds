@@ -46,7 +46,7 @@ def _record_failed_patches(app_name: str, output: str):
     
     if failed_patches:
         import json
-        out_path = Path("release-apks/failed_patches.json")
+        out_path = Path("build_records/failed_patches.json")
         out_path.parent.mkdir(parents=True, exist_ok=True)
         
         # Load existing
@@ -64,7 +64,7 @@ def _record_failed_patches(app_name: str, output: str):
             json.dump(data, f, indent=2)
             
 
-def run_build(app_name: str, source: str, arch: str = "universal") -> str:
+def run_build(app_name: str, source: str, arch: str = "universal", report: dict = None) -> str:
     """Build APK for specific architecture"""
     download_files, name = downloader.download_required(source)
 
@@ -201,6 +201,8 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
                 
         if not input_apk or not version:
             logging.warning(f"Failed to download version {ver or 'latest'} from all sources.")
+            if report is not None:
+                report["error"] = f"Failed to download version {ver or 'latest'}"
             continue # Try next version
 
         # --- Normalize/merge input into .apk when needed ---
@@ -291,6 +293,11 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
         
         current_include_patches = include_patches + dynamic_includes
 
+        if report is not None:
+            report["version"] = version
+            report["dl_method"] = dl_method_name
+            report["patches"] = current_include_patches
+            
         if dynamic_includes:
             logging.info(f"💉 Dynamically injected global patches: {[p for p in dynamic_includes if p != '-e']}")
 
@@ -429,12 +436,22 @@ def main():
         
         # Build for each architecture
         built_apks = []
+        build_reports = []
         for arch in arches:
             logging.info(f"🔨 Building {app_name} for {arch} architecture...")
-            apk_path = run_build(app_name, source, arch)
+            report = {"app": app_name, "arch": arch, "source": source, "status": "failed", "version": None, "patches": []}
+            apk_path = run_build(app_name, source, arch, report=report)
             if apk_path:
                 built_apks.append(apk_path)
+                report["status"] = "success"
+                report["apk"] = Path(apk_path).name
+            build_reports.append(report)
+            if apk_path:
                 print(f"✅ Built {arch} version: {Path(apk_path).name}")
+        
+        Path("build_records").mkdir(exist_ok=True)
+        with open(f"build_records/build_report_{app_name}.json", "w") as f:
+            json.dump(build_reports, f)
         
         # Summary
         print(f"\n🎯 Built {len(built_apks)} APK(s) for {app_name}:")
@@ -444,9 +461,16 @@ def main():
     else:
         # Fallback to single universal build
         logging.warning("arch-config.json not found, building universal only")
-        apk_path = run_build(app_name, source, "universal")
+        report = {"app": app_name, "arch": "universal", "source": source, "status": "failed", "version": None, "patches": []}
+        apk_path = run_build(app_name, source, "universal", report=report)
         if apk_path:
+            report["status"] = "success"
+            report["apk"] = Path(apk_path).name
             print(f"🎯 Final APK path: {apk_path}")
+            
+        Path("build_records").mkdir(exist_ok=True)
+        with open(f"build_records/build_report_{app_name}.json", "w") as f:
+            json.dump([report], f)
 
 if __name__ == "__main__":
     main()

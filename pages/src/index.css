@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 12%;
+    --card: 0 0% 100%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 45%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 17 60% 59%;
+    --destructive: 0 72% 51%;
+    --radius: 0.75rem;
+
+    --yr-accent: 17 60% 59%;
+    --yr-accent-soft: 17 70% 94%;
+    --yr-sidebar: 30 20% 97%;
+    --yr-surface: 0 0% 100%;
+    --yr-hover: 220 14% 94%;
+    --yr-composer: 0 0% 100%;
+    --yr-text-subtle: 220 8% 55%;
+  }
+
+  .dark {
+    --background: 220 10% 8%;
+    --foreground: 30 15% 92%;
+    --card: 220 10% 10%;
+    --muted: 220 10% 14%;
+    --muted-foreground: 220 8% 60%;
+    --border: 220 10% 18%;
+    --input: 220 10% 18%;
+    --ring: 17 60% 59%;
+    --destructive: 0 62% 40%;
+
+    --yr-accent: 17 65% 62%;
+    --yr-accent-soft: 17 40% 22%;
+    --yr-sidebar: 220 10% 6%;
+    --yr-surface: 220 10% 8%;
+    --yr-hover: 220 10% 14%;
+    --yr-composer: 220 10% 12%;
+    --yr-text-subtle: 220 8% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+}
+
+@layer utilities {
+  .yr-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  
+  .yr-composer-shadow {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05), 0 12px 32px rgba(0,0,0,0.06);
+  }
+  .dark .yr-composer-shadow {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  
+  .yr-fade-up {
+    animation: yr-fade-up 350ms ease-out both;
+  }
+  @keyframes yr-fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .yr-sparkle-anim {
+    animation: yr-sparkle 2.4s cubic-bezier(.4, 0, .2, 1) infinite;
+  }
+  @keyframes yr-sparkle {
+    0%, 100% { transform: rotate(0) scale(1); filter: drop-shadow(0 0 0px hsl(var(--yr-accent) / 0)); }
+    50% { transform: rotate(180deg) scale(1.1); filter: drop-shadow(0 0 8px hsl(var(--yr-accent) / 0.5)); }
+  }
+
+  .yr-thinking-word {
+    animation: yr-shimmer 2.4s linear infinite;
+    background: linear-gradient(90deg, hsl(var(--muted-foreground)) 0%, hsl(var(--foreground)) 50%, hsl(var(--muted-foreground)) 100%);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @keyframes yr-shimmer {
+    to { background-position: 200% center; }
+  }
+
+  .yr-final-pulse {
+    animation: yr-pulse 2s ease-in-out infinite;
+  }
+  @keyframes yr-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+  }
+  
+  .yr-dot {
+    animation: yr-dot-anim 1.4s infinite;
+  }
+  @keyframes yr-dot-anim {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+  }
+}

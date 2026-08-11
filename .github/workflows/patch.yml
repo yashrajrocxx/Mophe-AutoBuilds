@@ -305,6 +305,11 @@ jobs:
             jq '.entries | length' manifest.json || true
             cp manifest.json ./release-apks/manifest.json
           fi
+          
+          if [ -f build_report.json ]; then
+            echo "✅ build_report.json built."
+            cp build_report.json ./release-apks/build_report.json
+          fi
 
       - name: Validate GitHub Auth
         if: steps.check-apks.outputs.skip_release == 'false'

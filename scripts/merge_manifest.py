@@ -34,6 +34,10 @@ def main() -> int:
             except Exception as e:
                 print(f"  skip bad record {rec_file}: {e}")
                 continue
+            
+            if isinstance(rec, list):
+                # This is likely a build_report file, skip it for manifest
+                continue
             key = rec.get("key")
             apk = rec.get("apk", "")
             # resolved_version is the version actually embedded in the built APK
@@ -80,6 +84,24 @@ def main() -> int:
     with open("manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print(f"Wrote manifest.json with {len(entries)} entries")
+    
+    # Also merge build reports
+    all_reports = []
+    if rec_dir.exists():
+        for rec_file in sorted(rec_dir.rglob("build_report_*.json")):
+            try:
+                with rec_file.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        all_reports.extend(data)
+            except Exception as e:
+                print(f"  skip bad build report {rec_file}: {e}")
+                
+    if all_reports:
+        with open("build_report.json", "w", encoding="utf-8") as f:
+            json.dump(all_reports, f, indent=2)
+        print(f"Wrote build_report.json with {len(all_reports)} build reports")
+        
     return 0
 
 
