@@ -281,12 +281,16 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 logging.info("APK integrity OK; no repair needed")
         except Exception as e:
             logging.warning(f"Could not check/fix APK: {e}")
-
-        # We removed the automatic injection of -i for disable-play-store-updates 
-        # to ensure we don't accidentally override the default patches.
-        # If the user wants to detach from play store, the patcher usually does this 
-        # by default, or they should specify it in their app config explicitly.
+            
+        # Inject dynamic global patches based on download source
+        # Note: In morphe-cli, -e stands for --enable (not exclude)
         dynamic_includes = []
+        if dl_method_name:
+            if "disable-play-store-updates" not in include_patches and "-e disable-play-store-updates" not in include_patches:
+                dynamic_includes.extend(["-e", "disable-play-store-updates"])
+            if dl_method_name != "download_playstore":
+                if "change-installer-source" not in include_patches and "-e change-installer-source" not in include_patches:
+                    dynamic_includes.extend(["-e", "change-installer-source"])
         
         current_include_patches = include_patches + dynamic_includes
 
