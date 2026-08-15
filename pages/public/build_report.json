@@ -10,56 +10,5 @@
     ],
     "dl_method": "download_playstore",
     "apk": "brave-arm64-v8a-dh6k-patches-v1.92.140.apk"
-  },
-  {
-    "app": "google-photos",
-    "arch": "arm64-v8a",
-    "source": "rookie",
-    "status": "success",
-    "version": "7.87.0.957333026",
-    "patches": [
-      "Change package name",
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "google-photos-arm64-v8a-morphe-patches-v7.87.0.957333026.apk"
-  },
-  {
-    "app": "jiotvplus",
-    "arch": "universal",
-    "source": "durgesh",
-    "status": "success",
-    "version": "2.6.4_2076",
-    "patches": [
-      "Disable Play Store updates",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "jiotvplus-universal-chiggi-patches-v2.6.4_2076.apk"
-  },
-  {
-    "app": "pinterest",
-    "arch": "arm64-v8a",
-    "source": "browzomje",
-    "status": "success",
-    "version": "14.23.0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "error": "Failed to download version 14.28.0",
-    "dl_method": "download_playstore",
-    "apk": "pinterest-arm64-v8a-browzomje-patches-v14.23.0.apk"
-  },
-  {
-    "app": "threads",
-    "arch": "arm64-v8a",
-    "source": "rookie",
-    "status": "success",
-    "version": "442.0.0.46.79",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "threads-arm64-v8a-morphe-patches-v442.0.0.46.79.apk"
   }
 ]

@@ -197,13 +197,13 @@
       "source": "dh6k",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.13.0@2026-08-06T21:57:14Z@2026-08-06T21:57:14Z|morphe-desktop-1.13.0-all.jar:sha256:5e820f15d064a79991ea71c0a44fa24243c7cc924975b3cef653e6b14c01fc25|sha:16bfd0ca31cc;dh6k/morphe-patches@v1.2.0@2026-08-12T16:36:52Z@2026-08-12T16:36:52Z|patches-1.2.0.mpp:sha256:cf3548d04b24c419cef1aa1b62eabfcc5b4bdd754b08e1fa4c1e88e980a7888b|sha:c218bd39eea3;MorpheApp/morphe-patches@v1.39.1@2026-08-08T17:05:00Z@2026-08-08T17:05:00Z|patches-1.39.1.mpp:sha256:9369232a0f817cb6b64b24524966740da4aa08d747ae1a865de7b1d3fdcae22a|sha:1e6f080319db",
+      "source_sig": "MorpheApp/morphe-cli@v1.13.0@2026-08-06T21:57:14Z@2026-08-06T21:57:14Z|morphe-desktop-1.13.0-all.jar:sha256:5e820f15d064a79991ea71c0a44fa24243c7cc924975b3cef653e6b14c01fc25|sha:16bfd0ca31cc;dh6k/morphe-patches@v1.2.0@2026-08-12T16:36:52Z@2026-08-12T16:36:52Z|patches-1.2.0.mpp:sha256:cf3548d04b24c419cef1aa1b62eabfcc5b4bdd754b08e1fa4c1e88e980a7888b|sha:5a31a3c30d92;MorpheApp/morphe-patches@v1.39.1@2026-08-08T17:05:00Z@2026-08-08T17:05:00Z|patches-1.39.1.mpp:sha256:9369232a0f817cb6b64b24524966740da4aa08d747ae1a865de7b1d3fdcae22a|sha:1e6f080319db",
       "apk": "brave-arm64-v8a-dh6k-patches-v1.92.140.apk",
       "built_version": "1.92.140",
-      "built_at": "2026-08-13T00:53:14.596056+00:00Z",
+      "built_at": "2026-08-15T00:51:35.799267+00:00Z",
       "package": "com.brave.browser",
       "icon_url": "https://play-lh.googleusercontent.com/UBrZnuXGb-QACU0uUdF5r_n5nx5oBbdfPyEbtsr0xXv00RN7rpaTVu3GjLeE90aHFmNlbaCmm8vNcmY0eE98U9E=w240-h480"
     }
   },
-  "updated_at": "2026-08-13T00:54:35.027576+00:00"
+  "updated_at": "2026-08-15T00:51:57.858847+00:00"
 }
