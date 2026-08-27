@@ -24,6 +24,44 @@
     "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk"
   },
   {
+    "app": "google-photos",
+    "arch": "arm64-v8a",
+    "source": "rookie",
+    "status": "success",
+    "version": "7.89.0.968035987",
+    "patches": [
+      "Change package name",
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "google-photos-arm64-v8a-morphe-patches-v7.89.0.968035987.apk"
+  },
+  {
+    "app": "instagram",
+    "arch": "arm64-v8a",
+    "source": "piko",
+    "status": "success",
+    "version": "435.0.0.37.76",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "instagram-arm64-v8a-piko-patches-v435.0.0.37.76.apk"
+  },
+  {
+    "app": "jiotvplus",
+    "arch": "universal",
+    "source": "durgesh",
+    "status": "success",
+    "version": "2.6.4_2076",
+    "patches": [
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "jiotvplus-universal-chiggi-patches-v2.6.4_2076.apk"
+  },
+  {
     "app": "minimalwidgets",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
@@ -34,6 +72,19 @@
     ],
     "dl_method": "download_playstore",
     "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.02.apk"
+  },
+  {
+    "app": "pinterest",
+    "arch": "arm64-v8a",
+    "source": "browzomje",
+    "status": "success",
+    "version": "14.23.0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "error": "Failed to download version 14.28.0",
+    "dl_method": "download_playstore",
+    "apk": "pinterest-arm64-v8a-browzomje-patches-v14.23.0.apk"
   },
   {
     "app": "pocketcasts",
@@ -60,6 +111,42 @@
     "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
   },
   {
+    "app": "sdmaidse",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "1.7.3-rc0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "sdmaidse-arm64-v8a-paresh-v1.7.3-rc0.apk"
+  },
+  {
+    "app": "telegram",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "12.10.1",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "telegram-arm64-v8a-paresh-v12.10.1.apk"
+  },
+  {
+    "app": "threads",
+    "arch": "arm64-v8a",
+    "source": "rookie",
+    "status": "success",
+    "version": "444.0.0.45.85",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "threads-arm64-v8a-morphe-patches-v444.0.0.45.85.apk"
+  },
+  {
     "app": "tradingview",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
@@ -67,6 +154,30 @@
     "version": null,
     "patches": [],
     "error": "Failed to download version 1.20.80.0.1002385"
+  },
+  {
+    "app": "vn",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "2.12.0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "vn-arm64-v8a-paresh-v2.12.0.apk"
+  },
+  {
+    "app": "x",
+    "arch": "arm64-v8a",
+    "source": "piko",
+    "status": "success",
+    "version": "12.7.1-release.0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "x-arm64-v8a-piko-patches-v12.7.1-release.0.apk"
   },
   {
     "app": "youtube-music",
