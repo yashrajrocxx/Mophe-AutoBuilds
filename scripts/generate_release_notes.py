@@ -67,6 +67,7 @@ def get_source_display_name(source: str) -> str:
     source_map = {
         "morphe": "Morphe Patches",
         "piko": "Piko Patches",
+        "piko-dev": "Piko (Dev) Patches",
         "paresh": "Paresh Patches",
         "durgesh": "Durgesh (Chiggi) Patches",
         "rookie": "Rookie Patches",

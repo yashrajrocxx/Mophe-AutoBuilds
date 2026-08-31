@@ -1,15 +1,17 @@
 [
-    {
-      "name": "piko-patches"
-    },
-    {
-      "user": "MorpheApp",
-      "repo": "morphe-cli",
-      "tag": "latest"
-    },
-    {
-      "user": "crimera",
-      "repo": "piko",
-      "tag": "dev"
-    }
+  {
+    "name": "piko-dev"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "crimera",
+    "repo": "piko",
+    "tag": "dev"
+  }
 ]
