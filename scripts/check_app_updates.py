@@ -7,33 +7,36 @@ Strategy:
 2. Fetch existing 'latest' release manifest (manifest.json asset, if present).
 3. For each (app, source, arch):
    - Determine current configured app version (from apps/<platform>/<app>.json).
-   - Determine current patch-source signature (latest GitHub release tag(s) of
-     repos listed in sources/<source>.json).
-   - Compare to manifest.json -> if changed OR APK missing -> needs build.
+   - Determine current patch-source signature & release changelog (from repos in sources/<source>.json).
+   - Compare to manifest.json:
+     * If patch source updated (new tag/release/commit) -> REBUILD & extract upstream changelog.
+     * If app config version changed -> REBUILD.
+     * If APK asset is missing from release -> REBUILD.
+     * Otherwise -> CARRY OVER existing APK (no rebuild needed).
 4. Output:
    - GitHub Actions outputs: build_matrix (JSON), has_updates, total/update counts.
-   - File: build_matrix.json    (matrix entries that need rebuild).
-   - File: carry_over.json      (existing APK names to re-upload unchanged).
-   - File: new_manifest.json    (manifest to upload with the new release).
-
-Force full rebuild: env FORCE_FULL_REBUILD=true (also: any app missing from the
-old manifest is rebuilt automatically).
-
-Fail-safe: any unexpected error -> full rebuild matrix is emitted (preserves the
-previous always-build behavior so nothing breaks).
+   - File: build_matrix.json     (matrix entries that need rebuild).
+   - File: carry_over.json       (existing APK names to re-upload unchanged).
+   - File: new_manifest.json     (manifest to upload with the new release).
+   - File: patch_changelogs.json (extracted changelogs for updated patch sources).
 """
 import os
 import sys
 import re
 import json
 import logging
-import importlib
 import subprocess
 import traceback
 import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,7 +60,7 @@ FORCE_FULL = os.environ.get("FORCE_FULL_REBUILD", "false").lower() in ("true", "
 # Helpers
 # ---------------------------------------------------------------------------
 def write_gh_output(key: str, value: str) -> None:
-    """Append key=value (multiline-safe) to GITHUB_OUTPUT, or print locally."""
+    """Append key=value to GITHUB_OUTPUT or print locally."""
     out = os.environ.get("GITHUB_OUTPUT")
     if not out:
         preview = value if len(value) < 200 else value[:200] + "..."
@@ -87,6 +90,41 @@ def run_gh(args: List[str], timeout: int = 120) -> Tuple[int, str, str]:
         return 1, "", f"{e}"
 
 
+def run_github_api(endpoint: str, timeout: int = 60) -> Optional[Any]:
+    """Fetch from GitHub API using `gh api` or HTTPS session as fallback."""
+    clean_endpoint = endpoint.lstrip("/")
+    
+    # Try gh CLI first
+    rc, out, _ = run_gh(["api", clean_endpoint], timeout=timeout)
+    if rc == 0 and out.strip():
+        try:
+            return json.loads(out)
+        except Exception:
+            pass
+
+    # Fallback to HTTPS API
+    url = f"https://api.github.com/{clean_endpoint}"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Morphe-AutoBuilds/1.0"
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+        
+    try:
+        resp = provider_utils.session.get(url, headers=headers, timeout=timeout)
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 404:
+            return None
+        else:
+            logging.debug(f"GitHub API {clean_endpoint} HTTP {resp.status_code}")
+    except Exception as e:
+        logging.debug(f"GitHub API {clean_endpoint} exception: {e}")
+        
+    return None
+
+
 def load_patch_config() -> List[dict]:
     with PATCH_CONFIG.open("r", encoding="utf-8") as f:
         return json.load(f).get("patch_list", [])
@@ -104,18 +142,12 @@ def load_arch_config() -> Dict[Tuple[str, str], List[str]]:
 
 
 def load_app_config_version(app_name: str) -> str:
-    """Return the configured 'version' field from the first matching app config,
-    or '' if none is pinned (means 'latest at build time')."""
+    """Return the configured 'version' field from the first matching app config."""
     cfg, _ = load_app_config(app_name)
     return (cfg.get("version") or "").strip() if cfg else ""
 
 
 def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
-    """Return (config_dict, platform) for the first platform that has an app
-    config file, or (None, None) if none exists. The platform name matches the
-    provider module (apkmirror/apkpure/uptodown/aptoide) so the caller can use it
-    to dispatch version lookups."""
-    # Playstore usually has the canonical package names now.
     for platform in ("playstore", "apkmirror", "apkpure", "uptodown", "aptoide"):
         fp = APPS_DIR / platform / f"{app_name}.json"
         if fp.exists():
@@ -127,14 +159,13 @@ def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
                 continue
     return None, None
 
+
 def get_app_package_name(app_name: str) -> str:
     config, _ = load_app_config(app_name)
-    if config:
-        return config.get("package", "")
-    return ""
+    return config.get("package", "") if config else ""
+
 
 def fetch_app_icon(package: str) -> str:
-    """Scrapes the Google Play Store to fetch the app icon URL for the given package."""
     if not package:
         return ""
     url = f"https://play.google.com/store/apps/details?id={package}"
@@ -145,80 +176,32 @@ def fetch_app_icon(package: str) -> str:
             img = soup.find("img", {"alt": "Icon image"})
             if img and img.get("src"):
                 return img.get("src")
-    except Exception as e:
-        logging.warning(f"Failed to fetch icon for {package}: {e}")
+    except Exception:
+        pass
     return ""
 
-_latest_app_version_cache: Dict[str, str] = {}
-
-
-def fetch_latest_app_version(app_name: str) -> str:
-    """Query the app's store listing for the newest version currently published.
-
-    This lets plan_incremental() detect that a *new app version* shipped even
-    when the app config is pinned to "latest" (config 'version' == ''). Without
-    it, the only signals we had were the patch-source signature and the (empty)
-    config version, so apps that follow upstream's newest release never triggered
-    a rebuild.
-
-    Best-effort: any error (network, parse, missing module) returns '' rather
-    than raising, so a transient store outage never degrades to a full rebuild.
-    """
-    if app_name in _latest_app_version_cache:
-        return _latest_app_version_cache[app_name]
-
-    resolved = ""
-    config, platform = load_app_config(app_name)
-    if config and platform:
-        try:
-            import importlib
-            mod = importlib.import_module(f"src.{platform}")
-            get_latest = getattr(mod, "get_latest_version", None)
-            if callable(get_latest):
-                # Provider signatures vary slightly (some take arch), but all
-                # accept (app_name, config). Extra kwargs are not used.
-                ver = get_latest(app_name, config)
-                if isinstance(ver, str) and ver.strip():
-                    resolved = ver.strip()
-        except Exception as e:
-            logging.info(f"  latest-version probe failed for {app_name}/{platform}: {e}")
-            resolved = ""
-
-    _latest_app_version_cache[app_name] = resolved
-    return resolved
-
 
 # ---------------------------------------------------------------------------
-# Source-signature: detect when patch repos publish new releases
+# Source-signature & Release Info: detect when patch repos publish new releases
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-# Also put this script's own dir on the path so we can reuse record_build's
-# filename-version parser (kept in one place so the two always agree).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src import utils as provider_utils
 from record_build import extract_version_from_filename
 
 _repo_sig_cache: Dict[Tuple[str, str, str, str], str] = {}
-
-# Cached raw release dicts keyed by (user, repo, tag). Shared by the source
-# signature AND the patches-list lookup so both always read the *same* release
-# object for a given repo, and so each repo's release endpoint is hit at most
-# once per run (rate-limit friendly).
 _github_release_cache: Dict[Tuple[str, str, str], Optional[dict]] = {}
+_repo_release_info_cache: Dict[Tuple[str, str, str, str], dict] = {}
 
 
 def fetch_repo_signature(user: str, repo: str, tag: str, provider: str = "github") -> str:
-    """Get a stable identifier for the current state of a repo's release.
-    Returns 'tag_name@published_at' on success, else a short error sentinel."""
     key = (user, repo, tag, provider)
     if key in _repo_sig_cache:
         return _repo_sig_cache[key]
 
     try:
         if provider == "gitlab":
-            # For GitLab we store the project path in the `repo` slot (see
-            # get_source_signature), e.g. "Group/Subgroup/Project".
             sig = _fetch_gitlab_signature(repo, tag)
         elif provider == "codeberg":
             sig = _fetch_codeberg_signature(user, repo, tag)
@@ -227,9 +210,6 @@ def fetch_repo_signature(user: str, repo: str, tag: str, provider: str = "github
         _repo_sig_cache[key] = sig
         return sig
     except Exception as e:
-        # Sentinel format must contain '@err:' so that
-        # _is_unreliable_source_sig() (which looks for '@err:') treats this as an
-        # unreliable signature and plan_incremental() falls back to the old one.
         sig = f"{tag}@err:{type(e).__name__}"
         _repo_sig_cache[key] = sig
         logging.warning(f"  {provider} api failed for {user}/{repo}: {e}")
@@ -237,27 +217,15 @@ def fetch_repo_signature(user: str, repo: str, tag: str, provider: str = "github
 
 
 def _fetch_default_branch_sha(user: str, repo: str) -> str:
-    """Fetch the latest commit SHA of the repo's default branch.
-
-    This makes the source signature sensitive to *any* upstream change, not just
-    GitHub Releases. Many patch authors push commits or create tags without a
-    Release object; some publish exclusively via pre-releases that ``/releases/
-    latest`` ignores. The default-branch SHA flips whenever new code lands, so a
-    rebuild is triggered even in those cases. Returns '' on failure (best-effort;
-    the release-based tokens still form a valid signature)."""
     try:
-        rc, out, _ = run_gh(["api", f"repos/{user}/{repo}", "--jq", ".default_branch"])
-        if rc != 0 or not out.strip():
-            branch = "main"
-        else:
-            branch = out.strip()
-        rc, out, _ = run_gh([
-            "api", f"repos/{user}/{repo}/commits/{branch}", "--jq", ".sha"
-        ])
-        if rc == 0:
-            sha = out.strip()
+        data = run_github_api(f"repos/{user}/{repo}")
+        branch = "main"
+        if isinstance(data, dict):
+            branch = data.get("default_branch") or "main"
+        commit_data = run_github_api(f"repos/{user}/{repo}/commits/{branch}")
+        if isinstance(commit_data, dict):
+            sha = commit_data.get("sha") or ""
             if sha:
-                # Short SHA is plenty for change detection.
                 return sha[:12]
     except Exception:
         pass
@@ -265,21 +233,6 @@ def _fetch_default_branch_sha(user: str, repo: str) -> str:
 
 
 def _fetch_github_release_dict(user: str, repo: str, tag: str) -> Optional[dict]:
-    """Resolve a GitHub repo's release object for the given tag, caching it.
-
-    This is the single authoritative release resolver for the planner. It is
-    intentionally BROAD so we never miss a rebuild signal:
-
-      - tag == "latest"      -> /releases/latest (falls back to most-recent list)
-      - tag in ("","dev","prerelease") -> /releases list, filtered accordingly
-      - any other tag        -> /releases/tags/<tag>
-      - no release at all    -> None (caller can still use commit-SHA via the
-                                signature path)
-
-    `fetch_repo_signature` and `fetch_recommended_version` both go through here,
-    so the signature and the recommended-version probe can never disagree about
-    which release a repo is on.
-    """
     key = (user, repo, tag)
     if key in _github_release_cache:
         return _github_release_cache[key]
@@ -291,23 +244,11 @@ def _fetch_github_release_dict(user: str, repo: str, tag: str) -> Optional[dict]
     else:
         api = f"repos/{user}/{repo}/releases/tags/{tag}"
 
-    rc, out, err = run_gh(["api", api])
-    if rc != 0:
-        # Some repos publish ONLY prereleases, so /releases/latest 404s. Fall
-        # back to the list endpoint and pick the most recent release of any kind.
-        if tag == "latest":
-            list_api = f"repos/{user}/{repo}/releases?per_page=10"
-            rc2, out2, _ = run_gh(["api", list_api])
-            if rc2 == 0:
-                rc, out, err = rc2, out2, _
-                api = list_api
-        if rc != 0:
-            _github_release_cache[key] = None
-            return None
+    data = run_github_api(api)
+    if data is None and tag == "latest":
+        data = run_github_api(f"repos/{user}/{repo}/releases?per_page=10")
 
-    try:
-        data = json.loads(out)
-    except Exception:
+    if not data:
         _github_release_cache[key] = None
         return None
 
@@ -329,14 +270,8 @@ def _fetch_github_release_dict(user: str, repo: str, tag: str) -> Optional[dict]
 
 
 def _fetch_github_signature(user: str, repo: str, tag: str) -> str:
-    # Resolve through the shared cache so the signature and the
-    # recommended-version probe always read the same release object.
     rel = _fetch_github_release_dict(user, repo, tag)
     if not rel:
-        # No release of the requested kind (or no releases at all). Fall back to
-        # a commit-SHA-only signature so we still detect upstream changes rather
-        # than freezing the signature forever. This is the BROAD path: commits,
-        # tags, and pre-releases with no Release object all flip the SHA.
         sha = _fetch_default_branch_sha(user, repo)
         if sha:
             return f"@|sha:{sha}"
@@ -346,9 +281,6 @@ def _fetch_github_signature(user: str, repo: str, tag: str) -> str:
     published = rel.get("published_at") or rel.get("created_at") or "?"
     updated = rel.get("updated_at") or ""
 
-    # Some upstream projects update/re-upload release assets without bumping the
-    # release tag. In that case, published_at/tag_name may stay the same, so we
-    # also incorporate a deterministic "assets signature" to detect changes.
     assets = rel.get("assets") or []
     asset_parts: List[str] = []
     if isinstance(assets, list):
@@ -358,32 +290,16 @@ def _fetch_github_signature(user: str, repo: str, tag: str) -> str:
             name = (a.get("name") or "").strip()
             if not name:
                 continue
-            # Prefer strong identifiers when available.
             digest = (a.get("digest") or "").strip()
             a_updated = (a.get("updated_at") or "").strip()
             size = str(a.get("size") or "").strip()
-            # Keep this compact but sensitive to real changes.
-            # Prefer sha256 digest, else a (size, updated) composite, else either
-            # field on its own. (Previous code had a dead `or` chain: the middle
-            # operand was a non-empty f-string by construction.)
-            if digest:
-                token = digest
-            elif size and a_updated:
-                token = f"{size}@{a_updated}"
-            elif a_updated:
-                token = a_updated
-            else:
-                token = size
+            token = digest or (f"{size}@{a_updated}" if size and a_updated else (a_updated or size))
             asset_parts.append(f"{name}:{token}")
     asset_parts.sort()
     assets_sig = ",".join(asset_parts)
 
-    # Commit SHA of the default branch: detects commits/tags/prereleases that are
-    # not reflected in the Release object. Best-effort; '' if unavailable.
     sha = _fetch_default_branch_sha(user, repo)
     sha_part = f"|sha:{sha}" if sha else ""
-
-    # Format: <tag>@<published>@<updated>|<assets_sig><sha_part>
     return f"{tag_name}@{published}@{updated}|{assets_sig}{sha_part}"
 
 
@@ -422,18 +338,6 @@ def _fetch_codeberg_signature(user: str, repo: str, tag: str) -> str:
 
 
 def _fetch_bundle_signature(bundle_url: str) -> str:
-    """Compute a content-based signature for a bundle source.
-
-    Previously this was signed as a *static* `f"bundle:{url}"` string, which
-    never changes. So when a bundle published new patch/integration versions,
-    the signature stayed identical and `plan_incremental()` saw no change ->
-    no rebuild was triggered (even though new patches that support new app
-    versions had been published).
-
-    We now fetch the bundle JSON and build a signature from its contents so any
-    real change (new asset URL/size) flips the signature. Falls back to a static
-    sentinel on failure so we don't mask the issue by force-rebuilding every run.
-    """
     try:
         data = provider_utils.fetch_json(bundle_url)
     except Exception as e:
@@ -457,18 +361,170 @@ def _fetch_bundle_signature(bundle_url: str) -> str:
     return f"bundle:{body}" if body else f"bundle:{bundle_url}@empty"
 
 
+def fetch_repo_release_info(user: str, repo: str, tag: str, provider: str = "github") -> dict:
+    key = (user, repo, tag, provider)
+    if key in _repo_release_info_cache:
+        return _repo_release_info_cache[key]
+
+    info = {
+        "provider": provider,
+        "user": user,
+        "repo": repo,
+        "tag": tag,
+        "title": "",
+        "body": "",
+        "published_at": "",
+        "url": "",
+    }
+
+    try:
+        if provider == "gitlab":
+            from urllib.parse import quote
+            encoded = quote(repo, safe="")
+            if tag == "latest":
+                api = f"https://gitlab.com/api/v4/projects/{encoded}/releases/permalink/latest"
+            elif tag in ("", "dev", "prerelease"):
+                api = f"https://gitlab.com/api/v4/projects/{encoded}/releases"
+            else:
+                api = f"https://gitlab.com/api/v4/projects/{encoded}/releases/{quote(tag, safe='')}"
+            data = provider_utils.fetch_json(api)
+            if isinstance(data, list) and data:
+                data = data[0]
+            if isinstance(data, dict):
+                tag_name = data.get("tag_name") or tag
+                info["tag"] = tag_name
+                info["title"] = data.get("name") or tag_name
+                info["body"] = data.get("description") or ""
+                info["published_at"] = data.get("released_at") or data.get("created_at") or ""
+                info["url"] = f"https://gitlab.com/{repo}/-/releases/{tag_name}"
+
+        elif provider == "codeberg":
+            from urllib.parse import quote
+            base = f"https://codeberg.org/api/v1/repos/{user}/{repo}/releases"
+            if tag == "latest":
+                api = f"{base}/latest"
+            elif tag in ("", "dev", "prerelease"):
+                api = base
+            else:
+                api = f"{base}/tags/{quote(tag, safe='')}"
+            data = provider_utils.fetch_json(api)
+            if isinstance(data, list) and data:
+                data = data[0]
+            if isinstance(data, dict):
+                tag_name = data.get("tag_name") or tag
+                info["tag"] = tag_name
+                info["title"] = data.get("name") or tag_name
+                info["body"] = data.get("body") or ""
+                info["published_at"] = data.get("published_at") or ""
+                info["url"] = f"https://codeberg.org/{user}/{repo}/releases/tag/{tag_name}"
+
+        else: # GitHub
+            rel = _fetch_github_release_dict(user, repo, tag)
+            if rel:
+                tag_name = rel.get("tag_name") or tag
+                info["tag"] = tag_name
+                info["title"] = rel.get("name") or tag_name
+                info["body"] = rel.get("body") or ""
+                info["published_at"] = rel.get("published_at") or rel.get("created_at") or ""
+                info["url"] = rel.get("html_url") or f"https://github.com/{user}/{repo}/releases/tag/{tag_name}"
+
+    except Exception as e:
+        logging.debug(f"fetch_repo_release_info failed for {provider}:{user}/{repo}: {e}")
+
+    _repo_release_info_cache[key] = info
+    return info
+
+
+_source_patch_info_cache: Dict[str, dict] = {}
+
+def get_source_patch_info(source: str) -> dict:
+    if source in _source_patch_info_cache:
+        return _source_patch_info_cache[source]
+
+    src_file = SOURCES_DIR / f"{source}.json"
+    if not src_file.exists():
+        for f in SOURCES_DIR.glob("*.json"):
+            if f.stem.lower() == source.lower():
+                src_file = f
+                break
+
+    result = {
+        "source": source,
+        "tag": "",
+        "title": "",
+        "url": "",
+        "body": "",
+        "published_at": "",
+        "repos": [],
+    }
+
+    if not src_file.exists():
+        _source_patch_info_cache[source] = result
+        return result
+
+    try:
+        with src_file.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _source_patch_info_cache[source] = result
+        return result
+
+    if isinstance(data, dict) and "bundle_url" in data:
+        result["tag"] = "bundle"
+        result["url"] = data["bundle_url"]
+        result["title"] = data.get("name", "bundle-patches")
+        _source_patch_info_cache[source] = result
+        return result
+
+    repos_info = []
+    primary_patch_info = None
+
+    if isinstance(data, list):
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            provider = (entry.get("provider") or "github").lower().strip()
+            tag = entry.get("tag", "latest")
+            user = (entry.get("user") or "").strip()
+            repo = (entry.get("repo") or entry.get("project") or "").strip()
+            if not repo:
+                continue
+
+            r_info = fetch_repo_release_info(user, repo, tag, provider)
+            is_cli = "cli" in repo.lower()
+            is_patches = "patch" in repo.lower() or not is_cli
+
+            r_info_copy = dict(r_info)
+            r_info_copy["is_cli"] = is_cli
+            r_info_copy["is_patches"] = is_patches
+            repos_info.append(r_info_copy)
+
+            if is_patches and not primary_patch_info:
+                primary_patch_info = r_info_copy
+
+    if not primary_patch_info and repos_info:
+        primary_patch_info = repos_info[-1]
+
+    if primary_patch_info:
+        result["tag"] = primary_patch_info.get("tag", "")
+        result["title"] = primary_patch_info.get("title", "")
+        result["url"] = primary_patch_info.get("url", "")
+        result["body"] = primary_patch_info.get("body", "")
+        result["published_at"] = primary_patch_info.get("published_at", "")
+
+    result["repos"] = repos_info
+    _source_patch_info_cache[source] = result
+    return result
+
+
 _source_sig_cache: Dict[str, str] = {}
 
-
 def get_source_signature(source: str) -> str:
-    """Combine release signatures of every repo declared in sources/<source>.json
-    into a single deterministic string."""
     if source in _source_sig_cache:
         return _source_sig_cache[source]
 
     src_file = SOURCES_DIR / f"{source}.json"
     if not src_file.exists():
-        # Case-insensitive fallback
         for f in SOURCES_DIR.glob("*.json"):
             if f.stem.lower() == source.lower():
                 src_file = f
@@ -499,13 +555,6 @@ def get_source_signature(source: str) -> str:
             provider = (entry.get("provider") or "github").lower().strip()
             tag = entry.get("tag", "latest")
 
-            # An entry that carries NO repo identifiers (typically the [0]
-            # metadata slot, e.g. {"name": "piko-patches"}) is just the patch
-            # package's output name -- download_required() treats it the same way
-            # (uses it as `name`, downloads from the remaining entries). It is
-            # NOT a repo, so it contributes nothing to the signature and must be
-            # skipped. We only track entries that actually declare a repo, which
-            # keeps the signature honest about what gets downloaded.
             has_github = bool(entry.get("user") and entry.get("repo"))
             has_project = bool(entry.get("project"))
             if provider == "gitlab" and has_project:
@@ -519,7 +568,6 @@ def get_source_signature(source: str) -> str:
                 user = entry.get("user")
                 repo = entry.get("repo")
                 parts.append(f"{user}/{repo}@{fetch_repo_signature(user, repo, tag, provider)}")
-            # else: metadata-only entry (no repo) -> intentionally skipped.
 
     sig = ";".join(parts) if parts else f"empty:{source}"
     _source_sig_cache[source] = sig
@@ -527,218 +575,85 @@ def get_source_signature(source: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Recommended version: what the builder will actually ship
-# ---------------------------------------------------------------------------
-_recommended_version_cache: Dict[Tuple[str, str], str] = {}
-
-
-def _download_release_asset_json(asset_url: str) -> Optional[dict]:
-    """Fetch a patch-list asset URL and parse it as JSON. Best-effort."""
-    try:
-        # provider_utils.session is the same requests.Session the rest of the
-        # planner uses for JSON fetches (gitlab/codeberg/bundle).
-        resp = provider_utils.session.get(asset_url, timeout=60)
-        resp.raise_for_status()
-        return resp.json()
-    except Exception as e:
-        logging.info(f"  patch-list asset download/parse failed for {asset_url}: {e}")
-        return None
-
-
-def _pick_recommended_target(patches_json: dict, package_name: str) -> str:
-    """Given a parsed patches-list.json and a package, return the highest
-    non-experimental supported version (i.e. the one the builder ships).
-
-    The upstream patches-list.json marks each compatiblePackages[].targets[]
-    entry with ``isExperimental``. The builder (via the Morphe/ReVanced CLI
-    `list-versions`, which is derived from this same data) picks the highest
-    target, preferring the *recommended* (isExperimental == false) one. We mirror
-    that exactly here so the planner's notion of "the current target version"
-    matches what the build job will actually emit.
-
-    If no non-experimental target exists we fall back to the highest target of
-    any kind (some packages only have experimental targets) and finally to ''.
-    """
-    patches = patches_json.get("patches") if isinstance(patches_json, dict) else None
-    if not isinstance(patches, list):
-        return ""
-
-    stable: List[str] = []
-    any_kind: List[str] = []
-
-    for patch in patches:
-        if not isinstance(patch, dict):
-            continue
-        for pkg in patch.get("compatiblePackages") or []:
-            if not isinstance(pkg, dict):
-                continue
-            if (pkg.get("packageName") or "") != package_name:
-                continue
-            for tgt in pkg.get("targets") or []:
-                if not isinstance(tgt, dict):
-                    continue
-                ver = (tgt.get("version") or "").strip()
-                if not ver:
-                    continue
-                any_kind.append(ver)
-                if tgt.get("isExperimental") is False:
-                    stable.append(ver)
-
-    if stable:
-        return provider_utils.get_highest_version(stable) or ""
-    return ""
-
-
-def fetch_recommended_version(app_name: str, source: str) -> str:
-    """Return the version the builder is expected to ship for (app, source),
-    derived from the patch set's patches-list (highest isExperimental:false
-    target for the app's package).
-
-    This is the planner-side mirror of the builder's `get_supported_versions` ->
-    CLI `list-versions` selection. Comparing against THIS (not the store's newest
-    version) keeps planner and builder in agreement, so we never trigger a
-    rebuild whose result is identical to the APK already shipped.
-
-    Best-effort: returns '' on any failure (no patches-list asset, parse error,
-    non-github source, etc.). In that case the caller falls back to the legacy
-    store-latest probe so we don't regress detection.
-    """
-    ckey = (app_name, source)
-    if ckey in _recommended_version_cache:
-        return _recommended_version_cache[ckey]
-
-    resolved = ""
-
-    config, _platform = load_app_config(app_name)
-    package = (config or {}).get("package") or ""
-
-    src_file = SOURCES_DIR / f"{source}.json"
-    if not src_file.exists():
-        for f in SOURCES_DIR.glob("*.json"):
-            if f.stem.lower() == source.lower():
-                src_file = f
-                break
-
-    # Only github sources expose a downloadable patches-list asset we can parse
-    # here. Bundle sources already get a content-based signature; their
-    # recommended version is whatever the bundle pins, so we leave them to the
-    # store-latest fallback. GitLab/Codeberg likewise fall through.
-    if package and src_file.exists():
-        try:
-            with src_file.open("r", encoding="utf-8") as f:
-                src_data = json.load(f)
-        except Exception:
-            src_data = None
-
-        if isinstance(src_data, list):
-            for entry in src_data:
-                if not isinstance(entry, dict):
-                    continue
-                if (entry.get("provider") or "github").lower() != "github":
-                    continue
-                user = entry.get("user")
-                repo = entry.get("repo")
-                if not (user and repo):
-                    continue
-                # Reuse the SAME cached release the signature uses -> one API
-                # call per repo, and signature/version never disagree.
-                rel = _fetch_github_release_dict(user, repo, entry.get("tag", "latest"))
-                if not rel:
-                    continue
-                # The patches asset: .json (human/machine list) or .mpp/.jar.
-                # We only parse the .json form; .mpp/.jar are opaque here.
-                patch_asset_url = ""
-                for a in rel.get("assets") or []:
-                    if not isinstance(a, dict):
-                        continue
-                    name = (a.get("name") or "").lower()
-                    if name.endswith(".json") and ("patch" in name or "list" in name):
-                        patch_asset_url = a.get("browser_download_url") or ""
-                        break
-                if not patch_asset_url:
-                    continue
-                pj = _download_release_asset_json(patch_asset_url)
-                if pj is None:
-                    continue
-                resolved = _pick_recommended_target(pj, package)
-                if resolved:
-                    break
-
-    _recommended_version_cache[ckey] = resolved
-    return resolved
-
-
-# ---------------------------------------------------------------------------
 # Existing release manifest + assets
 # ---------------------------------------------------------------------------
 def _get_repo_owner_name() -> Optional[Tuple[str, str]]:
     repo = (os.environ.get("GITHUB_REPOSITORY") or "").strip()
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    owner = owner.strip()
-    name = name.strip()
-    if not owner or not name:
-        return None
-    return owner, name
+    if "/" in repo:
+        owner, name = repo.split("/", 1)
+        if owner.strip() and name.strip():
+            return owner.strip(), name.strip()
+            
+    try:
+        p = subprocess.run(["git", "config", "--get", "remote.origin.url"], capture_output=True, text=True)
+        if p.returncode == 0 and p.stdout.strip():
+            url = p.stdout.strip()
+            m = re.search(r"github\.com[/:]([^/]+)/([^/\.]+)(?:\.git)?", url)
+            if m:
+                return m.group(1), m.group(2)
+    except Exception:
+        pass
+        
+    return ("yashrajrocxx", "Mophe-AutoBuilds")
 
 
 def fetch_existing_manifest() -> Optional[dict]:
-    rc, _, err = run_gh(["release", "download", RELEASE_TAG,
-                         "--pattern", MANIFEST_NAME, "--clobber"])
-    if rc != 0:
-        msg = err.strip()[:120]
-        logging.info(f"No existing '{MANIFEST_NAME}' on '{RELEASE_TAG}' ({msg})")
-        return None
-    try:
-        with open(MANIFEST_NAME, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        logging.warning(f"Bad manifest.json: {e}")
-        return None
+    if Path(MANIFEST_NAME).exists():
+        try:
+            with open(MANIFEST_NAME, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+
+    rc, _, _ = run_gh(["release", "download", RELEASE_TAG, "--pattern", MANIFEST_NAME, "--clobber"])
+    if rc == 0 and Path(MANIFEST_NAME).exists():
+        try:
+            with open(MANIFEST_NAME, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+
+    repo = _get_repo_owner_name()
+    if repo:
+        owner, name = repo
+        data = run_github_api(f"repos/{owner}/{name}/releases/tags/{RELEASE_TAG}")
+        if isinstance(data, dict):
+            for asset in data.get("assets", []):
+                if asset.get("name") == MANIFEST_NAME:
+                    download_url = asset.get("browser_download_url")
+                    if download_url:
+                        try:
+                            resp = provider_utils.session.get(download_url, timeout=30)
+                            if resp.status_code == 200:
+                                manifest_data = resp.json()
+                                with open(MANIFEST_NAME, "w", encoding="utf-8") as f:
+                                    json.dump(manifest_data, f, indent=2)
+                                return manifest_data
+                        except Exception:
+                            pass
+
+    return None
 
 
 def fetch_existing_apk_names() -> List[str]:
     repo = _get_repo_owner_name()
     if repo:
         owner, name = repo
-        rc, out, _ = run_gh(
-            ["api", f"repos/{owner}/{name}/releases/tags/{RELEASE_TAG}", "--jq", ".id"]
-        )
-        rel_id = out.strip() if rc == 0 else ""
-        if rel_id:
-            rc, out, _ = run_gh(
-                [
-                    "api",
-                    "--paginate",
-                    f"repos/{owner}/{name}/releases/{rel_id}/assets?per_page=100",
-                    "--jq",
-                    ".[].name",
-                ],
-                timeout=300,
-            )
-            if rc == 0:
-                names = [ln.strip() for ln in out.splitlines() if ln.strip()]
-                return [n for n in names if n.endswith(".apk")]
+        data = run_github_api(f"repos/{owner}/{name}/releases/tags/{RELEASE_TAG}")
+        if isinstance(data, dict):
+            return [
+                a.get("name", "")
+                for a in data.get("assets", [])
+                if a.get("name", "").endswith(".apk")
+            ]
 
-    rc, out, _ = run_gh(["release", "view", RELEASE_TAG, "--json", "assets"])
-    if rc != 0:
-        return []
-    try:
-        return [
-            a.get("name", "")
-            for a in json.loads(out).get("assets", [])
-            if a.get("name", "").endswith(".apk")
-        ]
-    except Exception:
-        return []
+    return [f.name for f in Path(".").glob("*.apk")]
 
 
 # ---------------------------------------------------------------------------
 # Matrix planning
 # ---------------------------------------------------------------------------
 def build_full_matrix() -> List[dict]:
-    """Expand patch-config + arch-config into the full per-arch matrix."""
     patch_list = load_patch_config()
     arch_map = load_arch_config()
     matrix: List[dict] = []
@@ -787,40 +702,17 @@ def _recover_apk_from_release(app: str, arch: str, existing_apks: List[str]) -> 
     return candidates[-1] if candidates else ""
 
 
-def _is_newer_version(candidate: str, reference: str) -> bool:
-    """True if `candidate` is a strictly newer version than `reference`.
-
-    Uses src.utils.normalize_version for the comparison so build-number and
-    parenthesised-version conventions match what the build/download code uses.
-    Falls back to a plain string inequality if normalization yields nothing,
-    and returns False on any parse error (never triggers a rebuild on a guess).
-    """
-    try:
-        cand = provider_utils.normalize_version(candidate)
-        ref = provider_utils.normalize_version(reference)
-    except Exception:
-        return False
-    if not cand or not ref:
-        return False
-    # Pad to equal length so e.g. (4,0,0) vs (4,0,0,1) compare correctly.
-    n = max(len(cand), len(ref))
-    cand += [0] * (n - len(cand))
-    ref += [0] * (n - len(ref))
-    return cand > ref
-
-
-
-
 def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
-                     existing_apks: List[str]) -> Tuple[List[dict], List[str], dict]:
+                     existing_apks: List[str]) -> Tuple[List[dict], List[str], dict, dict]:
     """Decide which entries need rebuilding.
-    Returns (build_matrix, carry_over_apks, new_manifest_entries)."""
+    Returns (build_matrix, carry_over_apks, new_manifest_entries, patch_changelogs)."""
     old_entries = (old_manifest or {}).get("entries", {}) if isinstance(old_manifest, dict) else {}
     existing_apk_set = set(existing_apks)
 
     build_matrix: List[dict] = []
     carry_over: List[str] = []
     new_entries: dict = {}
+    patch_changelogs: dict = {}
 
     for entry in full_matrix:
         app = entry["app_name"]
@@ -828,24 +720,27 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         arch = entry["arch"]
         mkey = make_manifest_key(app, src, arch)
 
-        cur_app_ver = load_app_config_version(app)            # '' if 'latest'
+        cur_app_ver = load_app_config_version(app)
         cur_src_sig = get_source_signature(src)
+        patch_info = get_source_patch_info(src)
+        cur_patch_tag = patch_info.get("tag", "")
+        cur_patch_url = patch_info.get("url", "")
+        cur_patch_body = patch_info.get("body", "")
+
         old = old_entries.get(mkey)
         old_src_sig = (old or {}).get("source_sig", "")
+        old_patch_tag = (old or {}).get("patch_tag", "")
+
         if old and old_src_sig and _is_unreliable_source_sig(cur_src_sig):
             cur_src_sig = old_src_sig
+
         carried_apk = (old or {}).get("apk", "")
-        # built_version is the version actually shipped in the carried APK
-        # (populated post-build by record_build.py -> merge_manifest.py). Carry
-        # it forward so we can compare it against the store's newest version.
         old_built_ver = (old or {}).get("built_version", "")
         if old:
             if not carried_apk or carried_apk not in existing_apk_set:
                 recovered = _recover_apk_from_release(app, arch, existing_apks)
                 if recovered:
                     carried_apk = recovered
-                    # Recovered filename carries its own version; re-derive it
-                    # rather than trusting the (possibly stale) stored value.
                     old_built_ver = extract_version_from_filename(recovered)
 
         if not old_built_ver and carried_apk:
@@ -861,12 +756,11 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
             "source": src,
             "arch": arch,
             "config_version": cur_app_ver,
-            # source_sig is set below AFTER the rebuild decision.
             "source_sig": "",
-            # apk filename is filled in *after* build by the workflow; for now
-            # carry over whatever the old manifest had so we know what to keep.
+            "patch_tag": cur_patch_tag,
+            "patch_url": cur_patch_url,
+            "patch_changelog": (cur_patch_body[:400] + "...") if len(cur_patch_body) > 400 else cur_patch_body,
             "apk": carried_apk,
-            # Preserved verbatim; refreshed by the merge step after each build.
             "built_version": old_built_ver,
             "built_at": (old or {}).get("built_at", ""),
             "package": package_name,
@@ -879,84 +773,60 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         if not old:
             reasons.append("new-entry")
         else:
+            # 1. Configured version changed in apps/<platform>/<app>.json
             if old.get("config_version", "") != cur_app_ver:
-                reasons.append(f"app-version: {old.get('config_version','')!r}->{cur_app_ver!r}")
+                reasons.append(f"app-config-changed: {old.get('config_version','')!r}->{cur_app_ver!r}")
+            # 2. Patch source updated (new tag, release, commit, or patch file)
             if old.get("source_sig", "") != cur_src_sig:
                 reasons.append("patch-source-updated")
-            if not old.get("built_version", ""):
-                reasons.append("legacy-manifest-missing-built-version")
-            # New app version detection for apps pinned to "latest" (no pinned
-            # config version). When config_version is empty, the config_version
-            # compare above can never fire.
-            #
-            # We ONLY flag a rebuild when the patches-list asset provides a
-            # concrete recommended version that is strictly newer than what was
-            # previously built.  This mirrors the builder's `list-versions`
-            # selection so the planner can only ever flag a rebuild whose result
-            # would actually differ from the APK already shipped.
-            #
-            # IMPORTANT: If the recommended probe returns empty (which happens
-            # for ALL Morphe-ecosystem sources — they publish .mpp binaries, not
-            # .json patch-lists), we do NOT fall back to the store's latest
-            # version.  The store's latest is NOT what the builder ships; the
-            # builder ships whatever `java -jar cli list-versions` recommends,
-            # which is embedded in the .mpp and cannot be read without the CLI.
-            # Falling back to the store's latest caused every app to be
-            # needlessly rebuilt every day (e.g. store says YouTube 21.x,
-            # builder ships 20.51.x, planner sees 21 > 20 → rebuild → builder
-            # builds 20.51 again → infinite loop).
-            #
-            # When the patch repo publishes a genuinely new release that adds
-            # support for a newer app version, the SOURCE SIGNATURE changes
-            # (line 850-851 above), which already triggers the rebuild.
-            if not cur_app_ver and old_built_ver:
-                target_ver = fetch_recommended_version(app, src)
-                if target_ver and _is_newer_version(target_ver, old_built_ver):
-                    reasons.append(
-                        f"new-version: built {old_built_ver!r} -> patch {target_ver!r}"
-                    )
-                elif not target_ver:
-                    logging.debug(
-                        f"  {app}/{src}: no patches-list JSON available; "
-                        f"relying on source-signature for rebuild detection"
-                    )
-            old_apk = carried_apk
-            if old_apk and old_apk not in existing_apk_set:
-                reasons.append("apk-missing-from-release")
-            if not old_apk:
+            elif cur_patch_tag and old_patch_tag and old_patch_tag != cur_patch_tag:
+                reasons.append(f"patch-tag: {old_patch_tag!r}->{cur_patch_tag!r}")
+            # 3. APK missing
+            if not carried_apk:
                 reasons.append("no-apk-recorded")
+            elif carried_apk not in existing_apk_set:
+                reasons.append("apk-missing-from-release")
 
         if reasons:
             logging.info(f"  REBUILD {app}/{src}/{arch}: {'; '.join(reasons)}")
             build_matrix.append(entry)
-            # IMPORTANT: for rebuild entries, keep the OLD source_sig in the
-            # manifest. Store the current (new) sig in 'pending_source_sig'.
-            # merge_manifest.py will promote it to 'source_sig' only after a
-            # successful build writes a build record. This prevents a failed
-            # build from "consuming" the signature change: if the build fails
-            # the next planner run will still see old_sig != cur_sig and retry.
             new_entries[mkey]["source_sig"] = old_src_sig
             new_entries[mkey]["pending_source_sig"] = cur_src_sig
+            
+            # Record patch changelog ONLY if the patch source was updated or on initial new entry
+            is_patch_update = any(
+                r.startswith("patch-source-updated")
+                or r.startswith("patch-tag")
+                or r in ("new-entry", "force-rebuild")
+                for r in reasons
+            )
+            if is_patch_update and cur_patch_body:
+                if src not in patch_changelogs:
+                    patch_changelogs[src] = {
+                        "source": src,
+                        "old_tag": old_patch_tag,
+                        "new_tag": cur_patch_tag,
+                        "title": patch_info.get("title", ""),
+                        "url": cur_patch_url,
+                        "published_at": patch_info.get("published_at", ""),
+                        "body": cur_patch_body,
+                        "repos": patch_info.get("repos", []),
+                        "affected_apps": [],
+                    }
+                if app not in patch_changelogs[src]["affected_apps"]:
+                    patch_changelogs[src]["affected_apps"].append(app)
         else:
-            # Carry-over: nothing changed, safe to write the current signature.
             new_entries[mkey]["source_sig"] = cur_src_sig
             old_apk = carried_apk
             if old_apk and old_apk in existing_apk_set:
                 carry_over.append(old_apk)
                 logging.info(f"  carry  {app}/{src}/{arch}: {old_apk}")
             else:
-                # Defensive: if we can't carry it, we must rebuild.
                 logging.info(f"  REBUILD {app}/{src}/{arch}: no carry-over apk")
                 build_matrix.append(entry)
                 new_entries[mkey]["source_sig"] = old_src_sig
                 new_entries[mkey]["pending_source_sig"] = cur_src_sig
 
-    # The build job in src/__main__.py builds ALL arches for an (app, source) in
-    # one matrix run (it iterates arches from arch-config.json itself). To avoid
-    # duplicate work and to keep the workflow contract unchanged, we deduplicate
-    # the build matrix on (app, source) -- if ANY arch needs rebuild, the whole
-    # (app, source) gets rebuilt and the resulting APKs replace those arches in
-    # the carry-over set.
     deduped: List[dict] = []
     seen_pairs = set()
     for e in build_matrix:
@@ -964,16 +834,11 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         if pair in seen_pairs:
             continue
         seen_pairs.add(pair)
-        # Strip 'arch' from the matrix entry to match the original schema that
-        # the existing build-apps job expects.
         deduped.append({"app_name": e["app_name"], "source": e["source"]})
 
-    # Drop carry-overs whose (app, source) is being rebuilt -- the rebuild will
-    # produce fresh APKs for ALL arches of that pair, so the old ones are stale.
     rebuilding_pairs = seen_pairs
     filtered_carry: List[str] = []
     for apk in carry_over:
-        # Determine the (app, source) of this APK by looking up the manifest entry.
         owner_pair = None
         for ekey, eval_ in new_entries.items():
             if eval_.get("apk") == apk:
@@ -984,21 +849,22 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         else:
             logging.info(f"  drop carry {apk}: its (app,source) is rebuilding")
 
-    return deduped, filtered_carry, new_entries
+    return deduped, filtered_carry, new_entries, patch_changelogs
 
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def emit_full_rebuild(reason: str) -> None:
-    """Emergency fallback: build everything (preserves the previous behavior)."""
     logging.warning(f"Falling back to FULL rebuild: {reason}")
     full = build_full_matrix()
-    build_mx, carry_over, new_entries = plan_incremental(full, {}, [])
+    build_mx, carry_over, new_entries, patch_changelogs = plan_incremental(full, {}, [])
     Path("build_matrix.json").write_text(json.dumps(build_mx), encoding="utf-8")
     Path("carry_over.json").write_text(json.dumps(carry_over), encoding="utf-8")
     Path("new_manifest.json").write_text(
         json.dumps({"entries": new_entries}, indent=2), encoding="utf-8")
+    Path("patch_changelogs.json").write_text(
+        json.dumps(patch_changelogs, indent=2), encoding="utf-8")
     write_gh_output("build_matrix", json.dumps(build_mx))
     write_gh_output("has_updates", "true" if build_mx else "false")
     write_gh_output("update_count", str(len(build_mx)))
@@ -1022,18 +888,18 @@ def main() -> int:
         logging.info(f"Existing release has {len(existing_apks)} APK assets")
 
         if old_manifest is None and not FORCE_FULL:
-            # No manifest yet -> first incremental run; rebuild everything once
-            # to populate it. (Future runs will be incremental.)
             emit_full_rebuild("no manifest in existing release (first incremental run)")
             return 0
 
-        build_mx, carry_over, new_entries = plan_incremental(
+        build_mx, carry_over, new_entries, patch_changelogs = plan_incremental(
             full, old_manifest, existing_apks)
 
         Path("build_matrix.json").write_text(json.dumps(build_mx), encoding="utf-8")
         Path("carry_over.json").write_text(json.dumps(carry_over), encoding="utf-8")
         Path("new_manifest.json").write_text(
             json.dumps({"entries": new_entries}, indent=2), encoding="utf-8")
+        Path("patch_changelogs.json").write_text(
+            json.dumps(patch_changelogs, indent=2), encoding="utf-8")
 
         write_gh_output("build_matrix", json.dumps(build_mx))
         write_gh_output("has_updates", "true" if build_mx else "false")
@@ -1046,6 +912,7 @@ def main() -> int:
         logging.info(f"  Total entries:     {len(full)}")
         logging.info(f"  Need rebuild:      {len(build_mx)}")
         logging.info(f"  Carry over:        {len(carry_over)}")
+        logging.info(f"  Updated patches:   {len(patch_changelogs)}")
         logging.info("=" * 60)
 
         return 0
@@ -1054,7 +921,7 @@ def main() -> int:
         logging.error(f"check_app_updates failed: {e}")
         traceback.print_exc()
         emit_full_rebuild(f"unexpected error: {e}")
-        return 0  # Never fail the workflow over a planning error.
+        return 0
 
 
 if __name__ == "__main__":

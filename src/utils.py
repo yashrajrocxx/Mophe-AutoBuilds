@@ -348,15 +348,15 @@ def extract_filename(response, fallback_url=None) -> str:
     return unquote(Path(path).name)
 
 def gh_api_request(endpoint: str) -> dict:
-    """Make a GitHub API request using the 'gh' CLI as it handles tokens more robustly in Actions"""
+    """Make a GitHub API request using the 'gh' CLI or HTTP session fallback."""
+    clean_endpoint = endpoint.lstrip("/")
     env = os.environ.copy()
-    # Ensure GH_TOKEN is set for the gh cli
     if "GITHUB_TOKEN" in env and "GH_TOKEN" not in env:
         env["GH_TOKEN"] = env["GITHUB_TOKEN"]
         
     try:
         result = subprocess.run(
-            ["gh", "api", endpoint],
+            ["gh", "api", clean_endpoint],
             capture_output=True,
             text=True,
             env=env,
@@ -364,8 +364,22 @@ def gh_api_request(endpoint: str) -> dict:
         )
         return json.loads(result.stdout)
     except Exception as e:
-        logging.debug(f"gh api {endpoint} failed: {e}")
-        raise
+        # Fallback to HTTP request via session
+        url = f"https://api.github.com/{clean_endpoint}"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "Morphe-AutoBuilds/1.0"
+        }
+        token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        try:
+            resp = session.get(url, headers=headers, timeout=30)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as http_err:
+            logging.debug(f"gh api and http fallback failed for {endpoint}: gh={e}, http={http_err}")
+            raise e
 
 
 def fetch_json(url: str, headers: dict | None = None) -> dict | list:

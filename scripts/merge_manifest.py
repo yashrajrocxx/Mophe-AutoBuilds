@@ -4,6 +4,7 @@
 Inputs:
   - new_manifest.json      (planning-time manifest, has all entries with old apk
                             filenames as fallback for carry-overs)
+  - patch_changelogs.json  (extracted changelogs for updated patch sources)
   - build_records/*.json   (one record per built APK, written by record_build.py)
 
 Output:
@@ -13,6 +14,12 @@ import json
 import sys
 import datetime
 from pathlib import Path
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 
 def main() -> int:
@@ -26,6 +33,17 @@ def main() -> int:
 
     manifest["updated_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     entries = manifest.setdefault("entries", {})
+
+    # Embed patch changelogs if available
+    patch_changelogs_path = Path("patch_changelogs.json")
+    if patch_changelogs_path.exists():
+        try:
+            with patch_changelogs_path.open("r", encoding="utf-8") as f:
+                changelogs_data = json.load(f)
+            if changelogs_data:
+                manifest["patch_changelogs"] = changelogs_data
+        except Exception as e:
+            print(f"⚠️ Warning reading patch_changelogs.json: {e}")
 
     rec_dir = Path("build_records")
     if rec_dir.exists():
@@ -42,17 +60,11 @@ def main() -> int:
                 continue
             key = rec.get("key")
             apk = rec.get("apk", "")
-            # resolved_version is the version actually embedded in the built APK
-            # filename (extracted by record_build.py). Propagate it as
-            # 'built_version' so check_app_updates.py can detect on the next run
-            # when a newer app version becomes available, even for apps whose
-            # config 'version' is empty (meaning "latest at build time").
             resolved_version = (rec.get("resolved_version") or "").strip()
             if not key:
                 continue
             entry = entries.get(key)
             if not entry:
-                # Record exists but planning didn't list this combo; create it.
                 entry = {
                     "app_name": rec.get("app_name", ""),
                     "source": rec.get("source", ""),
@@ -69,19 +81,13 @@ def main() -> int:
                 entry["built_version"] = resolved_version
             if rec.get("built_at"):
                 entry["built_at"] = rec.get("built_at")
-            # Promote pending_source_sig -> source_sig now that the build
-            # succeeded.  The planner deliberately keeps the OLD source_sig
-            # for rebuild entries so that a failed build doesn't "consume"
-            # the signature change.  Only a successful build (= this code
-            # path) finalises the new signature.
+                
             pending_sig = entry.get("pending_source_sig", "")
             if pending_sig:
                 entry["source_sig"] = pending_sig
                 del entry["pending_source_sig"]
             print(f"  merged {key} -> apk={apk!r} built_version={resolved_version!r}")
-    # Clean up leftover pending_source_sig for entries whose build never
-    # completed (no build record).  The OLD source_sig stays in place so the
-    # next planner run will detect the difference and retry.
+
     for entry in entries.values():
         entry.pop("pending_source_sig", None)
 

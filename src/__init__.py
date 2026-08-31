@@ -1,7 +1,17 @@
 import os
 import logging
+from pathlib import Path
+from dotenv import load_dotenv
 from curl_cffi import requests
 from github import Github
+
+# Load .env file from repository root or current directory
+root_dir = Path(__file__).resolve().parent.parent
+env_path = root_dir / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
+else:
+    load_dotenv()
 
 # Use Safari fingerprint to bypass Cloudflare. 
 # Cloudflare aggressively flags Chrome fingerprints (DEFAULT_CHROME).
@@ -30,7 +40,7 @@ if github_token:
     gh = Github(github_token)
 else:
     if os.getenv("CI"):
-        logging.warning("No GITHUB_TOKEN/GH_TOKEN detected in CI; GitHub release lookups may fail")
+        logging.warning("No GITHUB_TOKEN detected in CI; GitHub release lookups may fail")
     else:
         logging.warning("No GitHub token detected; using anonymous GitHub API client")
     gh = Github()
