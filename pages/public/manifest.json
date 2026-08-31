@@ -149,10 +149,10 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.20.0@2026-08-23T16:41:10Z@2026-08-23T16:41:10Z|SHA256SUMS.txt:sha256:b39e5279505d1205c3f1222061c608583127f84bb062e52959e4908ddcaadfbf,patches-1.20.0.mpp:sha256:d0ca5185e97b1f2ae3c95244b8d3ede31e53419d356a52e2bef426a0afd7a2f0,patches-bundle.json:sha256:c88062465fe71d50bed4a6b311d429c323851d6906c4a349f72a2bb1ae4ff053,patches-list.json:sha256:28bef89547b7a3f258ffb33999640b3ed8a731820eab39f261db72686e9066a4|sha:267c92257764",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.0@2026-08-30T16:48:17Z@2026-08-30T16:48:17Z|SHA256SUMS.txt:sha256:4a41c1640004a10852601adf1d9e19958a99abcd39ef3e897fc623e800e495c1,patches-1.21.0.mpp:sha256:1aacd32e1143d3b2ae98878ea091ce7891341c3bdabbba7050031eb9e61bc9b4,patches-bundle.json:sha256:1f8a3136794301240031982cd3a9530ca9d2bb4559d267ef99b832e5984ee1be,patches-list.json:sha256:a8b504b209dd4d8c8984e1f310e8c56c1840c331951e09f996a089450f220bf3|sha:dcdffa092324",
       "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk",
       "built_version": "2.1.06",
-      "built_at": "2026-08-29T00:59:11.924179+00:00Z",
+      "built_at": "2026-08-31T01:13:21.286306+00:00Z",
       "package": "com.jndapp.depth.live.wallpaper",
       "icon_url": "https://play-lh.googleusercontent.com/h9g140jbgc6tR6o2VgL2lF0OYTr8cq2n9x_GihS_Toxe3PioggBfXHzIwM2OeNeEyWHfZFpqoMov5Whdm_qMeg=w240-h480"
     },
@@ -161,10 +161,10 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.20.0@2026-08-23T16:41:10Z@2026-08-23T16:41:10Z|SHA256SUMS.txt:sha256:b39e5279505d1205c3f1222061c608583127f84bb062e52959e4908ddcaadfbf,patches-1.20.0.mpp:sha256:d0ca5185e97b1f2ae3c95244b8d3ede31e53419d356a52e2bef426a0afd7a2f0,patches-bundle.json:sha256:c88062465fe71d50bed4a6b311d429c323851d6906c4a349f72a2bb1ae4ff053,patches-list.json:sha256:28bef89547b7a3f258ffb33999640b3ed8a731820eab39f261db72686e9066a4|sha:267c92257764",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.0@2026-08-30T16:48:17Z@2026-08-30T16:48:17Z|SHA256SUMS.txt:sha256:4a41c1640004a10852601adf1d9e19958a99abcd39ef3e897fc623e800e495c1,patches-1.21.0.mpp:sha256:1aacd32e1143d3b2ae98878ea091ce7891341c3bdabbba7050031eb9e61bc9b4,patches-bundle.json:sha256:1f8a3136794301240031982cd3a9530ca9d2bb4559d267ef99b832e5984ee1be,patches-list.json:sha256:a8b504b209dd4d8c8984e1f310e8c56c1840c331951e09f996a089450f220bf3|sha:dcdffa092324",
       "apk": "pocketcasts-arm64-v8a-morphe-patches-v8.16.apk",
       "built_version": "8.16",
-      "built_at": "2026-08-29T00:59:17.928492+00:00Z",
+      "built_at": "2026-08-31T01:13:22.899850+00:00Z",
       "package": "au.com.shiftyjelly.pocketcasts",
       "icon_url": "https://play-lh.googleusercontent.com/9VEAFZhJZgBzOnGXhSLqxwGt_11eQ4KBczz5UpaRGWK95z1isxCv4Xpp1T4gtCAtK6OlSBILVcbM9XaWaTK05hQ=w240-h480"
     },
@@ -173,10 +173,10 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.20.0@2026-08-23T16:41:10Z@2026-08-23T16:41:10Z|SHA256SUMS.txt:sha256:b39e5279505d1205c3f1222061c608583127f84bb062e52959e4908ddcaadfbf,patches-1.20.0.mpp:sha256:d0ca5185e97b1f2ae3c95244b8d3ede31e53419d356a52e2bef426a0afd7a2f0,patches-bundle.json:sha256:c88062465fe71d50bed4a6b311d429c323851d6906c4a349f72a2bb1ae4ff053,patches-list.json:sha256:28bef89547b7a3f258ffb33999640b3ed8a731820eab39f261db72686e9066a4|sha:267c92257764",
-      "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.02.apk",
-      "built_version": "2.1.02",
-      "built_at": "2026-08-29T00:59:27.327683+00:00Z",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.0@2026-08-30T16:48:17Z@2026-08-30T16:48:17Z|SHA256SUMS.txt:sha256:4a41c1640004a10852601adf1d9e19958a99abcd39ef3e897fc623e800e495c1,patches-1.21.0.mpp:sha256:1aacd32e1143d3b2ae98878ea091ce7891341c3bdabbba7050031eb9e61bc9b4,patches-bundle.json:sha256:1f8a3136794301240031982cd3a9530ca9d2bb4559d267ef99b832e5984ee1be,patches-list.json:sha256:a8b504b209dd4d8c8984e1f310e8c56c1840c331951e09f996a089450f220bf3|sha:dcdffa092324",
+      "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk",
+      "built_version": "2.1.04",
+      "built_at": "2026-08-31T01:13:31.457595+00:00Z",
       "package": "com.jndapp.minimal.widgets",
       "icon_url": "https://play-lh.googleusercontent.com/YdxN2n40wSiPp-WZi832aZHxGFQSafDcHqNif-Wy9YH__t2nCXoB5yGaCQkisJaHWe13H37lI_olM7sKsfONBg=w240-h480"
     },
@@ -205,5 +205,5 @@
       "icon_url": "https://play-lh.googleusercontent.com/UBrZnuXGb-QACU0uUdF5r_n5nx5oBbdfPyEbtsr0xXv00RN7rpaTVu3GjLeE90aHFmNlbaCmm8vNcmY0eE98U9E=w240-h480"
     }
   },
-  "updated_at": "2026-08-29T01:00:05.940884+00:00"
+  "updated_at": "2026-08-31T01:14:19.685982+00:00"
 }

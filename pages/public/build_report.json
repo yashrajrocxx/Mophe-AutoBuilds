@@ -16,12 +16,12 @@
     "arch": "arm64-v8a",
     "source": "rushiranpise",
     "status": "success",
-    "version": "2.1.02",
+    "version": "2.1.04",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.02.apk"
+    "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk"
   },
   {
     "app": "pocketcasts",
