@@ -77,6 +77,8 @@ def get_source_display_name(source: str) -> str:
         "morning-entree": "Morning Entree Patches",
         "hxreborn": "hxreborn Patches",
         "ample": "Ample Patches",
+        "jasonwu": "Jasonwu (Gboard) Patches",
+        "kveld9": "kveld9 Patches",
     }
     return source_map.get(source.lower(), f"{source.capitalize()} Patches")
 
@@ -211,7 +213,9 @@ def main() -> int:
     content.append("- **dh6k Patches:** [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches)")
     content.append("- **Morning Entree Patches:** [Entree3k/Morning-Entree-Patches](https://github.com/Entree3k/Morning-Entree-Patches)")
     content.append("- **hxreborn Patches:** [hxreborn/morphe-patches](https://github.com/hxreborn/morphe-patches)")
-    content.append("- **Ample Patches:** [AmpleReVanced/revanced-patches](https://github.com/AmpleReVanced/revanced-patches)\n")
+    content.append("- **Ample Patches:** [AmpleReVanced/revanced-patches](https://github.com/AmpleReVanced/revanced-patches)")
+    content.append("- **Gboard Patches:** [jasonwu1994/Gboard-patches](https://github.com/jasonwu1994/Gboard-patches)")
+    content.append("- **kveld9 Patches:** [kveld9/kveld-morphe-patches](https://github.com/kveld9/kveld-morphe-patches)\n")
 
     # 5. Disclaimer
     content.append("## ⚠️ Disclaimer")

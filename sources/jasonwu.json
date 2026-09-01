@@ -1,0 +1,17 @@
+[
+    {
+        "name": "jasonwu"
+    },
+    {
+        "provider": "github",
+        "user": "MorpheApp",
+        "repo": "morphe-cli",
+        "tag": "latest"
+    },
+    {
+        "provider": "github",
+        "user": "jasonwu1994",
+        "repo": "Gboard-patches",
+        "tag": "latest"
+    }
+]

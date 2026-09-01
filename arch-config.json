@@ -90,6 +90,31 @@
     "arches": ["arm64-v8a"]
   },
   {
+    "app_name": "pinnit",
+    "source": "morning-entree",
+    "arches": ["arm64-v8a"]
+  },
+  {
+    "app_name": "gboard",
+    "source": "jasonwu",
+    "arches": ["arm64-v8a"]
+  },
+  {
+    "app_name": "vivaldi-snapshot",
+    "source": "kveld9",
+    "arches": ["arm64-v8a"]
+  },
+  {
+    "app_name": "taskmanager",
+    "source": "paresh",
+    "arches": ["arm64-v8a"]
+  },
+  {
+    "app_name": "habitkit",
+    "source": "paresh",
+    "arches": ["arm64-v8a"]
+  },
+  {
     "app_name": "notesnook",
     "source": "hxreborn",
     "arches": ["arm64-v8a"]

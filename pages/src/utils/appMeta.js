@@ -144,6 +144,41 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/s8_x9d0=w240-h480",
     color: "#1428A0"
   },
+  "pinnit": {
+    name: "Pinnit",
+    category: "Tools & Utilities",
+    package: "dev.sasikanth.pinnit2",
+    icon: "https://play-lh.googleusercontent.com/p8_x9e0=w240-h480",
+    color: "#E05A47"
+  },
+  "gboard": {
+    name: "Gboard",
+    category: "Tools & Keyboard",
+    package: "com.google.android.inputmethod.latin",
+    icon: "https://play-lh.googleusercontent.com/g8_x9f0=w240-h480",
+    color: "#4285F4"
+  },
+  "vivaldi-snapshot": {
+    name: "Vivaldi Snapshot",
+    category: "Web Browser",
+    package: "com.vivaldi.browser.snapshot",
+    icon: "https://play-lh.googleusercontent.com/v9_x9g0=w240-h480",
+    color: "#EF3939"
+  },
+  "taskmanager": {
+    name: "TaskManager",
+    category: "System Tools",
+    package: "com.rk.taskmanager",
+    icon: "https://play-lh.googleusercontent.com/t8_x9h0=w240-h480",
+    color: "#1976D2"
+  },
+  "habitkit": {
+    name: "HabitKit",
+    category: "Productivity & Habits",
+    package: "com.roehl.habitkit",
+    icon: "https://play-lh.googleusercontent.com/h8_x9i0=w240-h480",
+    color: "#00E5FF"
+  },
   "jiotvplus": {
     name: "JioTV+",
     category: "Live TV & Shows",
