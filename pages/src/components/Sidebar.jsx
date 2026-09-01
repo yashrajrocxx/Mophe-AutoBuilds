@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Activity, Settings } from 'lucide-react';
+import { Layers, Activity, Settings, GitBranch, ExternalLink } from 'lucide-react';
 
 export function Sidebar({ activeTab, setActiveTab }) {
   const tabs = [
@@ -9,14 +9,17 @@ export function Sidebar({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <aside className="w-16 md:w-[280px] h-full flex flex-col bg-sidebar border-r border-border shrink-0 text-foreground transition-all duration-300 z-50">
-      <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-border">
-        <h1 className="yr-brand hidden md:block text-2xl text-accent font-bold tracking-tight">morphe.</h1>
-        <h1 className="yr-brand md:hidden text-2xl text-accent font-bold tracking-tight">m.</h1>
+    <aside className="hidden md:flex w-56 lg:w-64 h-full flex-col bg-card/40 backdrop-blur-xl border-r border-border/70 shrink-0 text-foreground transition-all duration-300 z-50">
+      {/* Brand Header */}
+      <div className="h-16 flex items-center px-6 border-b border-border/60">
+        <h1 className="yr-brand text-2xl text-accent font-extrabold tracking-tight">morphe.</h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto py-4 px-2 md:px-4 space-y-2">
-        <div className="hidden md:block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3 pt-2">Menu</div>
+      {/* Navigation Items */}
+      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1.5">
+        <div className="text-[10.5px] font-bold text-muted-foreground/70 uppercase tracking-widest px-3 py-1">
+          Menu
+        </div>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -24,18 +27,33 @@ export function Sidebar({ activeTab, setActiveTab }) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              title={tab.label}
-              className={`w-full flex items-center justify-center md:justify-start gap-3 p-3 md:px-3 md:py-2 rounded-md text-[14.5px] font-medium transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 isActive 
-                  ? 'bg-accent/10 text-accent' 
-                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                  ? 'bg-accent text-white shadow-xs' 
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
               }`}
             >
-              <Icon size={20} className={isActive ? 'text-accent' : 'opacity-70'} />
-              <span className="hidden md:inline">{tab.label}</span>
+              <Icon size={16} className={isActive ? 'text-white' : 'opacity-70'} />
+              <span>{tab.label}</span>
             </button>
           );
         })}
+      </div>
+
+      {/* Footer Info */}
+      <div className="p-4 border-t border-border/60 text-xs text-muted-foreground space-y-2">
+        <a
+          href="https://github.com/yashrajrocxx/Mophe-AutoBuilds"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between p-2 rounded-lg bg-muted/40 hover:bg-muted text-foreground transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <GitBranch size={14} />
+            <span className="font-medium text-xs">Repository</span>
+          </div>
+          <ExternalLink size={12} className="opacity-60" />
+        </a>
       </div>
     </aside>
   );
