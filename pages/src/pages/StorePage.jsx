@@ -8,112 +8,39 @@ import {
   Smartphone, 
   Download, 
   CheckCircle2, 
-  RefreshCw,
-  Archive,
-  ArrowLeft
+  RefreshCw 
 } from 'lucide-react';
 import { PatchChangelogsSection } from '../components/PatchChangelogsSection';
 import { AppCard } from '../components/AppCard';
 import { FilterBar } from '../components/FilterBar';
-import { ReleaseSelector } from '../components/ReleaseSelector';
-import { formatTimeAgo, formatExactDate } from '../utils/dateUtils';
+import { formatTimeAgo } from '../utils/dateUtils';
 
 export function StorePage() {
   const [manifest, setManifest] = useState(null);
   const [patchChangelogs, setPatchChangelogs] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentReleaseTag, setCurrentReleaseTag] = useState('latest');
-  const [currentReleaseData, setCurrentReleaseData] = useState(null);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState('all');
   const [selectedArch, setSelectedArch] = useState('all');
 
-  const isArchivedView = currentReleaseTag !== 'latest';
-
-  // Load default/current release data
   useEffect(() => {
-    loadReleaseData('latest');
-  }, []);
+    // Fetch manifest.json and patch_changelogs.json concurrently
+    Promise.allSettled([
+      fetch(`${import.meta.env.BASE_URL}manifest.json`).then(r => r.ok ? r.json() : null),
+      fetch(`${import.meta.env.BASE_URL}patch_changelogs.json`).then(r => r.ok ? r.json() : null)
+    ]).then(([manifestRes, changelogsRes]) => {
+      const manifestData = manifestRes.status === 'fulfilled' ? manifestRes.value : null;
+      const changelogsData = changelogsRes.status === 'fulfilled' ? changelogsRes.value : null;
 
-  const loadReleaseData = async (tag) => {
-    setLoading(true);
-    setCurrentReleaseTag(tag);
-
-    try {
-      if (tag === 'latest') {
-        // Load default static manifest and patch_changelogs
-        const [manifestRes, changelogsRes] = await Promise.allSettled([
-          fetch(`${import.meta.env.BASE_URL}manifest.json`).then(r => r.ok ? r.json() : null),
-          fetch(`${import.meta.env.BASE_URL}patch_changelogs.json`).then(r => r.ok ? r.json() : null)
-        ]);
-
-        const mData = manifestRes.status === 'fulfilled' ? manifestRes.value : null;
-        const cData = changelogsRes.status === 'fulfilled' ? changelogsRes.value : null;
-
-        setManifest(mData);
-        setPatchChangelogs(mData?.patch_changelogs || cData || {});
-        setCurrentReleaseData(null);
-      } else {
-        // Fetch specific release from GitHub API
-        const res = await fetch(`https://api.github.com/repos/yashrajrocxx/Mophe-AutoBuilds/releases/tags/${tag}`);
-        if (res.ok) {
-          const relData = await res.json();
-          setCurrentReleaseData(relData);
-
-          // Check if manifest.json asset exists in that release
-          const manifestAsset = (relData.assets || []).find(a => a.name === 'manifest.json');
-          if (manifestAsset && manifestAsset.browser_download_url) {
-            try {
-              const mRes = await fetch(manifestAsset.browser_download_url);
-              if (mRes.ok) {
-                const mData = await mRes.json();
-                setManifest(mData);
-                setPatchChangelogs(mData?.patch_changelogs || {});
-                setLoading(false);
-                return;
-              }
-            } catch (e) {
-              console.warn("Could not load manifest from release asset:", e);
-            }
-          }
-
-          // Fallback: construct entries from APK assets in the release
-          const entriesMap = {};
-          (relData.assets || []).forEach(asset => {
-            const name = asset.name || "";
-            if (!name.endsWith(".apk")) return;
-
-            // Extract parts from name: {app}-{arch}-{source}-v{ver}.apk
-            const parts = name.replace(/\.apk$/i, '').split('-');
-            const app = parts[0] || 'app';
-            let arch = 'universal';
-            if (name.includes('arm64-v8a')) arch = 'arm64-v8a';
-            else if (name.includes('armeabi-v7a')) arch = 'armeabi-v7a';
-            else if (name.includes('x86_64')) arch = 'x86_64';
-            else if (name.includes('x86')) arch = 'x86';
-
-            const mkey = `${app}|auto|${arch}`;
-            entriesMap[mkey] = {
-              app_name: app,
-              source: 'auto',
-              arch: arch,
-              apk: name,
-              built_version: '',
-              built_at: asset.updated_at || relData.published_at,
-            };
-          });
-
-          setManifest({ entries: entriesMap, updated_at: relData.published_at });
-          setPatchChangelogs({});
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load release data:", err);
-    } finally {
+      setManifest(manifestData);
+      setPatchChangelogs(manifestData?.patch_changelogs || changelogsData || {});
       setLoading(false);
-    }
-  };
+    }).catch(err => {
+      console.error("Failed to load catalog data:", err);
+      setLoading(false);
+    });
+  }, []);
 
   const entries = useMemo(() => {
     if (!manifest?.entries) return [];
@@ -146,7 +73,7 @@ export function StorePage() {
   const sources = useMemo(() => {
     const s = new Set();
     entries.forEach(e => {
-      if (e.source && e.source !== 'auto') s.add(e.source.toLowerCase());
+      if (e.source) s.add(e.source.toLowerCase());
     });
     return Array.from(s);
   }, [entries]);
@@ -204,16 +131,12 @@ export function StorePage() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSelectRelease = (rel) => {
-    loadReleaseData(rel.tag_name || 'latest');
-  };
-
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-background min-h-[50vh]">
         <div className="flex flex-col items-center gap-3 yr-fade-up">
           <div className="w-8 h-8 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
-          <p className="text-muted-foreground text-xs font-medium tracking-wide">Syncing release catalog...</p>
+          <p className="text-muted-foreground text-xs font-medium tracking-wide">Loading app catalog...</p>
         </div>
       </div>
     );
@@ -222,7 +145,7 @@ export function StorePage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-[1350px] mx-auto w-full yr-fade-up space-y-8">
       
-      {/* 1. Header & Release History Switcher */}
+      {/* 1. Header & Minimal Sync Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-border/50">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -238,34 +161,11 @@ export function StorePage() {
           </p>
         </div>
 
-        {/* Release Version Switcher Dropdown */}
-        <div className="flex items-center gap-3 self-start sm:self-auto">
-          <ReleaseSelector
-            currentReleaseTag={currentReleaseTag}
-            onSelectRelease={handleSelectRelease}
-            isArchivedView={isArchivedView}
-          />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl border border-border/50 self-start sm:self-auto">
+          <Clock size={13} className="text-accent" />
+          <span>Updated {formatTimeAgo(manifest?.updated_at)}</span>
         </div>
       </div>
-
-      {/* Archived Release Notice Banner (if older release selected) */}
-      {isArchivedView && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-600 dark:text-amber-400 yr-fade-up">
-          <div className="flex items-center gap-2">
-            <Archive size={15} className="shrink-0" />
-            <span>
-              Viewing archived release <strong>{currentReleaseTag}</strong> ({formatExactDate(manifest?.updated_at || currentReleaseData?.published_at)}).
-            </span>
-          </div>
-          <button
-            onClick={() => loadReleaseData('latest')}
-            className="px-3 py-1 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors shrink-0 self-start sm:self-auto flex items-center gap-1.5"
-          >
-            <ArrowLeft size={12} />
-            <span>Return to Latest</span>
-          </button>
-        </div>
-      )}
 
       {/* 2. Top Section: What's New in Patches (Only if updated patch changelogs exist) */}
       <PatchChangelogsSection 
@@ -273,7 +173,7 @@ export function StorePage() {
         onFilterByApp={handleFilterByApp}
       />
 
-      {/* 3. Sleek Mobile-Friendly Filter & Search Bar */}
+      {/* 3. Sleek Minimal Filter & Search Bar */}
       <div id="apps-catalog-section" className="space-y-3">
         <FilterBar
           searchQuery={searchQuery}

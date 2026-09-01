@@ -22,7 +22,7 @@ export function AppCard({ appName, appEntries, isRecentlyUpdated, manifestUpdate
   const getSourceBadge = (source) => {
     const s = (source || "").toLowerCase();
     if (s.includes("piko-dev")) {
-      return { label: "Piko (Dev)", bg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" };
+      return { label: "Piko (Dev)", bg: "bg-accent/10 text-accent border-accent/20" };
     }
     if (s.includes("piko")) {
       return { label: "Piko", bg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" };

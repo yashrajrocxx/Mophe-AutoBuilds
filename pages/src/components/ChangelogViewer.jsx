@@ -88,7 +88,7 @@ export function ChangelogViewer({ text }) {
 
           return (
             <div key={idx} className="flex items-center gap-2 pt-3 pb-1 border-b border-border/40 font-semibold text-foreground text-[14px]">
-              {isBug && <Bug size={15} className="text-amber-500 shrink-0" />}
+              {isBug && <Bug size={15} className="text-accent shrink-0" />}
               {isFeature && <Sparkles size={15} className="text-emerald-500 shrink-0" />}
               {isSupport && <Rocket size={15} className="text-sky-500 shrink-0" />}
               {!isBug && !isFeature && !isSupport && <Wrench size={15} className="text-accent shrink-0" />}
