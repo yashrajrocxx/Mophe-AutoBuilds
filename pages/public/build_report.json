@@ -12,6 +12,30 @@
     "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk"
   },
   {
+    "app": "gboard",
+    "arch": "arm64-v8a",
+    "source": "jasonwu",
+    "status": "success",
+    "version": "18.0.3.954559732-release-arm64-v8a",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "gboard-arm64-v8a-jasonwu-v18.0.3.954559732-release-arm64-v8a.apk"
+  },
+  {
+    "app": "habitkit",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "1.15.2",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk"
+  },
+  {
     "app": "minimalwidgets",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
@@ -22,6 +46,27 @@
     ],
     "dl_method": "download_playstore",
     "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk"
+  },
+  {
+    "app": "notesnook",
+    "arch": "arm64-v8a",
+    "source": "hxreborn",
+    "status": "success",
+    "version": "3.4.11",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "notesnook-arm64-v8a-hxreborn-v3.4.11.apk"
+  },
+  {
+    "app": "pinnit",
+    "arch": "arm64-v8a",
+    "source": "morning-entree",
+    "status": "failed",
+    "version": null,
+    "patches": [],
+    "error": "Failed to download version 1.13.0"
   },
   {
     "app": "pocketcasts",
@@ -36,12 +81,86 @@
     "apk": "pocketcasts-arm64-v8a-morphe-patches-v8.16.apk"
   },
   {
+    "app": "protonpass",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "1.40.3",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "protonpass-arm64-v8a-morphe-patches-v1.40.3.apk"
+  },
+  {
+    "app": "samsung-keyboard",
+    "arch": "arm64-v8a",
+    "source": "ample",
+    "status": "success",
+    "version": "5.9.40.48",
+    "patches": [
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "samsung-keyboard-arm64-v8a-ample-v5.9.40.48.apk"
+  },
+  {
+    "app": "serverauditor",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "7.8.2",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "serverauditor-arm64-v8a-morphe-patches-v7.8.2.apk"
+  },
+  {
+    "app": "taskmanager",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "1.5.2",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "taskmanager-arm64-v8a-paresh-v1.5.2.apk"
+  },
+  {
     "app": "tradingview",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
+    "status": "success",
+    "version": "1.20.81.1.1002420",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "tradingview-arm64-v8a-morphe-patches-v1.20.81.1.1002420.apk"
+  },
+  {
+    "app": "vivaldi-snapshot",
+    "arch": "arm64-v8a",
+    "source": "kveld9",
     "status": "failed",
     "version": null,
     "patches": [],
-    "error": "Failed to download version 1.20.80.0.1002385"
+    "error": "Failed to download version 8.2.4145.4"
+  },
+  {
+    "app": "vocabulary",
+    "arch": "arm64-v8a",
+    "source": "morning-entree",
+    "status": "success",
+    "version": "5.5.1",
+    "patches": [
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk"
   }
 ]

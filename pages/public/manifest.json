@@ -170,13 +170,13 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.13.1@2026-08-18T07:13:16Z@2026-08-18T07:13:16Z|morphe-desktop-1.13.1-all.jar:sha256:a212531f68d3ada4b504bf9dac3e02460589f3bf8868ee66e1b4780152d3466b|sha:b067b402ae1d;rushiranpise/morphe-patches@v1.19.0@2026-08-19T22:33:07Z@2026-08-19T22:33:07Z|SHA256SUMS.txt:sha256:ac3f98127723c92f50436a10bfcbc9b8dc349b57789b0b702636537f5760b752,patches-1.19.0.mpp:sha256:1626e363aec813570f7aa52660f04737f79ac46c9a5d4c274fbaf9127b8eebe0,patches-bundle.json:sha256:8a8ae633c04c34794a2e1a38011db6ac25ea166efd2858264fa92eb6d33c2677,patches-list.json:sha256:a3526fa7cb112848f3197372f707672ebfb390211667578c543bf271339f5370|sha:11b727d57cd0",
-      "patch_tag": "v1.21.3",
-      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
-      "patch_changelog": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
-      "apk": "tradingview-arm64-v8a-morphe-patches-v1.20.80.0.1002385.apk",
-      "built_version": "1.20.80.0.1002385",
-      "built_at": "2026-08-21T00:51:41.841877+00:00Z",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
+      "apk": "tradingview-arm64-v8a-morphe-patches-v1.20.81.1.1002420.apk",
+      "built_version": "1.20.81.1.1002420",
+      "built_at": "2026-09-01T15:23:59Z",
       "package": "com.tradingview.tradingviewapp",
       "icon_url": "https://play-lh.googleusercontent.com/bRMYA4FYUqYgSnAB3ukCsx_P80UYLmCYmjURoVodvWWg6fPnXTX17K1bSkTHWSafgWFVPr-Oa_0Vv1hIql9b53E=w240-h480"
     },
@@ -185,13 +185,13 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.3@2026-08-31T22:35:28Z@2026-08-31T22:35:28Z|SHA256SUMS.txt:sha256:21e2f09158ccd0600103217db6e3c8aef9184b02a9738fce6bf2d9da73c98566,patches-1.21.3.mpp:sha256:3aeabcad98e71abecdcde56f2dcd59c7ea9741c12a7c5a9735509d0e70579646,patches-bundle.json:sha256:36f89837ab8206f3e9f40c102598511f37829ae15eb8fa5344dd3f23d03bad7e,patches-list.json:sha256:ee2f946e2977dc3b62637b6fbd7dfae172bf68488abdc889fa1243eef5a1a906|sha:6862d7e292a7",
-      "patch_tag": "v1.21.3",
-      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
-      "patch_changelog": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
       "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk",
       "built_version": "2.1.06",
-      "built_at": "2026-09-01T01:19:07.592025+00:00Z",
+      "built_at": "2026-09-01T15:23:52Z",
       "package": "com.jndapp.depth.live.wallpaper",
       "icon_url": "https://play-lh.googleusercontent.com/h9g140jbgc6tR6o2VgL2lF0OYTr8cq2n9x_GihS_Toxe3PioggBfXHzIwM2OeNeEyWHfZFpqoMov5Whdm_qMeg=w240-h480"
     },
@@ -200,13 +200,13 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.3@2026-08-31T22:35:28Z@2026-08-31T22:35:28Z|SHA256SUMS.txt:sha256:21e2f09158ccd0600103217db6e3c8aef9184b02a9738fce6bf2d9da73c98566,patches-1.21.3.mpp:sha256:3aeabcad98e71abecdcde56f2dcd59c7ea9741c12a7c5a9735509d0e70579646,patches-bundle.json:sha256:36f89837ab8206f3e9f40c102598511f37829ae15eb8fa5344dd3f23d03bad7e,patches-list.json:sha256:ee2f946e2977dc3b62637b6fbd7dfae172bf68488abdc889fa1243eef5a1a906|sha:6862d7e292a7",
-      "patch_tag": "v1.21.3",
-      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
-      "patch_changelog": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
       "apk": "pocketcasts-arm64-v8a-morphe-patches-v8.16.apk",
       "built_version": "8.16",
-      "built_at": "2026-09-01T01:19:10.727598+00:00Z",
+      "built_at": "2026-09-01T15:24:09Z",
       "package": "au.com.shiftyjelly.pocketcasts",
       "icon_url": "https://play-lh.googleusercontent.com/9VEAFZhJZgBzOnGXhSLqxwGt_11eQ4KBczz5UpaRGWK95z1isxCv4Xpp1T4gtCAtK6OlSBILVcbM9XaWaTK05hQ=w240-h480"
     },
@@ -215,15 +215,165 @@
       "source": "rushiranpise",
       "arch": "arm64-v8a",
       "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.3@2026-08-31T22:35:28Z@2026-08-31T22:35:28Z|SHA256SUMS.txt:sha256:21e2f09158ccd0600103217db6e3c8aef9184b02a9738fce6bf2d9da73c98566,patches-1.21.3.mpp:sha256:3aeabcad98e71abecdcde56f2dcd59c7ea9741c12a7c5a9735509d0e70579646,patches-bundle.json:sha256:36f89837ab8206f3e9f40c102598511f37829ae15eb8fa5344dd3f23d03bad7e,patches-list.json:sha256:ee2f946e2977dc3b62637b6fbd7dfae172bf68488abdc889fa1243eef5a1a906|sha:6862d7e292a7",
-      "patch_tag": "v1.21.3",
-      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
-      "patch_changelog": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
       "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk",
       "built_version": "2.1.04",
-      "built_at": "2026-09-01T01:19:28.765125+00:00Z",
+      "built_at": "2026-09-01T15:24:12Z",
       "package": "com.jndapp.minimal.widgets",
       "icon_url": "https://play-lh.googleusercontent.com/YdxN2n40wSiPp-WZi832aZHxGFQSafDcHqNif-Wy9YH__t2nCXoB5yGaCQkisJaHWe13H37lI_olM7sKsfONBg=w240-h480"
+    },
+    "protonpass|rushiranpise|arm64-v8a": {
+      "app_name": "protonpass",
+      "source": "rushiranpise",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
+      "apk": "protonpass-arm64-v8a-morphe-patches-v1.40.3.apk",
+      "built_version": "1.40.3",
+      "built_at": "2026-09-01T15:24:19Z",
+      "package": "proton.android.pass",
+      "icon_url": "https://play-lh.googleusercontent.com/Fl-aCgnpB0xcDpnzFYYccPrHKBoh5zSEUZKrHax9m8jGYJepQZhCNO-vhnsJ2En9Hqv8R3f7VJ62QNfgOfXL=w240-h480"
+    },
+    "serverauditor|rushiranpise|arm64-v8a": {
+      "app_name": "serverauditor",
+      "source": "rushiranpise",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;rushiranpise/morphe-patches@v1.21.4@2026-09-01T12:53:18Z@2026-09-01T12:53:18Z|SHA256SUMS.txt:sha256:115bb97b950500be3f2f8fe066a382fd31c42f7948aa9b5c7f40dcac363d2e24,patches-1.21.4.mpp:sha256:f47d000d2e75c598cf0a3acd54bc0f340a54852b21294037eb04561b6596a0ff,patches-bundle.json:sha256:07479d6fe59c4fb63183224239d743a3bca87e63997008ad2799a547fcf4b507,patches-list.json:sha256:a7a7db89bfeab97753bd6e97d4287694e7424b18368b519e3d26caf17d9ec6a8|sha:930cc995c9d5",
+      "patch_tag": "v1.21.4",
+      "patch_url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "patch_changelog": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a...",
+      "apk": "serverauditor-arm64-v8a-morphe-patches-v7.8.2.apk",
+      "built_version": "7.8.2",
+      "built_at": "2026-09-01T15:24:53Z",
+      "package": "com.server.auditor.ssh.client",
+      "icon_url": "https://play-lh.googleusercontent.com/h0zYNf7cjzKrPw8hrRIvyDxDe_OpikNa9rl0Udjrk-LOo5d23IO5DyXKeRyta1rc12j0Ta60LrvwPkoq2P6e1Q=w240-h480"
+    },
+    "vocabulary|morning-entree|arm64-v8a": {
+      "app_name": "vocabulary",
+      "source": "morning-entree",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;Entree3k/Morning-Entree-Patches@v1.20.0@2026-08-30T17:15:04Z@2026-08-30T17:15:04Z|patches-1.20.0.mpp:sha256:1fccbd3fce92e3c183c3774d81fc1e8caa5b845674e43b19381d4c51eb2a10f9|sha:111f40789e65",
+      "patch_tag": "v1.20.0",
+      "patch_url": "https://github.com/Entree3k/Morning-Entree-Patches/releases/tag/v1.20.0",
+      "patch_changelog": "## [1.20.0](https://github.com/Entree3k/Morning-Entree-Patches/compare/v1.19.0...v1.20.0) (2026-08-30)\n\n### \u2728 New Features\n\n* update & fix ([8f8bd25](https://github.com/Entree3k/Morning-Entree-Patches/commit/8f8bd25bb89d786a6f1a7d3c7ac48c8ccc92743c))\n",
+      "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk",
+      "built_version": "5.5.1",
+      "built_at": "2026-09-01T15:25:40Z",
+      "package": "com.hrd.vocabulary",
+      "icon_url": "https://play-lh.googleusercontent.com/lxqbwaL36m_080hRNVbDQAjnmCwyDA8tT3B_gPT_yHsuTjeSJfkejJpi19r_qtAm2_QWoTZQS-6MT1T7AILdBA=w240-h480"
+    },
+    "pinnit|morning-entree|arm64-v8a": {
+      "app_name": "pinnit",
+      "source": "morning-entree",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "",
+      "patch_tag": "v1.20.0",
+      "patch_url": "https://github.com/Entree3k/Morning-Entree-Patches/releases/tag/v1.20.0",
+      "patch_changelog": "## [1.20.0](https://github.com/Entree3k/Morning-Entree-Patches/compare/v1.19.0...v1.20.0) (2026-08-30)\n\n### \u2728 New Features\n\n* update & fix ([8f8bd25](https://github.com/Entree3k/Morning-Entree-Patches/commit/8f8bd25bb89d786a6f1a7d3c7ac48c8ccc92743c))\n",
+      "apk": "",
+      "built_version": "",
+      "built_at": "",
+      "package": "dev.sasikanth.pinnit2",
+      "icon_url": "https://play-lh.googleusercontent.com/8em5gBbzRGav2MXv4_WWQztXUg13aMf9tElXpgg47eOGkAffDCRi_eCuPc4wfsqaqmWv4o5bXWE0QA2p0Jut07k=w240-h480"
+    },
+    "gboard|jasonwu|arm64-v8a": {
+      "app_name": "gboard",
+      "source": "jasonwu",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;jasonwu1994/Gboard-patches@v3.9.0@2026-09-01T05:51:23Z@2026-09-01T05:51:23Z|patches-3.9.0.mpp:sha256:8ab6e454e418bc1fb784a19ef39995989a8383df9d5e73e935e19a96243a3d23|sha:489abdaa88bb",
+      "patch_tag": "v3.9.0",
+      "patch_url": "https://github.com/jasonwu1994/Gboard-patches/releases/tag/v3.9.0",
+      "patch_changelog": "### \u2728 New Features\n\n* **Gboard:** add the `Simple Calculator` patch. Enter an expression directly to display both the expression and its result in Gboard's suggestion strip.\n\n### \u2728 \u65b0\u529f\u80fd\n\n* **Gboard:** \u65b0\u589e `Simple Calculator` Patch\uff1b\u76f4\u63a5\u8f38\u5165\u7b97\u5f0f\uff0c\u5373\u53ef\u5728 Gboard \u63a8\u85a6\u5217\u986f\u793a\u7b97\u5f0f\u8207\u8a08\u7b97\u7d50\u679c\u3002\n",
+      "apk": "gboard-arm64-v8a-jasonwu-v18.0.3.954559732-release-arm64-v8a.apk",
+      "built_version": "18.0.3.954559732-release-arm64-v8a",
+      "built_at": "2026-09-01T15:26:04Z",
+      "package": "com.google.android.inputmethod.latin",
+      "icon_url": "https://play-lh.googleusercontent.com/J4vZ82VsZjnsRsI6ckQFXlO36_52QJerqG5-HfLgHffS34I4EfoAFfNdbf6s4wBAsUEf8DOJVEDEHh5tzWbrnA=w240-h480"
+    },
+    "vivaldi-snapshot|kveld9|arm64-v8a": {
+      "app_name": "vivaldi-snapshot",
+      "source": "kveld9",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "",
+      "patch_tag": "v1.10.1",
+      "patch_url": "https://github.com/kveld9/kveld-morphe-patches/releases/tag/v1.10.1",
+      "patch_changelog": "## [1.10.1](https://github.com/kveld9/kveld-morphe-patches/compare/v1.10.0...v1.10.1) (2026-08-30)\n\n### \ud83d\udc1b Bug Fixes\n\n* **brave:** disable native bloat and locale slimmers by default ([9874434](https://github.com/kveld9/kveld-morphe-patches/commit/98744343ba53641e30dedbc3bc7de34c08a64606))\n",
+      "apk": "",
+      "built_version": "",
+      "built_at": "",
+      "package": "com.vivaldi.browser.snapshot",
+      "icon_url": "https://play-lh.googleusercontent.com/u_sNt2pCdAsRu_h7gH8z6mc5Ae0u-sATVHjjzjUSJ7Q3E50jvtRD6bxIORbueyIu5w1AihpJ-MX9wiQISWiWug=w240-h480"
+    },
+    "taskmanager|paresh|arm64-v8a": {
+      "app_name": "taskmanager",
+      "source": "paresh",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;gitlab:Paresh-Maheshwari/paresh-patches@v1.20.0-dev.2@2026-08-08T04:55:25.025Z",
+      "patch_tag": "v1.20.0-dev.2",
+      "patch_url": "https://gitlab.com/Paresh-Maheshwari/paresh-patches/-/releases/v1.20.0-dev.2",
+      "patch_changelog": "# [1.20.0-dev.2](https://gitlab.com/Paresh-Maheshwari/paresh-patches/compare/v1.20.0-dev.1...v1.20.0-dev.2) (2026-08-08)\n\n\n### Bug Fixes\n\n* restore TickTick push sync on re-signed app + support 8.1.3.3 ([0d2aaf4](https://gitlab.com/Paresh-Maheshwari/paresh-patches/commit/0d2aaf4da7b5ef8836ca0ff9b7236429718b3484))\n",
+      "apk": "taskmanager-arm64-v8a-paresh-v1.5.2.apk",
+      "built_version": "1.5.2",
+      "built_at": "2026-09-01T15:26:04Z",
+      "package": "com.rk.taskmanager",
+      "icon_url": "https://play-lh.googleusercontent.com/PGIYRXc-vBlKInTp-i0dvz1E3NCUNWkDn5DGgHaPkMY5QQQ4rzQtprwdepBRLhzyaj60oNzHM2UZfxVyVzmz=w240-h480"
+    },
+    "habitkit|paresh|arm64-v8a": {
+      "app_name": "habitkit",
+      "source": "paresh",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;gitlab:Paresh-Maheshwari/paresh-patches@v1.20.0-dev.2@2026-08-08T04:55:25.025Z",
+      "patch_tag": "v1.20.0-dev.2",
+      "patch_url": "https://gitlab.com/Paresh-Maheshwari/paresh-patches/-/releases/v1.20.0-dev.2",
+      "patch_changelog": "# [1.20.0-dev.2](https://gitlab.com/Paresh-Maheshwari/paresh-patches/compare/v1.20.0-dev.1...v1.20.0-dev.2) (2026-08-08)\n\n\n### Bug Fixes\n\n* restore TickTick push sync on re-signed app + support 8.1.3.3 ([0d2aaf4](https://gitlab.com/Paresh-Maheshwari/paresh-patches/commit/0d2aaf4da7b5ef8836ca0ff9b7236429718b3484))\n",
+      "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk",
+      "built_version": "1.15.2",
+      "built_at": "2026-09-01T15:26:51Z",
+      "package": "com.roehl.habitkit",
+      "icon_url": "https://play-lh.googleusercontent.com/TdubEdRfoPscyyf_UncRx2VKLa08b07wHTNjdGyAP4W63r4Jht1kEry7UF-6UkqzSLSmEUu91hRmkvDhAvPgNg=w240-h480"
+    },
+    "notesnook|hxreborn|arm64-v8a": {
+      "app_name": "notesnook",
+      "source": "hxreborn",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;hxreborn/morphe-patches@v1.14.0@2026-08-30T18:33:48Z@2026-08-30T18:33:48Z|patches-1.14.0.mpp:sha256:2b76f192c0118b788590ecde8b1e1a1c67942ed5fbc795853025644ca14aeabd|sha:4484e0db116d",
+      "patch_tag": "v1.14.0",
+      "patch_url": "https://github.com/hxreborn/morphe-patches/releases/tag/v1.14.0",
+      "patch_changelog": "## [1.14.0](https://github.com/hxreborn/morphe-patches/compare/v1.13.0...v1.14.0) (2026-08-30)\n\n### Bug Fixes\n\n* **Cx File Explorer - Dark theme:** darken the file operation progress dialog ([f072429](https://github.com/hxreborn/morphe-patches/commit/f072429435c5d77774e4d5a0cd6eaaecf2104bff))\n\n### New Features\n\n* **All-In-One Calculator - GmsCore support:** sign in through GmsCore ([29267f9](https...",
+      "apk": "notesnook-arm64-v8a-hxreborn-v3.4.11.apk",
+      "built_version": "3.4.11",
+      "built_at": "2026-09-01T15:26:59Z",
+      "package": "com.streetwriters.notesnook",
+      "icon_url": "https://play-lh.googleusercontent.com/jzOVWLCfAs-yPJoNIJD16f1K-ClRNjcNyhzOW5oW-eP6DdB79LHnRpeBmO97fkXK-N7CrRLhrAjr_1yTloET=w240-h480"
+    },
+    "samsung-keyboard|ample|arm64-v8a": {
+      "app_name": "samsung-keyboard",
+      "source": "ample",
+      "arch": "arm64-v8a",
+      "config_version": "",
+      "source_sig": "MorpheApp/morphe-cli@v1.14.0@2026-08-25T12:37:50Z@2026-08-25T12:37:50Z|morphe-desktop-1.14.0-all.jar:sha256:d0579df359c75335d7d79927fa52e351c476bb43a66e43f352a85e943e511131|sha:62d6e8f0dbd3;AmpleReVanced/revanced-patches@v1.4.0@2026-08-31T16:18:49Z@2026-08-31T16:18:49Z|patches-1.4.0.mpp:sha256:f3b0e410bc9fecdc511c2097a6d6362efd5c4686130ddccc5536614cd0d8c014|sha:30930ba4981e",
+      "patch_tag": "v1.4.0",
+      "patch_url": "https://github.com/AmpleReVanced/revanced-patches/releases/tag/v1.4.0",
+      "patch_changelog": "# [1.4.0](https://github.com/AmpleReVanced/revanced-patches/compare/v1.3.0...v1.4.0) (2026-08-31)\n\n\n### Bug Fixes\n\n* **dcinside:** prevent crash when hiding search result page indicators ([744ae6c](https://github.com/AmpleReVanced/revanced-patches/commit/744ae6c02e20fd6ff6d729239b8f30f53e247d55))\n* **kakaotalk:** address global-region ad review ([add04cb](https://github.com/AmpleReVanced/revanced-...",
+      "apk": "samsung-keyboard-arm64-v8a-ample-v5.9.40.48.apk",
+      "built_version": "5.9.40.48",
+      "built_at": "2026-09-01T15:28:04Z",
+      "package": "com.samsung.android.honeyboard",
+      "icon_url": ""
     },
     "jiotvplus|durgesh|universal": {
       "app_name": "jiotvplus",
@@ -256,16 +406,16 @@
       "icon_url": "https://play-lh.googleusercontent.com/UBrZnuXGb-QACU0uUdF5r_n5nx5oBbdfPyEbtsr0xXv00RN7rpaTVu3GjLeE90aHFmNlbaCmm8vNcmY0eE98U9E=w240-h480"
     }
   },
-  "updated_at": "2026-09-01T01:20:16.012045+00:00",
+  "updated_at": "2026-09-01T15:28:21.688798+00:00",
   "patch_changelogs": {
     "rushiranpise": {
       "source": "rushiranpise",
-      "old_tag": "v1.21.2",
-      "new_tag": "v1.21.3",
-      "title": "v1.21.3",
-      "url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
-      "published_at": "2026-08-31T22:35:28Z",
-      "body": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
+      "old_tag": "v1.21.3",
+      "new_tag": "v1.21.4",
+      "title": "v1.21.4",
+      "url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
+      "published_at": "2026-09-01T12:53:18Z",
+      "body": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a8f](https://github.com/rushiranpise/morphe-patches/commit/4806a8feb3cd5abe5fb801e2d0d87613a12c0b10))\n* remove universal patches ([55f11fe](https://github.com/rushiranpise/morphe-patches/commit/55f11feae7749990252dfe7f1aede8536aab062a))\n",
       "repos": [
         {
           "provider": "github",
@@ -283,11 +433,11 @@
           "provider": "github",
           "user": "rushiranpise",
           "repo": "morphe-patches",
-          "tag": "v1.21.3",
-          "title": "v1.21.3",
-          "body": "## [1.21.3](https://github.com/rushiranpise/morphe-patches/compare/v1.21.2...v1.21.3) (2026-08-31)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove Duolingo ([88b7c17](https://github.com/rushiranpise/morphe-patches/commit/88b7c179d6c3584ce2b79a2f67e6c2e240ea2cda))\n* remove terabox ([72ae34f](https://github.com/rushiranpise/morphe-patches/commit/72ae34fe314c485c84581e98f2fe4e2ab216d911))\n",
-          "published_at": "2026-08-31T22:35:28Z",
-          "url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.3",
+          "tag": "v1.21.4",
+          "title": "v1.21.4",
+          "body": "## [1.21.4](https://github.com/rushiranpise/morphe-patches/compare/v1.21.3...v1.21.4) (2026-09-01)\n\n### \ud83d\udc1b Bug Fixes\n\n* remove drivvo ([9863742](https://github.com/rushiranpise/morphe-patches/commit/98637422416922553c37ec557a4f2327b95f9cf1))\n* remove pixel patches ([4036563](https://github.com/rushiranpise/morphe-patches/commit/40365632f5d5e9d50f1b35f6288109d743447236))\n* remove tradingview ([4806a8f](https://github.com/rushiranpise/morphe-patches/commit/4806a8feb3cd5abe5fb801e2d0d87613a12c0b10))\n* remove universal patches ([55f11fe](https://github.com/rushiranpise/morphe-patches/commit/55f11feae7749990252dfe7f1aede8536aab062a))\n",
+          "published_at": "2026-09-01T12:53:18Z",
+          "url": "https://github.com/rushiranpise/morphe-patches/releases/tag/v1.21.4",
           "is_cli": false,
           "is_patches": true
         }
@@ -296,7 +446,239 @@
         "tradingview",
         "depthwallpaper",
         "pocketcasts",
-        "minimalwidgets"
+        "minimalwidgets",
+        "protonpass",
+        "serverauditor"
+      ]
+    },
+    "morning-entree": {
+      "source": "morning-entree",
+      "old_tag": "",
+      "new_tag": "v1.20.0",
+      "title": "v1.20.0",
+      "url": "https://github.com/Entree3k/Morning-Entree-Patches/releases/tag/v1.20.0",
+      "published_at": "2026-08-30T17:15:04Z",
+      "body": "## [1.20.0](https://github.com/Entree3k/Morning-Entree-Patches/compare/v1.19.0...v1.20.0) (2026-08-30)\n\n### \u2728 New Features\n\n* update & fix ([8f8bd25](https://github.com/Entree3k/Morning-Entree-Patches/commit/8f8bd25bb89d786a6f1a7d3c7ac48c8ccc92743c))\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "github",
+          "user": "Entree3k",
+          "repo": "Morning-Entree-Patches",
+          "tag": "v1.20.0",
+          "title": "v1.20.0",
+          "body": "## [1.20.0](https://github.com/Entree3k/Morning-Entree-Patches/compare/v1.19.0...v1.20.0) (2026-08-30)\n\n### \u2728 New Features\n\n* update & fix ([8f8bd25](https://github.com/Entree3k/Morning-Entree-Patches/commit/8f8bd25bb89d786a6f1a7d3c7ac48c8ccc92743c))\n",
+          "published_at": "2026-08-30T17:15:04Z",
+          "url": "https://github.com/Entree3k/Morning-Entree-Patches/releases/tag/v1.20.0",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "vocabulary",
+        "pinnit"
+      ]
+    },
+    "jasonwu": {
+      "source": "jasonwu",
+      "old_tag": "",
+      "new_tag": "v3.9.0",
+      "title": "v3.9.0",
+      "url": "https://github.com/jasonwu1994/Gboard-patches/releases/tag/v3.9.0",
+      "published_at": "2026-09-01T05:51:23Z",
+      "body": "### \u2728 New Features\n\n* **Gboard:** add the `Simple Calculator` patch. Enter an expression directly to display both the expression and its result in Gboard's suggestion strip.\n\n### \u2728 \u65b0\u529f\u80fd\n\n* **Gboard:** \u65b0\u589e `Simple Calculator` Patch\uff1b\u76f4\u63a5\u8f38\u5165\u7b97\u5f0f\uff0c\u5373\u53ef\u5728 Gboard \u63a8\u85a6\u5217\u986f\u793a\u7b97\u5f0f\u8207\u8a08\u7b97\u7d50\u679c\u3002\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "github",
+          "user": "jasonwu1994",
+          "repo": "Gboard-patches",
+          "tag": "v3.9.0",
+          "title": "v3.9.0",
+          "body": "### \u2728 New Features\n\n* **Gboard:** add the `Simple Calculator` patch. Enter an expression directly to display both the expression and its result in Gboard's suggestion strip.\n\n### \u2728 \u65b0\u529f\u80fd\n\n* **Gboard:** \u65b0\u589e `Simple Calculator` Patch\uff1b\u76f4\u63a5\u8f38\u5165\u7b97\u5f0f\uff0c\u5373\u53ef\u5728 Gboard \u63a8\u85a6\u5217\u986f\u793a\u7b97\u5f0f\u8207\u8a08\u7b97\u7d50\u679c\u3002\n",
+          "published_at": "2026-09-01T05:51:23Z",
+          "url": "https://github.com/jasonwu1994/Gboard-patches/releases/tag/v3.9.0",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "gboard"
+      ]
+    },
+    "kveld9": {
+      "source": "kveld9",
+      "old_tag": "",
+      "new_tag": "v1.10.1",
+      "title": "v1.10.1",
+      "url": "https://github.com/kveld9/kveld-morphe-patches/releases/tag/v1.10.1",
+      "published_at": "2026-08-30T21:18:59Z",
+      "body": "## [1.10.1](https://github.com/kveld9/kveld-morphe-patches/compare/v1.10.0...v1.10.1) (2026-08-30)\n\n### \ud83d\udc1b Bug Fixes\n\n* **brave:** disable native bloat and locale slimmers by default ([9874434](https://github.com/kveld9/kveld-morphe-patches/commit/98744343ba53641e30dedbc3bc7de34c08a64606))\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "github",
+          "user": "kveld9",
+          "repo": "kveld-morphe-patches",
+          "tag": "v1.10.1",
+          "title": "v1.10.1",
+          "body": "## [1.10.1](https://github.com/kveld9/kveld-morphe-patches/compare/v1.10.0...v1.10.1) (2026-08-30)\n\n### \ud83d\udc1b Bug Fixes\n\n* **brave:** disable native bloat and locale slimmers by default ([9874434](https://github.com/kveld9/kveld-morphe-patches/commit/98744343ba53641e30dedbc3bc7de34c08a64606))\n",
+          "published_at": "2026-08-30T21:18:59Z",
+          "url": "https://github.com/kveld9/kveld-morphe-patches/releases/tag/v1.10.1",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "vivaldi-snapshot"
+      ]
+    },
+    "paresh": {
+      "source": "paresh",
+      "old_tag": "",
+      "new_tag": "v1.20.0-dev.2",
+      "title": "v1.20.0-dev.2",
+      "url": "https://gitlab.com/Paresh-Maheshwari/paresh-patches/-/releases/v1.20.0-dev.2",
+      "published_at": "2026-08-08T04:55:25.025Z",
+      "body": "# [1.20.0-dev.2](https://gitlab.com/Paresh-Maheshwari/paresh-patches/compare/v1.20.0-dev.1...v1.20.0-dev.2) (2026-08-08)\n\n\n### Bug Fixes\n\n* restore TickTick push sync on re-signed app + support 8.1.3.3 ([0d2aaf4](https://gitlab.com/Paresh-Maheshwari/paresh-patches/commit/0d2aaf4da7b5ef8836ca0ff9b7236429718b3484))\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "gitlab",
+          "user": "",
+          "repo": "Paresh-Maheshwari/paresh-patches",
+          "tag": "v1.20.0-dev.2",
+          "title": "v1.20.0-dev.2",
+          "body": "# [1.20.0-dev.2](https://gitlab.com/Paresh-Maheshwari/paresh-patches/compare/v1.20.0-dev.1...v1.20.0-dev.2) (2026-08-08)\n\n\n### Bug Fixes\n\n* restore TickTick push sync on re-signed app + support 8.1.3.3 ([0d2aaf4](https://gitlab.com/Paresh-Maheshwari/paresh-patches/commit/0d2aaf4da7b5ef8836ca0ff9b7236429718b3484))\n",
+          "published_at": "2026-08-08T04:55:25.025Z",
+          "url": "https://gitlab.com/Paresh-Maheshwari/paresh-patches/-/releases/v1.20.0-dev.2",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "taskmanager",
+        "habitkit"
+      ]
+    },
+    "hxreborn": {
+      "source": "hxreborn",
+      "old_tag": "",
+      "new_tag": "v1.14.0",
+      "title": "v1.14.0",
+      "url": "https://github.com/hxreborn/morphe-patches/releases/tag/v1.14.0",
+      "published_at": "2026-08-30T18:33:48Z",
+      "body": "## [1.14.0](https://github.com/hxreborn/morphe-patches/compare/v1.13.0...v1.14.0) (2026-08-30)\n\n### Bug Fixes\n\n* **Cx File Explorer - Dark theme:** darken the file operation progress dialog ([f072429](https://github.com/hxreborn/morphe-patches/commit/f072429435c5d77774e4d5a0cd6eaaecf2104bff))\n\n### New Features\n\n* **All-In-One Calculator - GmsCore support:** sign in through GmsCore ([29267f9](https://github.com/hxreborn/morphe-patches/commit/29267f9bd56162f920bd858a15da0bf296a7f11b))\n* **RateGlance - Remove pairip protection:** drop the Play Integrity license check ([401f975](https://github.com/hxreborn/morphe-patches/commit/401f975e428c56a1ebe6b8cfa61a9a91cecc9339))\n* **RateGlance - Unlock premium:** unlock alerts widgets and full rate history ([366a1f3](https://github.com/hxreborn/morphe-patches/commit/366a1f3d92560f23b5692c6bc7ec29271030007f))\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "github",
+          "user": "hxreborn",
+          "repo": "morphe-patches",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "## [1.14.0](https://github.com/hxreborn/morphe-patches/compare/v1.13.0...v1.14.0) (2026-08-30)\n\n### Bug Fixes\n\n* **Cx File Explorer - Dark theme:** darken the file operation progress dialog ([f072429](https://github.com/hxreborn/morphe-patches/commit/f072429435c5d77774e4d5a0cd6eaaecf2104bff))\n\n### New Features\n\n* **All-In-One Calculator - GmsCore support:** sign in through GmsCore ([29267f9](https://github.com/hxreborn/morphe-patches/commit/29267f9bd56162f920bd858a15da0bf296a7f11b))\n* **RateGlance - Remove pairip protection:** drop the Play Integrity license check ([401f975](https://github.com/hxreborn/morphe-patches/commit/401f975e428c56a1ebe6b8cfa61a9a91cecc9339))\n* **RateGlance - Unlock premium:** unlock alerts widgets and full rate history ([366a1f3](https://github.com/hxreborn/morphe-patches/commit/366a1f3d92560f23b5692c6bc7ec29271030007f))\n",
+          "published_at": "2026-08-30T18:33:48Z",
+          "url": "https://github.com/hxreborn/morphe-patches/releases/tag/v1.14.0",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "notesnook"
+      ]
+    },
+    "ample": {
+      "source": "ample",
+      "old_tag": "",
+      "new_tag": "v1.4.0",
+      "title": "v1.4.0",
+      "url": "https://github.com/AmpleReVanced/revanced-patches/releases/tag/v1.4.0",
+      "published_at": "2026-08-31T16:18:49Z",
+      "body": "# [1.4.0](https://github.com/AmpleReVanced/revanced-patches/compare/v1.3.0...v1.4.0) (2026-08-31)\n\n\n### Bug Fixes\n\n* **dcinside:** prevent crash when hiding search result page indicators ([744ae6c](https://github.com/AmpleReVanced/revanced-patches/commit/744ae6c02e20fd6ff6d729239b8f30f53e247d55))\n* **kakaotalk:** address global-region ad review ([add04cb](https://github.com/AmpleReVanced/revanced-patches/commit/add04cb0c293d74404ebbfab31b00c515893d71a))\n* **kakaotalk:** keep keyword log room icon visible ([2bf3704](https://github.com/AmpleReVanced/revanced-patches/commit/2bf3704cab70b2b0c3970a9d194e0f5e6d0778a7))\n* **kakaotalk:** refresh keyword log room on notification ([2203ed7](https://github.com/AmpleReVanced/revanced-patches/commit/2203ed742552aefe03d5dcea530e1aec3fccd928))\n* **kakaotalk:** show block and kick actions for open chat managers ([708520d](https://github.com/AmpleReVanced/revanced-patches/commit/708520dd8e76f9a71441b6cecce96e009521cf4e))\n* **samsung-keyboard:** apply situation volume to key sounds ([c883844](https://github.com/AmpleReVanced/revanced-patches/commit/c883844f857bcef032d10c085d94b0f7afbdfbcf))\n* **samsung-keyboard:** avoid caching system-managed IME settings ([d9659ef](https://github.com/AmpleReVanced/revanced-patches/commit/d9659efbe78a078abbb5c03c265aaafb49bc3d9a))\n* **samsung-keyboard:** bundle Quram GIF encoder library ([f829bbb](https://github.com/AmpleReVanced/revanced-patches/commit/f829bbbba9a0b0b9971c21806285af501b1ff9ca))\n* **samsung-keyboard:** match navigation bar color with keyboard ([6d346fe](https://github.com/AmpleReVanced/revanced-patches/commit/6d346fe8780368592bf85f1104c6f6b633826d6d))\n* **samsung-keyboard:** preserve activity transition animations ([2c7b5da](https://github.com/AmpleReVanced/revanced-patches/commit/2c7b5dadbe802e1a55108416ae0e388ffd82edf9))\n* **samsung-keyboard:** restore keyboard preview in size settings ([dc4be94](https://github.com/AmpleReVanced/revanced-patches/commit/dc4be947ec14b306c3287636ae8b502369dd6d8b))\n\n\n### Features\n\n* **chzzk:** support version `3.11.1` ([7771042](https://github.com/AmpleReVanced/revanced-patches/commit/7771042987286b523c239fe52c120003a61d956a))\n* **chzzk:** support version `3.12.1` ([3623c18](https://github.com/AmpleReVanced/revanced-patches/commit/3623c18029c7df0a64769550f3b1d61bc3a28d14))\n* **dcinside:** add gallery watch mode ([77f2208](https://github.com/AmpleReVanced/revanced-patches/commit/77f2208e123774a60ee81c4c3be79feaaf708b3d))\n* **dcinside:** add Hide post list page indicators patch ([afeba91](https://github.com/AmpleReVanced/revanced-patches/commit/afeba91b2753fd3dbc5e0f887ba6f7a846dd58e7))\n* **dcinside:** support version `5.3.4` ([9e32e72](https://github.com/AmpleReVanced/revanced-patches/commit/9e32e72c224950cbdcbff690c43ae5b337759ec3))\n* **flexcil:** support version `1.5.0.8` ([2d74769](https://github.com/AmpleReVanced/revanced-patches/commit/2d7476938cc2adf2141b5ff1a322a4504c54081b))\n* **flexcil:** support version `1.5.0.9` ([9ac4227](https://github.com/AmpleReVanced/revanced-patches/commit/9ac4227df8df2f47b61f105b032701697521037e))\n* **kakaotalk:** add Ignore forward restriction patch ([3ee7bc4](https://github.com/AmpleReVanced/revanced-patches/commit/3ee7bc45f786f2641559103bb05c359754757477))\n* **kakaotalk:** add Restore keyword notification log patch ([fddd520](https://github.com/AmpleReVanced/revanced-patches/commit/fddd520afd62f29d714833543893175857c29c49))\n* **kakaotalk:** add Show messages restricted to mobile patch ([53d2525](https://github.com/AmpleReVanced/revanced-patches/commit/53d2525815aab006e2bc8c3134fe4bc42e995508))\n* **kakaotalk:** allow editing thread replies from the main chat ([b47bc80](https://github.com/AmpleReVanced/revanced-patches/commit/b47bc80eab29bf53c57635fb8c5c9062a84b77c5))\n* **kakaotalk:** allow open chat managers to block members ([213ae11](https://github.com/AmpleReVanced/revanced-patches/commit/213ae1122213510d3f0bc3f3826ccf88aaf534ca))\n* **kakaotalk:** disable global-region list ads ([d891bb2](https://github.com/AmpleReVanced/revanced-patches/commit/d891bb2222ebeb8242b9e225c15046b207c5323d))\n* **kakaotalk:** support version `26.7.1` ([b4f37e7](https://github.com/AmpleReVanced/revanced-patches/commit/b4f37e702ddb647d285bf66941807091352ca3d9))\n* **kakaotalk:** support version `26.7.2` ([e580958](https://github.com/AmpleReVanced/revanced-patches/commit/e580958b977cc7cb0840e91354d41b74e5a539c4))\n* **samsung-keyboard:** add support for non-One UI ROMs ([45fb3e6](https://github.com/AmpleReVanced/revanced-patches/commit/45fb3e67bd7b57812d8180515cdfb86f1614bffd))\n* **samsung-keyboard:** map Samsung haptics to Android effects ([bc35095](https://github.com/AmpleReVanced/revanced-patches/commit/bc35095588fec47dc5a5ae7b8ac182d5b6446459))\n* **samsung-keyboard:** restore clipboard and GIF on non-One UI ROMs ([41d2db3](https://github.com/AmpleReVanced/revanced-patches/commit/41d2db3ae5208c89493521d73200719672d25da9))\n* **shared:** also disable the Sentry NDK integration and its scope sync ([1025cea](https://github.com/AmpleReVanced/revanced-patches/commit/1025ceaaf4147173fc7a39cb4c49face70ea5ddc))\n* **shared:** let patches opt in to replacing existing string resources ([5d1285e](https://github.com/AmpleReVanced/revanced-patches/commit/5d1285e16b4eeeb9639f5cbc110ada449827bc67))\n* **soop:** support version `8.29.3` ([848695f](https://github.com/AmpleReVanced/revanced-patches/commit/848695f07bc8662217992a28a7882b1ae0049df7))\n\n\n\n",
+      "repos": [
+        {
+          "provider": "github",
+          "user": "MorpheApp",
+          "repo": "morphe-cli",
+          "tag": "v1.14.0",
+          "title": "v1.14.0",
+          "body": "# [1.14.0](https://github.com/MorpheApp/morphe-desktop/compare/v1.13.2...v1.14.0) (2026-08-25)\n\n\n### Bug Fixes\n\n* Update to latest Patcher ([491535c](https://github.com/MorpheApp/morphe-desktop/commit/491535c40d130a216a49f4a89262b0f94dd46616))\n* Update to latest Patcher ([b1bfa5c](https://github.com/MorpheApp/morphe-desktop/commit/b1bfa5ce690837154c5d81be5dd1bb033b19e971))\n\n\n### Features\n\n* Add patch context `fileWorkspace` ([#264](https://github.com/MorpheApp/morphe-desktop/issues/264)) ([1766a64](https://github.com/MorpheApp/morphe-desktop/commit/1766a640620304f85474798f8db32693115b617a))\n* Show version codes in `list-versions` and `list-patches` ([#262](https://github.com/MorpheApp/morphe-desktop/issues/262)) ([f19352a](https://github.com/MorpheApp/morphe-desktop/commit/f19352a982ae6287b99085835cc1772e36cee164))\n",
+          "published_at": "2026-08-25T12:37:50Z",
+          "url": "https://github.com/MorpheApp/morphe-desktop/releases/tag/v1.14.0",
+          "is_cli": true,
+          "is_patches": false
+        },
+        {
+          "provider": "github",
+          "user": "AmpleReVanced",
+          "repo": "revanced-patches",
+          "tag": "v1.4.0",
+          "title": "v1.4.0",
+          "body": "# [1.4.0](https://github.com/AmpleReVanced/revanced-patches/compare/v1.3.0...v1.4.0) (2026-08-31)\n\n\n### Bug Fixes\n\n* **dcinside:** prevent crash when hiding search result page indicators ([744ae6c](https://github.com/AmpleReVanced/revanced-patches/commit/744ae6c02e20fd6ff6d729239b8f30f53e247d55))\n* **kakaotalk:** address global-region ad review ([add04cb](https://github.com/AmpleReVanced/revanced-patches/commit/add04cb0c293d74404ebbfab31b00c515893d71a))\n* **kakaotalk:** keep keyword log room icon visible ([2bf3704](https://github.com/AmpleReVanced/revanced-patches/commit/2bf3704cab70b2b0c3970a9d194e0f5e6d0778a7))\n* **kakaotalk:** refresh keyword log room on notification ([2203ed7](https://github.com/AmpleReVanced/revanced-patches/commit/2203ed742552aefe03d5dcea530e1aec3fccd928))\n* **kakaotalk:** show block and kick actions for open chat managers ([708520d](https://github.com/AmpleReVanced/revanced-patches/commit/708520dd8e76f9a71441b6cecce96e009521cf4e))\n* **samsung-keyboard:** apply situation volume to key sounds ([c883844](https://github.com/AmpleReVanced/revanced-patches/commit/c883844f857bcef032d10c085d94b0f7afbdfbcf))\n* **samsung-keyboard:** avoid caching system-managed IME settings ([d9659ef](https://github.com/AmpleReVanced/revanced-patches/commit/d9659efbe78a078abbb5c03c265aaafb49bc3d9a))\n* **samsung-keyboard:** bundle Quram GIF encoder library ([f829bbb](https://github.com/AmpleReVanced/revanced-patches/commit/f829bbbba9a0b0b9971c21806285af501b1ff9ca))\n* **samsung-keyboard:** match navigation bar color with keyboard ([6d346fe](https://github.com/AmpleReVanced/revanced-patches/commit/6d346fe8780368592bf85f1104c6f6b633826d6d))\n* **samsung-keyboard:** preserve activity transition animations ([2c7b5da](https://github.com/AmpleReVanced/revanced-patches/commit/2c7b5dadbe802e1a55108416ae0e388ffd82edf9))\n* **samsung-keyboard:** restore keyboard preview in size settings ([dc4be94](https://github.com/AmpleReVanced/revanced-patches/commit/dc4be947ec14b306c3287636ae8b502369dd6d8b))\n\n\n### Features\n\n* **chzzk:** support version `3.11.1` ([7771042](https://github.com/AmpleReVanced/revanced-patches/commit/7771042987286b523c239fe52c120003a61d956a))\n* **chzzk:** support version `3.12.1` ([3623c18](https://github.com/AmpleReVanced/revanced-patches/commit/3623c18029c7df0a64769550f3b1d61bc3a28d14))\n* **dcinside:** add gallery watch mode ([77f2208](https://github.com/AmpleReVanced/revanced-patches/commit/77f2208e123774a60ee81c4c3be79feaaf708b3d))\n* **dcinside:** add Hide post list page indicators patch ([afeba91](https://github.com/AmpleReVanced/revanced-patches/commit/afeba91b2753fd3dbc5e0f887ba6f7a846dd58e7))\n* **dcinside:** support version `5.3.4` ([9e32e72](https://github.com/AmpleReVanced/revanced-patches/commit/9e32e72c224950cbdcbff690c43ae5b337759ec3))\n* **flexcil:** support version `1.5.0.8` ([2d74769](https://github.com/AmpleReVanced/revanced-patches/commit/2d7476938cc2adf2141b5ff1a322a4504c54081b))\n* **flexcil:** support version `1.5.0.9` ([9ac4227](https://github.com/AmpleReVanced/revanced-patches/commit/9ac4227df8df2f47b61f105b032701697521037e))\n* **kakaotalk:** add Ignore forward restriction patch ([3ee7bc4](https://github.com/AmpleReVanced/revanced-patches/commit/3ee7bc45f786f2641559103bb05c359754757477))\n* **kakaotalk:** add Restore keyword notification log patch ([fddd520](https://github.com/AmpleReVanced/revanced-patches/commit/fddd520afd62f29d714833543893175857c29c49))\n* **kakaotalk:** add Show messages restricted to mobile patch ([53d2525](https://github.com/AmpleReVanced/revanced-patches/commit/53d2525815aab006e2bc8c3134fe4bc42e995508))\n* **kakaotalk:** allow editing thread replies from the main chat ([b47bc80](https://github.com/AmpleReVanced/revanced-patches/commit/b47bc80eab29bf53c57635fb8c5c9062a84b77c5))\n* **kakaotalk:** allow open chat managers to block members ([213ae11](https://github.com/AmpleReVanced/revanced-patches/commit/213ae1122213510d3f0bc3f3826ccf88aaf534ca))\n* **kakaotalk:** disable global-region list ads ([d891bb2](https://github.com/AmpleReVanced/revanced-patches/commit/d891bb2222ebeb8242b9e225c15046b207c5323d))\n* **kakaotalk:** support version `26.7.1` ([b4f37e7](https://github.com/AmpleReVanced/revanced-patches/commit/b4f37e702ddb647d285bf66941807091352ca3d9))\n* **kakaotalk:** support version `26.7.2` ([e580958](https://github.com/AmpleReVanced/revanced-patches/commit/e580958b977cc7cb0840e91354d41b74e5a539c4))\n* **samsung-keyboard:** add support for non-One UI ROMs ([45fb3e6](https://github.com/AmpleReVanced/revanced-patches/commit/45fb3e67bd7b57812d8180515cdfb86f1614bffd))\n* **samsung-keyboard:** map Samsung haptics to Android effects ([bc35095](https://github.com/AmpleReVanced/revanced-patches/commit/bc35095588fec47dc5a5ae7b8ac182d5b6446459))\n* **samsung-keyboard:** restore clipboard and GIF on non-One UI ROMs ([41d2db3](https://github.com/AmpleReVanced/revanced-patches/commit/41d2db3ae5208c89493521d73200719672d25da9))\n* **shared:** also disable the Sentry NDK integration and its scope sync ([1025cea](https://github.com/AmpleReVanced/revanced-patches/commit/1025ceaaf4147173fc7a39cb4c49face70ea5ddc))\n* **shared:** let patches opt in to replacing existing string resources ([5d1285e](https://github.com/AmpleReVanced/revanced-patches/commit/5d1285e16b4eeeb9639f5cbc110ada449827bc67))\n* **soop:** support version `8.29.3` ([848695f](https://github.com/AmpleReVanced/revanced-patches/commit/848695f07bc8662217992a28a7882b1ae0049df7))\n\n\n\n",
+          "published_at": "2026-08-31T16:18:49Z",
+          "url": "https://github.com/AmpleReVanced/revanced-patches/releases/tag/v1.4.0",
+          "is_cli": false,
+          "is_patches": true
+        }
+      ],
+      "affected_apps": [
+        "samsung-keyboard"
       ]
     }
   }
