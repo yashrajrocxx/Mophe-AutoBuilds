@@ -11,10 +11,12 @@ import {
   Download, 
   CheckCircle2, 
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  Zap
 } from 'lucide-react';
 import { PatchChangelogsSection } from '../components/PatchChangelogsSection';
 import { AppCard } from '../components/AppCard';
+import { formatTimeAgo } from '../utils/dateUtils';
 
 export function StorePage() {
   const [manifest, setManifest] = useState(null);
@@ -139,47 +141,43 @@ export function StorePage() {
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-background/50 backdrop-blur-sm">
-        <div className="flex flex-col items-center gap-4 yr-fade-up">
-          <div className="w-10 h-10 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
-          <p className="text-muted-foreground text-sm font-medium tracking-wide">Syncing app library and patch notes...</p>
+      <div className="w-full h-full flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 yr-fade-up">
+          <div className="w-9 h-9 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
+          <p className="text-muted-foreground text-xs font-medium tracking-wide">Loading catalog...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-12 max-w-[1500px] mx-auto w-full yr-fade-up space-y-12">
+    <div className="p-6 md:p-10 max-w-[1400px] mx-auto w-full yr-fade-up space-y-10">
       
-      {/* 1. Header & Quick Stats */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-border/40">
+      {/* 1. Header & Minimal Stats */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/40">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
-              Morphe App Store
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
+              App Store
             </h2>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold tracking-wide">
-              PIPELINE ONLINE
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-bold tracking-wider uppercase border border-emerald-500/20">
+              Active
             </span>
           </div>
-          <p className="text-muted-foreground text-[15px] max-w-2xl leading-relaxed">
-            Download verified, ad-free, and patched Android apps directly compiled from upstream ReVanced and Morphe repositories.
+          <p className="text-muted-foreground text-sm max-w-xl">
+            Custom patched, ad-free Android apps built automatically from community ReVanced toolchains.
           </p>
         </div>
 
         {/* Sync Info Badges */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2.5 text-xs text-muted-foreground bg-muted/40 px-4 py-2 rounded-xl border border-border/50">
-            <Box size={14} className="text-accent" />
+        <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl border border-border/50">
+            <Layers size={13} className="text-accent" />
             <span className="font-semibold text-foreground">{Object.keys(groupedApps).length} Apps</span>
           </div>
-          <div className="flex items-center gap-2.5 text-xs text-muted-foreground bg-muted/40 px-4 py-2 rounded-xl border border-border/50">
-            <Layers size={14} className="text-accent" />
-            <span className="font-semibold text-foreground">{entries.length} Builds</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-xs text-muted-foreground bg-muted/40 px-4 py-2 rounded-xl border border-border/50">
-            <Clock size={14} className="text-accent" />
-            <span>Updated {manifest?.updated_at ? new Date(manifest.updated_at).toLocaleDateString() : 'Recently'}</span>
+          <div className="flex items-center gap-2 text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl border border-border/50">
+            <Clock size={13} className="text-accent" />
+            <span>Updated {formatTimeAgo(manifest?.updated_at)}</span>
           </div>
         </div>
       </div>
@@ -192,36 +190,36 @@ export function StorePage() {
       />
 
       {/* 3. Search & Filter Bar */}
-      <div id="apps-catalog-section" className="space-y-4 pt-4">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div id="apps-catalog-section" className="space-y-3 pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           
-          {/* Search Bar */}
-          <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+          {/* Minimal Search Bar */}
+          <div className="relative flex-1 max-w-sm">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
             <input
               type="text"
-              placeholder="Search apps by name, package..."
+              placeholder="Search apps or package..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-card/60 border border-border/60 rounded-xl text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all shadow-xs"
+              className="w-full pl-9 pr-8 py-2 bg-card/60 border border-border/60 rounded-xl text-xs placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground p-1"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground hover:text-foreground"
               >
-                Clear
+                ✕
               </button>
             )}
           </div>
 
           {/* Architecture Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <button
               onClick={() => setSelectedArch('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
                 selectedArch === 'all' 
-                  ? 'bg-accent text-accent-foreground shadow-sm' 
+                  ? 'bg-foreground text-background shadow-2xs' 
                   : 'bg-muted/40 hover:bg-muted text-muted-foreground'
               }`}
             >
@@ -233,7 +231,7 @@ export function StorePage() {
                 onClick={() => setSelectedArch(arch)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
                   selectedArch === arch 
-                    ? 'bg-accent text-accent-foreground shadow-sm' 
+                    ? 'bg-foreground text-background shadow-2xs' 
                     : 'bg-muted/40 hover:bg-muted text-muted-foreground'
                 }`}
               >
@@ -244,29 +242,28 @@ export function StorePage() {
         </div>
 
         {/* Source Filter Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs">
-          <span className="text-muted-foreground/70 font-semibold uppercase tracking-wider text-[11px] mr-1 flex items-center gap-1">
-            <Filter size={12} />
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <span className="text-muted-foreground/60 font-semibold uppercase tracking-wider text-[10px] mr-1">
             Source:
           </span>
           <button
             onClick={() => setSelectedSource('all')}
-            className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+            className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
               selectedSource === 'all' 
-                ? 'bg-foreground text-background font-semibold shadow-xs' 
-                : 'bg-card/60 hover:bg-muted text-muted-foreground border border-border/50'
+                ? 'bg-accent/15 text-accent font-semibold border border-accent/30' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
             }`}
           >
-            All Sources
+            All
           </button>
           {sources.map(src => (
             <button
               key={src}
               onClick={() => setSelectedSource(src)}
-              className={`px-3 py-1 rounded-lg font-medium capitalize transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium capitalize transition-colors ${
                 selectedSource === src 
-                  ? 'bg-foreground text-background font-semibold shadow-xs' 
-                  : 'bg-card/60 hover:bg-muted text-muted-foreground border border-border/50'
+                  ? 'bg-accent/15 text-accent font-semibold border border-accent/30' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
               }`}
             >
               {src}
@@ -277,18 +274,16 @@ export function StorePage() {
 
       {/* 4. Second Section: Recently Updated Apps (if any) */}
       {recentlyUpdatedApps.length > 0 && (
-        <section className="space-y-5">
-          <div className="flex items-center gap-2.5 text-xl font-bold text-foreground">
-            <div className="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
-              <Flame size={18} className="animate-bounce" />
-            </div>
-            <h3>Recently Updated Apps</h3>
-            <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-xs font-semibold">
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 text-base font-bold text-foreground">
+            <Flame size={17} className="text-accent" />
+            <h3>Recently Updated</h3>
+            <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[11px] font-semibold">
               {recentlyUpdatedApps.length}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {recentlyUpdatedApps.map(appName => (
               <AppCard
                 key={appName}
@@ -303,29 +298,25 @@ export function StorePage() {
       )}
 
       {/* 5. Third Section: All Other Apps Catalog */}
-      <section className="space-y-5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 text-xl font-bold text-foreground">
-            <div className="w-7 h-7 rounded-lg bg-muted text-muted-foreground flex items-center justify-center">
-              <Smartphone size={18} />
-            </div>
-            <h3>
-              {recentlyUpdatedApps.length > 0 ? "All Other Apps" : "All Apps"}
-            </h3>
-            <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-semibold">
-              {otherApps.length}
-            </span>
-          </div>
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 text-base font-bold text-foreground">
+          <Smartphone size={17} className="text-muted-foreground" />
+          <h3>
+            {recentlyUpdatedApps.length > 0 ? "All Other Apps" : "All Apps"}
+          </h3>
+          <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-semibold">
+            {otherApps.length}
+          </span>
         </div>
 
         {otherApps.length === 0 && recentlyUpdatedApps.length === 0 ? (
-          <div className="text-center p-16 bg-muted/10 border border-border/50 rounded-3xl backdrop-blur-md">
-            <Box className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <h4 className="text-lg font-medium mb-1 text-foreground">No matching apps found</h4>
-            <p className="text-muted-foreground text-sm">Try adjusting your search query or source/architecture filters.</p>
+          <div className="text-center p-12 bg-muted/10 border border-border/50 rounded-2xl">
+            <Box className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+            <h4 className="text-base font-medium mb-1 text-foreground">No matching apps found</h4>
+            <p className="text-muted-foreground text-xs">Try adjusting your search query or filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {otherApps.map(appName => (
               <AppCard
                 key={appName}

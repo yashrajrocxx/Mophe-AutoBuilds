@@ -100,7 +100,7 @@ def main() -> int:
     resolved_version = extract_version_from_filename(apk_name)
 
     import datetime
-    built_at = datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+    built_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     REC_DIR.mkdir(parents=True, exist_ok=True)
     record = {
