@@ -15,6 +15,11 @@
     { "app_name": "depthwallpaper", "source": "rushiranpise" },
     { "app_name": "pocketcasts", "source": "rushiranpise" },
     { "app_name": "minimalwidgets", "source": "rushiranpise" },
+    { "app_name": "protonpass", "source": "rushiranpise" },
+    { "app_name": "serverauditor", "source": "rushiranpise" },
+    { "app_name": "vocabulary", "source": "morning-entree" },
+    { "app_name": "notesnook", "source": "hxreborn" },
+    { "app_name": "samsung-keyboard", "source": "ample" },
     { "app_name": "jiotvplus", "source": "durgesh" },
     { "app_name": "brave", "source": "dh6k" }
   ]

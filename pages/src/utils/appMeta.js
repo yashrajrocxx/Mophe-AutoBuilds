@@ -109,6 +109,41 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/m8_x8q9=w240-h480",
     color: "#3F51B5"
   },
+  "protonpass": {
+    name: "Proton Pass",
+    category: "Security & Passwords",
+    package: "proton.android.pass",
+    icon: "https://play-lh.googleusercontent.com/kP9-x6a1=w240-h480",
+    color: "#6D4AFF"
+  },
+  "serverauditor": {
+    name: "Server Auditor",
+    category: "Developer Tools",
+    package: "com.server.auditor.ssh.client",
+    icon: "https://play-lh.googleusercontent.com/v8_x9a0=w240-h480",
+    color: "#2B3A42"
+  },
+  "vocabulary": {
+    name: "Vocabulary",
+    category: "Education",
+    package: "com.hrd.vocabulary",
+    icon: "https://play-lh.googleusercontent.com/m4_x9b0=w240-h480",
+    color: "#4A7C59"
+  },
+  "notesnook": {
+    name: "Notesnook",
+    category: "Productivity & Notes",
+    package: "com.streetwriters.notesnook",
+    icon: "https://play-lh.googleusercontent.com/n6_x9c0=w240-h480",
+    color: "#000000"
+  },
+  "samsung-keyboard": {
+    name: "Samsung Keyboard",
+    category: "Tools & Keyboard",
+    package: "com.samsung.android.honeyboard",
+    icon: "https://play-lh.googleusercontent.com/s8_x9d0=w240-h480",
+    color: "#1428A0"
+  },
   "jiotvplus": {
     name: "JioTV+",
     category: "Live TV & Shows",

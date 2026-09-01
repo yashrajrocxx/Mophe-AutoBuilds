@@ -1,0 +1,9 @@
+{
+    "org": "proton-ag",
+    "name": "proton-pass-password-manager",
+    "type": "BUNDLE",
+    "arch": "arm64-v8a",
+    "dpi": "nodpi",
+    "package": "proton.android.pass",
+    "version": ""
+}

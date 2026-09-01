@@ -74,6 +74,9 @@ def get_source_display_name(source: str) -> str:
         "rushiranpise": "Rushi Patches",
         "browzomje": "Browzomje Patches",
         "dh6k": "dh6k Patches",
+        "morning-entree": "Morning Entree Patches",
+        "hxreborn": "hxreborn Patches",
+        "ample": "Ample Patches",
     }
     return source_map.get(source.lower(), f"{source.capitalize()} Patches")
 
@@ -205,7 +208,10 @@ def main() -> int:
     content.append("- **Rookie Patches:** [RookieEnough/De-ReVanced](https://github.com/RookieEnough/De-ReVanced)")
     content.append("- **Rushi Patches:** [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches)")
     content.append("- **Browzomje Patches:** [browzomje/browzomje-patches](https://github.com/browzomje/browzomje-patches)")
-    content.append("- **dh6k Patches:** [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches)\n")
+    content.append("- **dh6k Patches:** [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches)")
+    content.append("- **Morning Entree Patches:** [Entree3k/Morning-Entree-Patches](https://github.com/Entree3k/Morning-Entree-Patches)")
+    content.append("- **hxreborn Patches:** [hxreborn/morphe-patches](https://github.com/hxreborn/morphe-patches)")
+    content.append("- **Ample Patches:** [AmpleReVanced/revanced-patches](https://github.com/AmpleReVanced/revanced-patches)\n")
 
     # 5. Disclaimer
     content.append("## ⚠️ Disclaimer")

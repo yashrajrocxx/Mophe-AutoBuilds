@@ -1,6 +1,6 @@
 [
     {
-        "name": "ample"
+        "name": "hxreborn"
     },
     {
         "provider": "github",
@@ -10,8 +10,8 @@
     },
     {
         "provider": "github",
-        "user": "AmpleReVanced",
-        "repo": "revanced-patches",
+        "user": "hxreborn",
+        "repo": "morphe-patches",
         "tag": "latest"
     }
 ]

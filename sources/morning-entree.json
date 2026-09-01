@@ -1,6 +1,6 @@
 [
     {
-        "name": "ample"
+        "name": "morning-entree"
     },
     {
         "provider": "github",
@@ -10,8 +10,8 @@
     },
     {
         "provider": "github",
-        "user": "AmpleReVanced",
-        "repo": "revanced-patches",
+        "user": "Entree3k",
+        "repo": "Morning-Entree-Patches",
         "tag": "latest"
     }
 ]
