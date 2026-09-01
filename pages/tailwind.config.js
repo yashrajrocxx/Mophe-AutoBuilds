@@ -12,19 +12,22 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        card: "hsl(var(--card))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
+        accent: {
+          DEFAULT: "hsl(var(--yr-accent))",
+          soft: "hsl(var(--yr-accent-soft))",
+          foreground: "#ffffff",
+        },
         destructive: "hsl(var(--destructive))",
-        'yr-accent': "hsl(var(--yr-accent))",
-        'yr-accent-soft': "hsl(var(--yr-accent-soft))",
-        'yr-sidebar': "hsl(var(--yr-sidebar))",
-        'yr-surface': "hsl(var(--yr-surface))",
-        'yr-hover': "hsl(var(--yr-hover))",
-        'yr-composer': "hsl(var(--yr-composer))",
-        'yr-text-subtle': "hsl(var(--yr-text-subtle))",
+        sidebar: "hsl(var(--yr-sidebar))",
+        surface: "hsl(var(--yr-surface))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -32,7 +35,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       }
     },
