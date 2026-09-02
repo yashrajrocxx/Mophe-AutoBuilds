@@ -1,15 +1,27 @@
 [
   {
-    "app": "depthwallpaper",
+    "app": "brave",
     "arch": "arm64-v8a",
-    "source": "rushiranpise",
+    "source": "dh6k",
     "status": "success",
-    "version": "2.1.06",
+    "version": "1.94.117",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk"
+    "apk": "brave-arm64-v8a-dh6k-patches-v1.94.117.apk"
+  },
+  {
+    "app": "duolingo",
+    "arch": "arm64-v8a",
+    "source": "hoodles",
+    "status": "success",
+    "version": "6.92.5",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "duolingo-arm64-v8a-hoodles-v6.92.5.apk"
   },
   {
     "app": "gboard",
@@ -36,86 +48,28 @@
     "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk"
   },
   {
-    "app": "minimalwidgets",
+    "app": "reddit",
     "arch": "arm64-v8a",
-    "source": "rushiranpise",
+    "source": "morphe",
     "status": "success",
-    "version": "2.1.04",
+    "version": "2026.14.0",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk"
+    "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
   },
   {
-    "app": "notesnook",
+    "app": "sdmaidse",
     "arch": "arm64-v8a",
-    "source": "hxreborn",
+    "source": "paresh",
     "status": "success",
-    "version": "3.4.11",
+    "version": "1.7.3-rc0",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "notesnook-arm64-v8a-hxreborn-v3.4.11.apk"
-  },
-  {
-    "app": "pinnit",
-    "arch": "arm64-v8a",
-    "source": "morning-entree",
-    "status": "failed",
-    "version": null,
-    "patches": [],
-    "error": "Failed to download version 1.13.0"
-  },
-  {
-    "app": "pocketcasts",
-    "arch": "arm64-v8a",
-    "source": "rushiranpise",
-    "status": "success",
-    "version": "8.16",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "pocketcasts-arm64-v8a-morphe-patches-v8.16.apk"
-  },
-  {
-    "app": "protonpass",
-    "arch": "arm64-v8a",
-    "source": "rushiranpise",
-    "status": "success",
-    "version": "1.40.3",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "protonpass-arm64-v8a-morphe-patches-v1.40.3.apk"
-  },
-  {
-    "app": "samsung-keyboard",
-    "arch": "arm64-v8a",
-    "source": "ample",
-    "status": "success",
-    "version": "5.9.40.48",
-    "patches": [
-      "Disable Play Store updates",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "samsung-keyboard-arm64-v8a-ample-v5.9.40.48.apk"
-  },
-  {
-    "app": "serverauditor",
-    "arch": "arm64-v8a",
-    "source": "rushiranpise",
-    "status": "success",
-    "version": "7.8.2",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "serverauditor-arm64-v8a-morphe-patches-v7.8.2.apk"
+    "apk": "sdmaidse-arm64-v8a-paresh-v1.7.3-rc0.apk"
   },
   {
     "app": "taskmanager",
@@ -130,37 +84,40 @@
     "apk": "taskmanager-arm64-v8a-paresh-v1.5.2.apk"
   },
   {
-    "app": "tradingview",
+    "app": "telegram",
     "arch": "arm64-v8a",
-    "source": "rushiranpise",
+    "source": "paresh",
     "status": "success",
-    "version": "1.20.81.1.1002420",
+    "version": "12.10.1",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "tradingview-arm64-v8a-morphe-patches-v1.20.81.1.1002420.apk"
+    "apk": "telegram-arm64-v8a-paresh-v12.10.1.apk"
   },
   {
-    "app": "vivaldi-snapshot",
+    "app": "youtube-music",
     "arch": "arm64-v8a",
-    "source": "kveld9",
-    "status": "failed",
-    "version": null,
-    "patches": [],
-    "error": "Failed to download version 8.2.4145.4"
-  },
-  {
-    "app": "vocabulary",
-    "arch": "arm64-v8a",
-    "source": "morning-entree",
+    "source": "morphe",
     "status": "success",
-    "version": "5.5.1",
+    "version": "9.15.51",
     "patches": [
       "Disable Play Store updates",
       "Change installer source"
     ],
     "dl_method": "download_apkmirror",
-    "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk"
+    "apk": "youtube-music-arm64-v8a-morphe-v9.15.51.apk"
+  },
+  {
+    "app": "youtube",
+    "arch": "arm64-v8a",
+    "source": "morphe",
+    "status": "success",
+    "version": "21.07.247",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "youtube-arm64-v8a-morphe-v21.07.247.apk"
   }
 ]
