@@ -85,8 +85,7 @@ def format_app_display(app_name: str) -> str:
         "taskmanager": "TaskManager",
         "habitkit": "HabitKit",
         "notesnook": "Notesnook",
-        "samsung-keyboard": "Samsung Keyboard",
-        "jiotvplus": "JioTV+",
+        "duolingo": "Duolingo",
         "brave": "Brave Browser",
     }
     return name_map.get(app_name.lower().strip(), app_name.replace("-", " ").title())
@@ -108,6 +107,7 @@ def get_source_display_name(source: str) -> str:
         "ample": "Ample Patches",
         "jasonwu": "Jasonwu (Gboard) Patches",
         "kveld9": "kveld9 Patches",
+        "hoodles": "Hoodles Patches",
     }
     return source_map.get(source.lower(), f"{source.capitalize()} Patches")
 
@@ -127,7 +127,7 @@ def parse_apk_details(filename: str) -> tuple[str, str, str]:
     known_sources = [
         "morphe", "piko-dev", "piko", "paresh", "durgesh", "chiggi", 
         "rookie", "rushiranpise", "rushi", "browzomje", "dh6k", 
-        "morning-entree", "entree", "hxreborn", "ample", "jasonwu", "kveld9"
+        "morning-entree", "entree", "hxreborn", "ample", "jasonwu", "kveld9", "hoodles"
     ]
     for s in known_sources:
         if f"-{s}-" in name_no_ext or f"-{s}" in name_no_ext:
@@ -300,6 +300,7 @@ def main() -> int:
     content.append("- **Gboard Patches:** [jasonwu1994/Gboard-patches](https://github.com/jasonwu1994/Gboard-patches)")
     content.append("- **kveld9 Patches:** [kveld9/kveld-morphe-patches](https://github.com/kveld9/kveld-morphe-patches)")
     content.append("- **Ample Patches:** [AmpleReVanced/revanced-patches](https://github.com/AmpleReVanced/revanced-patches)")
+    content.append("- **Hoodles:** [hoo-dles/morphe-patches](https://github.com/hoo-dles/morphe-patches)")
     content.append("- **hxreborn Patches:** [hxreborn/morphe-patches](https://github.com/hxreborn/morphe-patches)")
     content.append("- **Rookie Patches:** [RookieEnough/De-ReVanced](https://github.com/RookieEnough/De-ReVanced)")
     content.append("- **Durgesh/Chiggi:** [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches)")

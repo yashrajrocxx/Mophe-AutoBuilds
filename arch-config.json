@@ -30,11 +30,6 @@
     "arches": ["arm64-v8a"]
   },
   {
-    "app_name": "vn",
-    "source": "paresh",
-    "arches": ["arm64-v8a"]
-  },
-  {
     "app_name": "sdmaidse",
     "source": "paresh",
     "arches": ["arm64-v8a"]
@@ -52,11 +47,6 @@
   {
     "app_name": "x",
     "source": "piko-dev",
-    "arches": ["arm64-v8a"]
-  },
-  {
-    "app_name": "tradingview",
-    "source": "rushiranpise",
     "arches": ["arm64-v8a"]
   },
   {
@@ -90,18 +80,8 @@
     "arches": ["arm64-v8a"]
   },
   {
-    "app_name": "pinnit",
-    "source": "morning-entree",
-    "arches": ["arm64-v8a"]
-  },
-  {
     "app_name": "gboard",
     "source": "jasonwu",
-    "arches": ["arm64-v8a"]
-  },
-  {
-    "app_name": "vivaldi-snapshot",
-    "source": "kveld9",
     "arches": ["arm64-v8a"]
   },
   {
@@ -120,14 +100,9 @@
     "arches": ["arm64-v8a"]
   },
   {
-    "app_name": "samsung-keyboard",
-    "source": "ample",
+    "app_name": "duolingo",
+    "source": "hoodles",
     "arches": ["arm64-v8a"]
-  },
-  {
-    "app_name": "jiotvplus",
-    "source": "durgesh",
-    "arches": ["universal"]
   },
   {
     "app_name": "brave",

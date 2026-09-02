@@ -1,9 +1,0 @@
-{
-    "org": "sasikanth",
-    "name": "pinnit-pin-notes-reminders",
-    "type": "BUNDLE",
-    "arch": "arm64-v8a",
-    "dpi": "nodpi",
-    "package": "dev.sasikanth.pinnit2",
-    "version": ""
-}

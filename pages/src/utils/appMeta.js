@@ -179,12 +179,12 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/h8_x9i0=w240-h480",
     color: "#00E5FF"
   },
-  "jiotvplus": {
-    name: "JioTV+",
-    category: "Live TV & Shows",
-    package: "com.jio.media.jiotvplus",
-    icon: "https://play-lh.googleusercontent.com/j8_x8q9=w240-h480",
-    color: "#0047FF"
+  "duolingo": {
+    name: "Duolingo",
+    category: "Education & Languages",
+    package: "com.duolingo",
+    icon: "https://play-lh.googleusercontent.com/1-hPxO5dascgnIbEd3NIHRJ3mEsio8YphRCYDVdxPtRFaqBXurPUtdjqTRUCIDCHeyE=w240-h480",
+    color: "#58CC02"
   },
   "brave": {
     name: "Brave Browser",

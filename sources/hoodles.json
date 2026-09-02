@@ -1,0 +1,17 @@
+[
+    {
+        "name": "hoodles"
+    },
+    {
+        "provider": "github",
+        "user": "MorpheApp",
+        "repo": "morphe-cli",
+        "tag": "latest"
+    },
+    {
+        "provider": "github",
+        "user": "hoo-dles",
+        "repo": "morphe-patches",
+        "tag": "latest"
+    }
+]
