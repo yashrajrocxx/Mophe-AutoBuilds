@@ -1,123 +1,27 @@
 [
   {
-    "app": "brave",
+    "app": "notesnook",
     "arch": "arm64-v8a",
-    "source": "dh6k",
+    "source": "hxreborn",
     "status": "success",
-    "version": "1.94.117",
+    "version": "3.4.11",
     "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "brave-arm64-v8a-dh6k-patches-v1.94.117.apk"
+    "apk": "notesnook-arm64-v8a-hxreborn-v3.4.11.apk"
   },
   {
-    "app": "duolingo",
+    "app": "vocabulary",
     "arch": "arm64-v8a",
-    "source": "hoodles",
+    "source": "morning-entree",
     "status": "success",
-    "version": "6.92.5",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "duolingo-arm64-v8a-hoodles-v6.92.5.apk"
-  },
-  {
-    "app": "gboard",
-    "arch": "arm64-v8a",
-    "source": "jasonwu",
-    "status": "success",
-    "version": "18.0.3.954559732-release-arm64-v8a",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "gboard-arm64-v8a-jasonwu-v18.0.3.954559732-release-arm64-v8a.apk"
-  },
-  {
-    "app": "habitkit",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "1.15.2",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk"
-  },
-  {
-    "app": "reddit",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "2026.14.0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
-  },
-  {
-    "app": "sdmaidse",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "1.7.3-rc0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "sdmaidse-arm64-v8a-paresh-v1.7.3-rc0.apk"
-  },
-  {
-    "app": "taskmanager",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "1.5.2",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "taskmanager-arm64-v8a-paresh-v1.5.2.apk"
-  },
-  {
-    "app": "telegram",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "12.10.1",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "telegram-arm64-v8a-paresh-v12.10.1.apk"
-  },
-  {
-    "app": "youtube-music",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "9.15.51",
+    "version": "5.5.1",
     "patches": [
       "Disable Play Store updates",
       "Change installer source"
     ],
     "dl_method": "download_apkmirror",
-    "apk": "youtube-music-arm64-v8a-morphe-v9.15.51.apk"
-  },
-  {
-    "app": "youtube",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "21.07.247",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "youtube-arm64-v8a-morphe-v21.07.247.apk"
+    "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk"
   }
 ]
