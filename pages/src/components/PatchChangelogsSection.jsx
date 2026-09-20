@@ -8,9 +8,7 @@ export function PatchChangelogsSection({ patchChangelogs, onFilterByApp }) {
   }
 
   const entries = Object.entries(patchChangelogs);
-  const [expandedSources, setExpandedSources] = React.useState(
-    entries.slice(0, 2).reduce((acc, [key]) => ({ ...acc, [key]: true }), {})
-  );
+  const [expandedSources, setExpandedSources] = React.useState({});
 
   const toggleExpand = (key) => {
     setExpandedSources(prev => ({ ...prev, [key]: !prev[key] }));

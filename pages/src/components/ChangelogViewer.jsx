@@ -3,7 +3,13 @@ import React from 'react';
 export function ChangelogViewer({ text }) {
   if (!text) return null;
 
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  // Strip emojis (upstream notes use them, e.g. "### 🐛 Bug Fixes").
+  // Data stays untouched — this is display-only.
+  const clean = text
+    .replace(/[\uFE0F\u200D]/g, '')
+    .replace(/\p{Extended_Pictographic}/gu, '');
+
+  const lines = clean.replace(/\r\n/g, '\n').split('\n');
 
   const renderFormattedText = (line) => {
     const parts = [];
