@@ -143,6 +143,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
     logging.info(f"Using patches: {[p.name for p in patches]}")
 
     download_methods = [
+        downloader.download_direct,    # 0. Manual direct URL (apps/direct/<app>.json) — wins when configured
         downloader.download_playstore,   # 1. Google Play (Canonical split fallback via gplaydl)
         downloader.download_apkmirror,   # 2. APKMirror (Fastest scraper, high availability of universal packages)
         downloader.download_uptodown,    # 3. Uptodown (Robust scraper alternative)

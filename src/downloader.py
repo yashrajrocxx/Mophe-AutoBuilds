@@ -6,6 +6,7 @@ from src import (
     utils,
     apkpure,
     apkcombo,
+    direct,
     session,
     uptodown,
     aptoide,
@@ -203,6 +204,16 @@ def download_playstore(
 ) -> tuple[Path | None, str | None, list[str]]:
     """Primary source: Google Play Store via PlaystoreDownloader CLI."""
     return download_platform(app_name, "playstore", cli, patches, arch, override_version)
+
+def download_direct(
+    app_name: str,
+    cli: str,
+    patches: list[Path],
+    arch: str = None,
+    override_version: str = None,
+) -> tuple[Path | None, str | None, list[str]]:
+    """Manual override: direct URL pinned in apps/direct/<app>.json. Wins when configured."""
+    return download_platform(app_name, "direct", cli, patches, arch, override_version)
 
 def download_apkmirror(
     app_name: str,

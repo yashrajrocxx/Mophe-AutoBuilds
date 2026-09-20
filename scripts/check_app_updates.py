@@ -148,7 +148,7 @@ def load_app_config_version(app_name: str) -> str:
 
 
 def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
-    for platform in ("playstore", "apkmirror", "apkpure", "uptodown", "aptoide"):
+    for platform in ("direct", "playstore", "apkmirror", "apkpure", "uptodown", "aptoide"):
         fp = APPS_DIR / platform / f"{app_name}.json"
         if fp.exists():
             try:
