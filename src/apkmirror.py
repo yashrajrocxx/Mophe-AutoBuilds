@@ -21,6 +21,26 @@ _CF_PROFILES = [
     "safari15_6_1",
 ]
 
+# Sticky state: the profile that last cleared Cloudflare is tried first on
+# subsequent requests, and sessions persist (cookies like cf_clearance are
+# reused). Without this every request looks like a brand-new bot and CF
+# rate-limits the runner after a handful of hits.
+_CF_SESSIONS: dict = {}
+_good_profile: str | None = None
+
+# In-memory cache of successful (200) page fetches for the life of the
+# process. A single build re-requests the same main/release pages across
+# version resolution, download-link search, and the universal fallback —
+# caching cuts request volume (and CF exposure) several-fold.
+_PAGE_CACHE: dict = {}
+
+
+def _ordered_profiles() -> list:
+    """Profiles with the last-known-good one first."""
+    if _good_profile in _CF_PROFILES:
+        return [_good_profile] + [p for p in _CF_PROFILES if p != _good_profile]
+    return list(_CF_PROFILES)
+
 
 class ApkMirrorBlocked(RuntimeError):
     """APKMirror declined this runner before it served an application page."""
@@ -57,31 +77,40 @@ def _is_cf_challenge(response) -> bool:
     )
 
 
-def _cf_get(url, **kwargs):
+def _cf_get(url, use_cache=True, **kwargs):
     """Fetch from APKMirror with Cloudflare bypass via rotating curl_cffi impersonation.
 
     Strategy:
-      1. Try each browser fingerprint profile in _CF_PROFILES in order.
-      2. On a Cloudflare challenge (403/503 + CF headers/body markers), rotate to
-         the next profile after a brief backoff delay.
-      3. Only flag the entire source as permanently blocked once every profile has
-         been tried and all returned challenges.
-      4. Non-Cloudflare 4xx/5xx responses are passed back to the caller as-is.
+      1. Serve repeated URLs from an in-memory cache (200s only).
+      2. Try the last-known-good profile first on a persistent session
+         (cookies survive across requests, so CF stops seeing a new bot).
+      3. On a Cloudflare challenge (403/503 + CF headers/body markers), rotate
+         to the next profile after a brief backoff delay.
+      4. Only flag the entire source as permanently blocked once every profile
+         has been tried and all returned challenges.
+      5. Non-Cloudflare 4xx/5xx responses are passed back to the caller as-is.
 
     This replaces the old fail-fast behaviour that gave up on the first CF challenge.
     """
-    global _blocked_by_cloudflare
+    global _blocked_by_cloudflare, _good_profile
     if _blocked_by_cloudflare:
         raise ApkMirrorBlocked("APKMirror blocked this runner earlier in the build")
 
-    kwargs.setdefault("timeout", 25)
+    if use_cache and url in _PAGE_CACHE:
+        return _PAGE_CACHE[url]
 
-    for attempt, profile in enumerate(_CF_PROFILES):
+    kwargs.setdefault("timeout", 25)
+    profiles = _ordered_profiles()
+
+    for attempt, profile in enumerate(profiles):
         # Increasing polite delay — gives CF's rate-limiting some breathing room
-        time.sleep(1.5 + attempt * 0.9)
+        time.sleep(1.2 + attempt * 0.6)
 
         try:
-            cf_sess = cffi_requests.Session(impersonate=profile)
+            cf_sess = _CF_SESSIONS.get(profile)
+            if cf_sess is None:
+                cf_sess = cffi_requests.Session(impersonate=profile)
+                _CF_SESSIONS[profile] = cf_sess
             response = cf_sess.get(url, **kwargs)
         except Exception as exc:
             logging.debug(f"APKMirror [{profile}]: network error — {exc}")
@@ -93,12 +122,15 @@ def _cf_get(url, **kwargs):
                     f"APKMirror: Cloudflare bypassed with profile '{profile}' "
                     f"(after {attempt} failed attempt(s))"
                 )
+            _good_profile = profile
+            if use_cache:
+                _PAGE_CACHE[url] = response
             return response
 
         if _is_cf_challenge(response):
             logging.warning(
                 f"APKMirror: CF challenge on profile '{profile}' "
-                f"(attempt {attempt + 1}/{len(_CF_PROFILES)}), rotating..."
+                f"(attempt {attempt + 1}/{len(profiles)}), rotating..."
             )
             continue  # Try next profile
 
@@ -108,7 +140,7 @@ def _cf_get(url, **kwargs):
     # All profiles exhausted
     _blocked_by_cloudflare = True
     logging.error(
-        f"APKMirror: Cloudflare defeated all {len(_CF_PROFILES)} impersonation profiles. "
+        f"APKMirror: Cloudflare defeated all {len(profiles)} impersonation profiles. "
         "APKMirror will be skipped for the rest of this build."
     )
     raise ApkMirrorBlocked("APKMirror Cloudflare challenge — all profiles exhausted")

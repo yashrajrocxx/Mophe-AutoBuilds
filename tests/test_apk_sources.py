@@ -43,7 +43,6 @@ class TestApkComboSlugDiscovery(unittest.TestCase):
 
 
 class TestApkPureCdnGating(unittest.TestCase):
-
     @patch("src.apkpure.get_version_code_from_api", return_value=None)
     @patch("src.apkpure.std_requests.head")
     def test_403_falls_through_to_none(self, mock_head, _mock_vc):
@@ -95,6 +94,88 @@ class TestApkMirrorBundleButton(unittest.TestCase):
 
     def test_year_not_mistaken_for_code(self):
         self.assertIsNone(apkmirror._extract_version_code_from_text("Released September 14, 2026", "9.9.9"))
+
+
+def _cf_resp(status=200, challenge=False):
+    m = Mock()
+    m.status_code = status
+    m.headers = {"cf-mitigated": "challenge"} if challenge else {}
+    m.text = "just a moment ... challenge-platform" if challenge else "ok body"
+    m.content = b"ok body"
+    return m
+
+
+class TestApkMirrorSessionReuse(unittest.TestCase):
+
+    def setUp(self):
+        apkmirror._CF_SESSIONS.clear()
+        apkmirror._PAGE_CACHE.clear()
+        apkmirror._good_profile = None
+        apkmirror._blocked_by_cloudflare = False
+
+    def tearDown(self):
+        apkmirror._CF_SESSIONS.clear()
+        apkmirror._PAGE_CACHE.clear()
+        apkmirror._good_profile = None
+        apkmirror._blocked_by_cloudflare = False
+
+    def _sessions(self, fail_first=True):
+        """Fake Session factory: chrome124 gets challenged, rest succeed."""
+        made = []
+
+        class FakeSession:
+            def __init__(self, impersonate=None, **kwargs):
+                self.profile = impersonate
+                made.append(impersonate)
+                self.calls = 0
+
+            def get(self, url, **kwargs):
+                self.calls += 1
+                if fail_first and self.profile == "chrome124":
+                    return _cf_resp(403, challenge=True)
+                return _cf_resp(200)
+
+        return made, FakeSession
+
+    @patch("time.sleep", return_value=None)
+    def test_good_profile_tried_first_and_sessions_reused(self, _mock_sleep):
+        made, FakeSession = self._sessions()
+        with patch.object(apkmirror.cffi_requests, "Session", FakeSession):
+            apkmirror._cf_get("http://x/one")   # chrome124 challenged -> safari ok
+            apkmirror._cf_get("http://x/two")   # must lead with safari, no new session
+        self.assertEqual(made, ["chrome124", "safari17_0"])
+        self.assertEqual(apkmirror._good_profile, "safari17_0")
+
+    @patch("time.sleep", return_value=None)
+    def test_repeated_url_served_from_cache(self, _mock_sleep):
+        made, FakeSession = self._sessions(fail_first=False)
+        sessions = {}
+
+        orig = FakeSession
+
+        def factory(**kwargs):
+            s = orig(**kwargs)
+            sessions[s.profile] = s
+            return s
+
+        with patch.object(apkmirror.cffi_requests, "Session", factory):
+            first = apkmirror._cf_get("http://x/same")
+            second = apkmirror._cf_get("http://x/same")
+        self.assertIs(first, second)
+        total_gets = sum(s.calls for s in sessions.values())
+        self.assertEqual(total_gets, 1)
+
+    @patch("time.sleep", return_value=None)
+    def test_non_challenge_passthrough_not_cached(self, _mock_sleep):
+        _made, FakeSession = self._sessions(fail_first=False)
+        with patch.object(apkmirror.cffi_requests, "Session", FakeSession):
+            with patch.object(FakeSession, "get",
+                              side_effect=[_cf_resp(404), _cf_resp(404)]) as mock_get:
+                r1 = apkmirror._cf_get("http://x/missing", use_cache=True)
+                r2 = apkmirror._cf_get("http://x/missing", use_cache=True)
+        self.assertEqual(r1.status_code, 404)
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertIsNot(r1, r2)
 
 
 if __name__ == "__main__":
