@@ -201,6 +201,24 @@ def normalize_version(version: str) -> list[int]:
     
     return normalized
 
+def strip_arch_suffix(version: str) -> str:
+    """Strip a trailing ABI/arch tag from a CLI version string.
+
+    Some patch sources report per-ABI versions like
+    ``18.2.4.969776716-lite_beta-armeabi-v7a``. The suffix must not leak
+    into filenames, manifests, or reports — it breaks version extraction
+    (Obtainium would read ``7a``) and makes identical releases look
+    different. The full string is still used for download lookups.
+    """
+    if not version:
+        return version
+    return re.sub(
+        r"-(arm64-v8a|armeabi-v7a|armeabi|x86_64|x86|universal|noarch)$",
+        "",
+        version.strip(),
+        flags=re.IGNORECASE,
+    )
+
 def get_highest_version(versions: list[str]) -> str | None:
     if not versions:
         return None

@@ -305,15 +305,19 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         current_include_patches = include_patches + dynamic_includes
 
         if report is not None:
-            report["version"] = version
+            report["version"] = utils.strip_arch_suffix(version)
             report["dl_method"] = dl_method_name
             report["patches"] = current_include_patches
-            
+
         if dynamic_includes:
             logging.info(f"Dynamically injected global patches: {dynamic_includes}")
 
+        # Filenames/reports use the ABI-stripped version so trackers read a
+        # clean version (the full CLI string stays in use for downloads above).
+        safe_version = utils.strip_arch_suffix(version)
+
         # Include architecture in output filename
-        output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
+        output_apk = Path(f"{app_name}-{arch}-patch-v{safe_version}.apk")
 
         try:
             # USE DIFFERENT COMMANDS BASED ON SOURCE TYPE
@@ -422,7 +426,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         # Patch succeeded -> cleanup input and sign.
         input_apk.unlink(missing_ok=True)
 
-        signed_apk = Path(f"{app_name}-{arch}-{name}-v{version}.apk")
+        signed_apk = Path(f"{app_name}-{arch}-{name}-v{safe_version}.apk")
 
         apksigner = utils.find_apksigner()
         if not apksigner:

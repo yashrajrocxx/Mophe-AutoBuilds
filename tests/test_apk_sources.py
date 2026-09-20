@@ -96,6 +96,25 @@ class TestApkMirrorBundleButton(unittest.TestCase):
         self.assertIsNone(apkmirror._extract_version_code_from_text("Released September 14, 2026", "9.9.9"))
 
 
+class TestStripArchSuffix(unittest.TestCase):
+
+    def test_cases(self):
+        from src.utils import strip_arch_suffix
+        self.assertEqual(strip_arch_suffix("18.2.4.969776716-lite_beta-armeabi-v7a"),
+                         "18.2.4.969776716-lite_beta")
+        self.assertEqual(strip_arch_suffix("18.2.4.969776716-lite_beta-arm64-v8a"),
+                         "18.2.4.969776716-lite_beta")
+        self.assertEqual(strip_arch_suffix("21.13.164"), "21.13.164")
+        self.assertEqual(strip_arch_suffix("8.2.4147.77"), "8.2.4147.77")
+        self.assertEqual(strip_arch_suffix("6.6 build 002"), "6.6 build 002")
+        self.assertEqual(strip_arch_suffix(""), "")
+        # Obtainium-style extraction on the sanitized name reads cleanly
+        import re
+        name = f"gboard-arm64-v8a-kveld9-v{strip_arch_suffix('18.2.4.969776716-lite_beta-armeabi-v7a')}.apk"
+        m = re.match(r"^gboard-arm64-v8a-.*-v(.*)\.apk$", name)
+        self.assertEqual(m.group(1), "18.2.4.969776716-lite_beta")
+
+
 def _cf_resp(status=200, challenge=False):
     m = Mock()
     m.status_code = status
