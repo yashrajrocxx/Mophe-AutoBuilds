@@ -19,6 +19,7 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 import datetime
 
 try:
