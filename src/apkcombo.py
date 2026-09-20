@@ -80,10 +80,21 @@ def _slug_candidates(config: dict) -> list[str]:
     return result
 
 
+# Two-letter path segments on APKCombo are locale prefixes (e.g. /pt/...),
+# never app slugs. Reserved path heads are not slugs either.
+_LOCALE_OR_RESERVED = {
+    "search", "download", "app", "apps", "category", "categories",
+    "developer", "developers", "collection", "downloader", "old-versions",
+}
+
+
 def _discover_slug(package: str) -> str | None:
     """Search APKCombo for the app to discover its slug.
 
-    APKCombo search returns HTML with links like /youtube/com.google.android.youtube/.
+    APKCombo search pages are locale-prefixed (e.g. /pt/search/<pkg>) and
+    result lists render via JS, so the only reliable signal is an href ending
+    in /{package}: the slug is the segment immediately before the package,
+    skipping any locale/reserved segment.
     """
     try:
         url = f"{_BASE}/search?q={quote(package)}"
@@ -93,13 +104,20 @@ def _discover_slug(package: str) -> str | None:
             return None
         soup = BeautifulSoup(resp.content, "html.parser")
         for a in soup.find_all("a", href=True):
-            href = a["href"].strip("/")
-            # Pattern: {slug}/{package}
-            if href.endswith(f"/{package}") or href.endswith(f"/{package}/"):
-                slug = href.split("/")[0]
-                if slug and slug != "search":
-                    logging.info(f"APKCombo: discovered slug '{slug}' for {package}")
-                    return slug
+            href = a["href"].split("?", 1)[0].strip("/")
+            parts = [p for p in href.split("/") if p]
+            if len(parts) < 2 or parts[-1] != package:
+                continue
+            slug = parts[-2]
+            if len(slug) == 2 or slug.lower() in _LOCALE_OR_RESERVED:
+                # Locale prefix (e.g. pt/jiohotstar/<pkg>) — step one more up
+                if len(parts) >= 3:
+                    slug = parts[-3]
+                else:
+                    continue
+            if slug and len(slug) != 2 and slug.lower() not in _LOCALE_OR_RESERVED:
+                logging.info(f"APKCombo: discovered slug '{slug}' for {package}")
+                return slug
     except Exception as e:
         logging.debug(f"APKCombo: slug discovery error: {e}")
     return None

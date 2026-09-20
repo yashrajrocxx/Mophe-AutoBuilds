@@ -1,6 +1,7 @@
 {
     "org": "jiostar-india-private-limited",
-    "name": "jiohotstar",
+    "name": "jiohotstar-3",
+    "release_prefix": "jiohotstar-android-tv",
     "type": "BUNDLE",
     "arch": "arm64-v8a",
     "dpi": "",

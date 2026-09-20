@@ -184,10 +184,18 @@ def _cdn_download_url(package: str, version_name: str | None = None) -> str | No
         else:
             url = f"{_CDN_BASE}/{package}?version=latest"
 
-        # Best-effort redirect resolution; keep original URL on any failure
+        # Best-effort reachability probe. A 403/404/410 means this exact
+        # build is not on the CDN (e.g. region-specific apps like JioHotstar)
+        # — return None so the caller falls through to HTML scraping instead
+        # of handing the downloader a dead URL. Other statuses and network
+        # errors keep the optimistic URL (HEAD is sometimes blocked while
+        # GET works, and the downloader verifies bytes on GET anyway).
         try:
             resp = std_requests.head(url, headers={**_MOBILE_API_HEADERS, 'User-Agent': 'Mozilla/5.0'},
                                      allow_redirects=True, timeout=20)
+            if resp.status_code in (403, 404, 410):
+                logging.info(f"APKPure CDN: {resp.status_code} for {package} {version_name or 'latest'} — falling back to HTML scrape")
+                return None
             if resp.status_code == 200 and resp.url:
                 logging.info(f"APKPure CDN: resolved {package} → {str(resp.url)[:120]}")
                 return str(resp.url)
