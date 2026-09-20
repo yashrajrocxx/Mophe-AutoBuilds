@@ -295,6 +295,15 @@ jobs:
           for apk in *.apk; do
             echo "  - $release_url/download/$apk"
           done
+
+      - name: Send Telegram Build Report
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.TELEGRAM_CHATID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/send_telegram_report.py
       
       - name: Cleanup Version Override
         if: ${{ inputs.version != '' && always() }}

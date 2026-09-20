@@ -1,0 +1,16 @@
+# Gboard Patches (kveld9 / kveld-morphe-patches)
+
++ Add AMOLED Theme
++ Allow Modified APK
++ Block Telemetry
++ Clipboard Enhancements
+- Clone Gboard
++ Disable Diagnostics
++ Disable Google Primes
++ Disable Remote Configuration
++ Disable Tenor Share Tracking
++ Enable Access Points Menu Redesign
++ Enable Key Shape Selection
+- Force Incognito Mode
++ Hardened Intent Security
++ Resource Slimmer

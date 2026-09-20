@@ -146,9 +146,10 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         downloader.download_playstore,   # 1. Google Play (Canonical split fallback via gplaydl)
         downloader.download_apkmirror,   # 2. APKMirror (Fastest scraper, high availability of universal packages)
         downloader.download_uptodown,    # 3. Uptodown (Robust scraper alternative)
-        downloader.download_apkpure,     # 4. APKPure
-        downloader.download_aptoide,     # 5. Aptoide
-        downloader.download_github,      # 6. GitHub releases
+        downloader.download_apkpure,     # 4. APKPure (direct CDN + mobile API)
+        downloader.download_apkcombo,   # 5. APKCombo (Cloudflare R2, no CF challenges)
+        downloader.download_aptoide,     # 6. Aptoide
+        downloader.download_github,      # 7. GitHub releases
     ]
 
     # 1. Fetch package name

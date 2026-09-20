@@ -141,7 +141,7 @@ jobs:
       contents: write
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 10
       matrix:
         include: ${{ fromJson(needs.patch-apps.outputs.matrix) }}
     
@@ -506,6 +506,15 @@ jobs:
             filename=$(basename "$apk")
             echo "- $filename: $release_url/download/$filename"
           done
+
+      - name: Send Telegram Build Report
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.TELEGRAM_CHATID }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/send_telegram_report.py
 
   cleanup:
     name: Cleanup Workflow Runs

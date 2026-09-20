@@ -1,2 +1,0 @@
-# Brave Browser dh6k Patches
-# Left empty to apply all default recommended patches automatically (Brave Origin).

@@ -17,7 +17,6 @@ export function FilterBar({
     const map = {
       morphe: 'Morphe',
       piko: 'Piko',
-      'piko-dev': 'Piko (Dev)',
       paresh: 'Paresh',
       durgesh: 'Durgesh',
       rookie: 'Rookie',

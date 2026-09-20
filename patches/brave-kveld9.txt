@@ -1,0 +1,15 @@
+# Brave Browser Patches (kveld9 / kveld-morphe-patches)
+
+# Brave-specific patches
++ Block Brave Telemetry
++ Brave In-Product & Commercial Notification Optimizer
++ Brave Origin
++ Brave Startup Performance Optimization
++ Clean New Tab Page
++ Clean Share URL
++ Disable Background Sync & Periodic Sync
++ Disable Battery Status API & OS Listener
++ Sensor Privacy Guard
++ Skip First Run
+- Locale PAK Slimmer
+- Native Bloat Slimmer

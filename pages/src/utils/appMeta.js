@@ -31,14 +31,6 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/yHi59jmO_lVamcyJ1i3rM1_E8bAiAspShnGjjURq05ipQQSUksO3QVEsXTegRSqul038-4YNA7O644XAcx251Q=w240-h480",
     color: "#E1306C"
   },
-  "x": {
-    name: "X (Twitter)",
-    category: "News & Social",
-    package: "com.twitter.android",
-    icon: "https://play-lh.googleusercontent.com/kP8z4KjC7Q9Y5Q2m0HwFz28nJ4b84k6J-1M15H0CqG7_UuS5xX6c_uP7X7Y=w240-h480",
-    fallbackIcon: "https://abs.twimg.com/favicons/twitter.3.ico",
-    color: "#000000"
-  },
   "pinterest": {
     name: "Pinterest",
     category: "Lifestyle & Design",
@@ -171,13 +163,6 @@ export const APP_METADATA = {
     package: "com.vivaldi.browser.snapshot",
     icon: "https://play-lh.googleusercontent.com/v9_x9g0=w240-h480",
     color: "#EF3939"
-  },
-  "taskmanager": {
-    name: "TaskManager",
-    category: "System Tools",
-    package: "com.rk.taskmanager",
-    icon: "https://play-lh.googleusercontent.com/t8_x9h0=w240-h480",
-    color: "#1976D2"
   },
   "habitkit": {
     name: "HabitKit",

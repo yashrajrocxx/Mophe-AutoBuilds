@@ -35,6 +35,64 @@ _ARCH = "arm64"   # gplaydl uses 'arm64', not 'arm64-v8a'
 
 _exodus_cache = {}
 
+_JSON_SUPPORTED: bool | None = None
+
+
+def _gplaydl_supports_json() -> bool:
+    """Detect whether installed gplaydl supports `--json` (newer releases do)."""
+    global _JSON_SUPPORTED
+    if _JSON_SUPPORTED is not None:
+        return _JSON_SUPPORTED
+    try:
+        result = subprocess.run(
+            [_TOOL, "info", "--help"],
+            capture_output=True, text=True, timeout=15,
+        )
+        _JSON_SUPPORTED = "--json" in (result.stdout + result.stderr)
+    except Exception:
+        _JSON_SUPPORTED = False
+    return _JSON_SUPPORTED
+
+
+def _parse_info_output(output: str) -> tuple[str | None, str | None]:
+    """Parse `gplaydl info` output (JSON or table) → (version_name, version_code)."""
+    if not output:
+        return None, None
+    # JSON-ish output: {"versionName": "...", "versionCode": 123} or "versionCode": 123
+    m = re.search(r'"versionCode"\s*:\s*"?(\d{6,})"?', output)
+    code = m.group(1) if m else None
+    ver = None
+    m = re.search(r'"versionName"\s*:\s*"([^"]+)"', output)
+    if m:
+        ver = m.group(1)
+    else:
+        m = re.search(r"Version\s*[│|]\s*([^\s│|]+)\s*\((\d{6,})\)", output, re.IGNORECASE)
+        if m:
+            ver, code = m.group(1), m.group(2)
+        else:
+            m = re.search(r'version[_\s]?code\s*[=:]\s*(\d{6,})', output, re.IGNORECASE)
+            if m and not code:
+                code = m.group(1)
+    return ver, code
+
+
+def _run_info(package: str):
+    """Run `gplaydl info`, preferring `--json` when supported."""
+    if _gplaydl_supports_json():
+        try:
+            result = _run(
+                [_TOOL, "info", package, "--arch", _ARCH, "--json"],
+                capture_output=True, text=True, timeout=60,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result
+        except Exception:
+            pass
+    return _run(
+        [_TOOL, "info", package, "--arch", _ARCH],
+        capture_output=True, text=True, timeout=60,
+    )
+
 class VersionNotFound(Exception):
     pass
 
@@ -102,92 +160,95 @@ def scrape_exodus_version_code(package_name: str, version_name: str) -> int | No
     return None
 
 def resolve_version_code(package_name: str, version_name: str, arch: str = None) -> int:
+    """Resolve Android versionCode from a human-readable version name.
+
+    Resolution priority:
+      1. CLI-provided versionCode (from Morphe/ReVanced `list-versions` output) — instant
+      2. gplaydl info output — works when the requested version is the *latest* on Play
+      3. APKPure mobile API — api.pureapk.com returns per-version versionCode, no CF
+      4. APKMirror scrape — versionCode extracted from release variant rows, no extra deps
+      5. Exodus public web scraper — last resort (slow, may miss recent versions)
+
+    Raises VersionNotFound if none of the above succeeded.
+    """
     cache_key = f"{package_name}:{version_name}"
     if cache_key in _exodus_cache:
         return _exodus_cache[cache_key]
 
-    # 1. Check if CLI provided version code
+    # ── 1. CLI-provided code (fastest) ──────────────────────────────────────────
     cli_code = get_cli_version_code(package_name, version_name, arch)
     if cli_code:
-        logging.info(f"PlayStore: Using CLI-provided versionCode {cli_code} for {package_name} {version_name}")
+        logging.info(f"PlayStore: versionCode {cli_code} for {package_name} {version_name} (from CLI)")
         _exodus_cache[cache_key] = cli_code
         return cli_code
 
-    api_key = os.environ.get("EXODUS_API_KEY")
-    api_error = None
-
-    # 2. Try authenticated Exodus API if key is present
-    if api_key:
-        base_url = os.environ.get(
-            "EXODUS_SEARCH_URL", 
-            "https://reports.exodus-privacy.eu.org/api/search/"
-        )
-        url = f"{base_url}{package_name}"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": f"Token {api_key}"
-        }
-
-        logging.info(f"PlayStore: Resolving versionCode for {package_name} {version_name} via Exodus API")
+    # ── 2. gplaydl info (works when target == latest on Play Store) ─────────────
+    if _tool_available():
         try:
-            response = requests.get(url, headers=headers, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-            if package_name not in data or "reports" not in data[package_name]:
-                raise ExodusApiError(f"Missing reports array for {package_name} in Exodus API response")
-
-            reports = data[package_name]["reports"]
-            matching_codes = []
-
-            for report in reports:
-                if report.get("version") == version_name:
-                    code_str = report.get("version_code")
-                    if code_str is not None:
-                        try:
-                            matching_codes.append(int(code_str))
-                        except ValueError:
-                            raise ValueError(f"Malformed versionCode '{code_str}' in Exodus API response")
-
-            if matching_codes:
-                resolved_code = max(matching_codes)
-                _exodus_cache[cache_key] = resolved_code
-                return resolved_code
-            else:
-                api_error = VersionNotFound(f"Version '{version_name}' not found in Exodus reports for {package_name}")
-
-        except requests.RequestException as e:
-            logging.warning(f"PlayStore: Exodus API request failed: {e}")
-            api_error = e
+            info_res = _run_info(package_name)
+            if info_res.returncode == 0:
+                play_version, play_code = _parse_info_output(info_res.stdout)
+                if play_version and play_code and (
+                    play_version == version_name
+                    or play_version.startswith(version_name + ".")
+                    or play_version.startswith(version_name + "-")
+                ):
+                    _exodus_cache[cache_key] = int(play_code)
+                    logging.info(f"PlayStore: versionCode {play_code} for {package_name} {version_name} (from gplaydl info)")
+                    return int(play_code)
         except Exception as e:
-            logging.warning(f"PlayStore: Error parsing Exodus API response: {e}")
-            api_error = e
+            logging.debug(f"PlayStore: gplaydl info lookup failed for {package_name}: {e}")
 
-    # 3. Fall back to Exodus public web report scraper (unauthenticated)
+    # ── 3. APKPure mobile API — primary historical versionCode resolver ──────────
+    # api.pureapk.com returns versionCode per version with no Cloudflare.
+    # This replaces the Exodus API which has had persistent 401 issues.
+    try:
+        from src.apkpure import get_version_code_from_api as _apkpure_vc
+        vc = _apkpure_vc(package_name, version_name)
+        if vc:
+            logging.info(f"PlayStore: versionCode {vc} for {package_name} {version_name} (from APKPure API)")
+            _exodus_cache[cache_key] = vc
+            return vc
+    except Exception as e:
+        logging.debug(f"PlayStore: APKPure API lookup failed for {package_name}: {e}")
+
+    # ── 4. APKMirror scrape — versionCode from release variant rows ──────────────
+    try:
+        from src import apkmirror as _apkmirror
+        vc = _apkmirror.get_version_code(package_name, version_name)
+        if vc:
+            logging.info(f"PlayStore: versionCode {vc} for {package_name} {version_name} (from APKMirror)")
+            _exodus_cache[cache_key] = vc
+            return vc
+    except Exception as e:
+        logging.debug(f"PlayStore: APKMirror lookup failed for {package_name}: {e}")
+
+    # ── 5. Exodus public web scraper (last resort) ───────────────────────────────
     web_code = scrape_exodus_version_code(package_name, version_name)
     if web_code is not None:
-        logging.info(f"PlayStore: Resolved versionCode {web_code} for {package_name} {version_name} via Exodus public web")
+        logging.info(f"PlayStore: versionCode {web_code} for {package_name} {version_name} (from Exodus web)")
         _exodus_cache[cache_key] = web_code
         return web_code
 
-    if api_error:
-        if isinstance(api_error, (VersionNotFound, ValueError)):
-            raise api_error
-        raise ExodusApiError(f"HTTP error resolving version from Exodus: {api_error}")
-
-    raise VersionNotFound(f"Version '{version_name}' not found in Exodus reports for {package_name}")
+    raise VersionNotFound(
+        f"versionCode for '{package_name}' {version_name} not found. "
+        "Tried: CLI list-versions → gplaydl info → APKPure API → APKMirror → Exodus web scraper. "
+        "Provide a --version-code or ensure the package is indexed by APKPure."
+    )
 
 
 def _get_version_code(package: str) -> str | None:
-    """
-    Use `gplaydl info` to fetch the latest version code from Google Play.
+    """Use `gplaydl info` to fetch the latest version code from Google Play.
+
     Returns the numeric versionCode as a string, or None on failure.
+
+    Handles multiple gplaydl output formats (prefers `--json` when supported):
+      • JSON:        {"versionName": "2.372.0", "versionCode": 29663417}
+      • Table format:  │ Version    │ 2.372.0 (29663417)  │
+      • Plain text:    Version: 2.372.0 (29663417) or versionCode=29663417
     """
     try:
-        result = _run(
-            [_TOOL, "info", package, "--arch", _ARCH],
-            capture_output=True, text=True, timeout=60
-        )
+        result = _run_info(package)
         if result.returncode != 0:
             logging.warning(
                 f"PlayStore: `gplaydl info` failed (rc={result.returncode}): "
@@ -195,14 +256,22 @@ def _get_version_code(package: str) -> str | None:
             )
             return None
 
-        # gplaydl info outputs a rich table; parse version code from it
-        # Lines like: "│ Version    │ 2.372.0 (29663417)  │"
-        for line in result.stdout.splitlines():
-            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
-            if m:
-                return m.group(2)
+        ver, code = _parse_info_output(result.stdout)
+        if code:
+            logging.info(f"PlayStore: gplaydl info → {ver or '?'} (vc={code})")
+            return code
 
-        logging.warning(f"PlayStore: could not parse version code from gplaydl info output")
+        # Last resort: any bare large integer that looks like a versionCode
+        candidates = re.findall(r'\b(\d{7,12})\b', result.stdout)
+        if candidates:
+            vc = candidates[0]
+            logging.warning(f"PlayStore: gplaydl info — inferred versionCode={vc} (heuristic)")
+            return vc
+
+        logging.warning(
+            f"PlayStore: could not parse version code from gplaydl info output.\n"
+            f"Output was:\n{result.stdout[:600]}"
+        )
     except subprocess.TimeoutExpired:
         logging.warning("PlayStore: gplaydl info timed out")
     except Exception as e:
@@ -351,14 +420,16 @@ def get_latest_version(app_name: str, config: dict) -> str | None:
         return None
 
     try:
-        result = _run(
-            [_TOOL, "info", package, "--arch", _ARCH],
-            capture_output=True, text=True, timeout=60
-        )
+        result = _run_info(package)
         if result.returncode != 0:
             return None
 
-        # Parse version name from output
+        ver, _ = _parse_info_output(result.stdout)
+        if ver:
+            logging.info(f"PlayStore: latest version for {app_name} is {ver}")
+            return ver
+
+        # Legacy line-by-line fallback
         for line in result.stdout.splitlines():
             m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
             if m:
@@ -394,19 +465,16 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     version_code: str | None = None
 
     # First, check if the requested version is simply the latest version on Play Store.
-    # This avoids querying Exodus for brand new versions that Exodus hasn't indexed yet.
-    latest_info = _run(
-        [_TOOL, "info", package, "--arch", _ARCH],
-        capture_output=True, text=True, timeout=60
-    )
+    # This avoids querying resolvers for brand new versions that indexes haven't caught yet.
+    latest_info = _run_info(package)
     if latest_info.returncode == 0:
-        play_version = None
-        play_code = None
-        for line in latest_info.stdout.splitlines():
-            m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
-            if m:
-                play_version = m.group(1)
-                play_code = m.group(2)
+        play_version, play_code = _parse_info_output(latest_info.stdout)
+        if not play_version or not play_code:
+            for line in latest_info.stdout.splitlines():
+                m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
+                if m:
+                    play_version = m.group(1)
+                    play_code = m.group(2)
 
         if play_version and play_code:
             if (play_version == version
@@ -415,7 +483,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
                 version_code = play_code
                 logging.info(f"PlayStore: target is latest version, using code {version_code}")
 
-    # If it wasn't the latest version (or `info` failed), resolve via Exodus
+    # If it wasn't the latest version (or `info` failed), resolve via full chain
     if not version_code:
         try:
             version_code_int = resolve_version_code(package, version, config.get('arch'))

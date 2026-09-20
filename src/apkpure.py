@@ -1,12 +1,13 @@
 import re
 import logging
 import time
+import requests as std_requests
 
 from src import session
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 
-# Standard browser headers to avoid 403 Forbidden
+# Standard browser headers for web scraping (apkpure.net — no Cloudflare)
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                   'AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -15,8 +16,23 @@ HEADERS = {
     'Referer': 'https://apkpure.net/',
 }
 
+# Headers for the unofficial APKPure mobile app API (api.pureapk.com).
+# This API is reverse-engineered from the APKPure Android app.
+# It returns version_code per version, which is critical for resolving
+# historical versionCodes without relying on Exodus Privacy.
+_MOBILE_API_HEADERS = {
+    'User-Agent': 'APKPure/3.20.2 (Linux; U; Android 11; en_US)',
+    'x-sv': '7',           # security version — tied to APKPure app release
+    'x-abis': 'arm64-v8a,armeabi-v7a,armeabi',
+    'x-gp': '1',
+    'Accept': 'application/json',
+}
+
+_MOBILE_API_BASE = "https://api.pureapk.com/m/v3/cms"
+_CDN_BASE = "https://d.apkpure.net/b/APK"
+
 BASE = "https://apkpure.net"
-_SLEEP = 1.5
+_SLEEP = 1.2
 
 
 def _get(url: str, **kwargs):
@@ -71,6 +87,117 @@ def _discover_slug(package: str) -> str | None:
         logging.debug(f"APKPure slug discovery failed: {e}")
     return None
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# APKPure Mobile API helpers
+# ──────────────────────────────────────────────────────────────────────────────
+
+def get_version_code_from_api(package: str, version_name: str) -> int | None:
+    """Query the unofficial APKPure mobile API for the versionCode of a specific version.
+
+    The API at api.pureapk.com is reverse-engineered from the APKPure Android app.
+    It returns version_code per version and has no Cloudflare protection.
+
+    This is the primary replacement for Exodus Privacy versionCode resolution.
+
+    Args:
+        package:      Android package name (e.g. "com.google.android.youtube")
+        version_name: Human-readable version string (e.g. "19.16.39")
+
+    Returns:
+        The integer versionCode, or None if the version wasn't found / API unavailable.
+    """
+    try:
+        url = f"{_MOBILE_API_BASE}/app_version?pkg={package}"
+        logging.info(f"APKPure API: resolving versionCode for {package} {version_name}")
+        resp = std_requests.get(url, headers=_MOBILE_API_HEADERS, timeout=20)
+        if resp.status_code != 200:
+            logging.debug(f"APKPure API: status {resp.status_code} for {package}")
+            return None
+
+        data = resp.json()
+        # Response structure: {"data": {"list": [{"version_name": "...", "version_code": "..."}]}}
+        version_list = (
+            data.get("data", {}).get("list")
+            or data.get("list")
+            or (data if isinstance(data, list) else [])
+        )
+        if not version_list:
+            logging.debug(f"APKPure API: empty version list for {package}")
+            return None
+
+        # Collect all matching entries (same version name may have multiple ABIs)
+        codes = []
+        for entry in version_list:
+            vn = entry.get("version_name") or entry.get("version", "")
+            vc = entry.get("version_code") or entry.get("versionCode")
+            if not vc:
+                continue
+            # Exact match or prefix match (e.g. "19.16.39" matches "19.16.39-arm64")
+            if vn == version_name or vn.startswith(version_name + ".") or vn.startswith(version_name + "-"):
+                try:
+                    codes.append(int(vc))
+                except (ValueError, TypeError):
+                    pass
+
+        if codes:
+            resolved = max(codes)  # Prefer the highest code (most specific ABI variant)
+            logging.info(f"APKPure API: resolved {package} {version_name} → versionCode {resolved}")
+            return resolved
+
+        logging.debug(f"APKPure API: version '{version_name}' not found in list for {package}")
+    except Exception as e:
+        logging.debug(f"APKPure API: error resolving versionCode for {package}: {e}")
+    return None
+
+
+def _cdn_download_url(package: str, version_name: str | None = None) -> str | None:
+    """Build a direct APKPure CDN download URL.
+
+    APKPure's CDN at d.apkpure.net serves APKs directly without HTML scraping.
+    This is faster and more reliable than following the web scraper flow.
+
+    Preferred: resolve versionCode via mobile API → ?versioncode={vc}.
+    Fallback (spec): https://d.apkpure.net/b/APK/{package}?version={version}
+    Latest:          https://d.apkpure.net/b/APK/{package}?version=latest
+
+    URLs are returned optimistically — the downloader verifies bytes on GET.
+    A best-effort HEAD is attempted to resolve redirects, but HEAD failure
+    does not discard the URL (HEAD is often blocked while GET works).
+
+    Args:
+        package:      Android package name
+        version_name: Specific version to download; None/empty = latest
+
+    Returns:
+        The direct CDN URL, or None only when no URL could be constructed.
+    """
+    try:
+        if version_name:
+            vc = get_version_code_from_api(package, version_name)
+            if vc:
+                url = f"{_CDN_BASE}/{package}?versioncode={vc}"
+                logging.info(f"APKPure CDN: direct download URL for {package} {version_name} (vc={vc}): {url}")
+                return url
+            # Spec fallback: version query param (no slug discovery needed)
+            url = f"{_CDN_BASE}/{package}?version={quote(version_name)}"
+        else:
+            url = f"{_CDN_BASE}/{package}?version=latest"
+
+        # Best-effort redirect resolution; keep original URL on any failure
+        try:
+            resp = std_requests.head(url, headers={**_MOBILE_API_HEADERS, 'User-Agent': 'Mozilla/5.0'},
+                                     allow_redirects=True, timeout=20)
+            if resp.status_code == 200 and resp.url:
+                logging.info(f"APKPure CDN: resolved {package} → {str(resp.url)[:120]}")
+                return str(resp.url)
+        except Exception as e:
+            logging.debug(f"APKPure CDN: HEAD probe failed for {package} (using direct URL): {e}")
+        logging.info(f"APKPure CDN: direct download URL for {package} {version_name or 'latest'}: {url}")
+        return url
+    except Exception as e:
+        logging.debug(f"APKPure CDN: direct URL failed for {package}: {e}")
+    return None
 
 def _try_get_version_list(slug: str, package: str) -> list[dict] | None:
     """Fetch the version list page for a given (slug, package) combo.
@@ -182,6 +309,13 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     package = config.get("package", "")
     target_norm = _normalize(version)
 
+    # ── Priority 1: Direct CDN via mobile API versionCode (fastest, most reliable) ──
+    cdn_url = _cdn_download_url(package, version)
+    if cdn_url:
+        logging.info(f"APKPure: CDN direct download for {app_name} {version}")
+        return cdn_url
+
+    # ── Priority 2: HTML scraping cascade (slug-based) ──
     all_slugs = list(_slug_candidates(config))
 
     # Also search APKPure to discover the actual slug (package name is unique)

@@ -31,7 +31,6 @@ export function PatchChangelogsSection({ patchChangelogs, onFilterByApp }) {
     const map = {
       morphe: "Morphe Patches",
       piko: "Piko Patches",
-      "piko-dev": "Piko (Dev) Patches",
       paresh: "Paresh Patches",
       durgesh: "Durgesh (Chiggi) Patches",
       rookie: "Rookie Patches",

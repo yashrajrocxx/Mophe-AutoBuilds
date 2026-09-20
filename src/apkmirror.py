@@ -1,12 +1,25 @@
 import re
 import json
 import logging
+import time
 from bs4 import BeautifulSoup
 from urllib.parse import quote
-from src import session
+from curl_cffi import requests as cffi_requests
 
 base_url = "https://www.apkmirror.com"
 _blocked_by_cloudflare = False
+
+# Browser fingerprints to rotate through on Cloudflare challenges.
+# CF's bot detection is fingerprint-specific — a profile blocked by one TLS
+# signature may sail through with another.
+_CF_PROFILES = [
+    "chrome124",
+    "safari17_0",
+    "chrome120",
+    "firefox117",
+    "chrome110",
+    "safari15_6_1",
+]
 
 
 class ApkMirrorBlocked(RuntimeError):
@@ -29,26 +42,76 @@ def _app_slug_candidates(config: dict) -> list[str]:
     return list(dict.fromkeys(slug for slug in candidates if slug))
 
 
+def _is_cf_challenge(response) -> bool:
+    """Return True if the response looks like a Cloudflare bot-challenge page."""
+    if response.status_code not in (403, 503):
+        return False
+    body = response.text[:3000].lower()
+    return (
+        response.headers.get("cf-mitigated") == "challenge"
+        or "cf-ray" in response.headers
+        or "just a moment" in body
+        or "challenge-platform" in body
+        or ("cloudflare" in body and "403" in body)
+        or ("cloudflare" in body and "sorry" in body)
+    )
+
+
 def _cf_get(url, **kwargs):
-    """Fetch without trying to defeat Cloudflare on a GitHub-hosted runner."""
+    """Fetch from APKMirror with Cloudflare bypass via rotating curl_cffi impersonation.
+
+    Strategy:
+      1. Try each browser fingerprint profile in _CF_PROFILES in order.
+      2. On a Cloudflare challenge (403/503 + CF headers/body markers), rotate to
+         the next profile after a brief backoff delay.
+      3. Only flag the entire source as permanently blocked once every profile has
+         been tried and all returned challenges.
+      4. Non-Cloudflare 4xx/5xx responses are passed back to the caller as-is.
+
+    This replaces the old fail-fast behaviour that gave up on the first CF challenge.
+    """
     global _blocked_by_cloudflare
     if _blocked_by_cloudflare:
         raise ApkMirrorBlocked("APKMirror blocked this runner earlier in the build")
 
-    import time
-    time.sleep(1.5)  # Add sleep to prevent hammering the server
-    kwargs.setdefault("timeout", 20)
-    response = session.get(url, **kwargs)
-    if response.status_code == 403:
-        body = response.text[:2000].lower()
-        if response.headers.get("cf-mitigated") == "challenge" or "cloudflare" in body:
-            _blocked_by_cloudflare = True
+    kwargs.setdefault("timeout", 25)
+
+    for attempt, profile in enumerate(_CF_PROFILES):
+        # Increasing polite delay — gives CF's rate-limiting some breathing room
+        time.sleep(1.5 + attempt * 0.9)
+
+        try:
+            cf_sess = cffi_requests.Session(impersonate=profile)
+            response = cf_sess.get(url, **kwargs)
+        except Exception as exc:
+            logging.debug(f"APKMirror [{profile}]: network error — {exc}")
+            continue
+
+        if response.status_code == 200:
+            if attempt > 0:
+                logging.info(
+                    f"APKMirror: Cloudflare bypassed with profile '{profile}' "
+                    f"(after {attempt} failed attempt(s))"
+                )
+            return response
+
+        if _is_cf_challenge(response):
             logging.warning(
-                "APKMirror served a Cloudflare challenge; skipping APKMirror "
-                "for this build instead of launching a browser."
+                f"APKMirror: CF challenge on profile '{profile}' "
+                f"(attempt {attempt + 1}/{len(_CF_PROFILES)}), rotating..."
             )
-            raise ApkMirrorBlocked("APKMirror Cloudflare challenge")
-    return response
+            continue  # Try next profile
+
+        # Non-challenge response (404, 429, 5xx, etc.) — return immediately
+        return response
+
+    # All profiles exhausted
+    _blocked_by_cloudflare = True
+    logging.error(
+        f"APKMirror: Cloudflare defeated all {len(_CF_PROFILES)} impersonation profiles. "
+        "APKMirror will be skipped for the rest of this build."
+    )
+    raise ApkMirrorBlocked("APKMirror Cloudflare challenge — all profiles exhausted")
 
 def get_build_number_for_version(version: str, config: dict) -> tuple[str | None, str]:
     """Fetch build number for a specific version from APKMirror.
@@ -500,6 +563,13 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
                     sub_url = row.find('a', class_='accent_color')
                     if sub_url:
                         download_page_url = base_url + sub_url['href']
+                        # Opportunistically cache any versionCode visible in the row
+                        try:
+                            _vc = _extract_version_code_from_text(row_text, version)
+                            if _vc and config.get("package"):
+                                register_version_code(config["package"], version, _vc, target_arch)
+                        except Exception:
+                            pass
                         if try_type != config['type']:
                             logging.info(f"Fallback to {try_type} variant succeeded for {app_name} {version}")
                         break
@@ -633,4 +703,121 @@ def get_latest_version(app_name: str, config: dict) -> str:
                     
                     return base_version
 
+    return None
+
+
+def _find_config_by_package(package: str) -> dict | None:
+    """Find an APKMirror app config matching a package name.
+
+    Scans apps/apkmirror/*.json for {"package": ...} == package.
+    Returns the config dict or None. Never raises.
+    """
+    try:
+        from pathlib import Path as _Path
+        import json as _json
+        for cfg_path in sorted((_Path("apps") / "apkmirror").glob("*.json")):
+            try:
+                with cfg_path.open(encoding="utf-8") as f:
+                    cfg = _json.load(f)
+                if cfg.get("package") == package:
+                    return cfg
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return None
+
+
+def _extract_version_code_from_text(text: str, version: str) -> int | None:
+    """Extract a numeric versionCode near a version string in page text.
+
+    Patterns (most reliable first):
+      1. "Version 2.371.0 (29652157)" — parenthetical build next to version
+      2. "versionCode: 29652157" / "version_code = 29652157"
+      3. Any 7-11 digit number adjacent to the version string
+    """
+    if not text or not version:
+        return None
+    esc = re.escape(version)
+    # 1. version followed by parenthetical code: "2.371.0 (29652157)"
+    m = re.search(rf"{esc}\s*\((\d{{6,11}})\)", text)
+    if m:
+        try:
+            return int(m.group(1))
+        except ValueError:
+            pass
+    # 2. explicit versionCode label
+    m = re.search(r"version[_\s]?code\s*[:=]\s*(\d{6,11})", text, re.IGNORECASE)
+    if m:
+        try:
+            return int(m.group(1))
+        except ValueError:
+            pass
+    return None
+
+
+def register_version_code(package: str, version: str, code: int, arch: str = "universal"):
+    """Cache a versionCode discovered from APKMirror into utils.cli_version_codes."""
+    try:
+        from src import utils as _utils
+        key = (package, version)
+        entry = _utils.cli_version_codes.get(key) or {}
+        entry.setdefault((arch or "universal").lower(), int(code))
+        _utils.cli_version_codes[key] = entry
+    except Exception:
+        pass
+
+
+def get_version_code(package: str, version_name: str) -> int | None:
+    """Scrape APKMirror for the versionCode of a specific version.
+
+    No extra HTTP beyond the normal release-page flow: finds the release page
+    via find_release_page_from_main(), then regex-scans variant rows and the
+    variant page for a parenthetical build number / versionCode label.
+
+    The result is cached into src.utils.cli_version_codes so later lookups
+    (including Play Store resolution) are instant. Returns None on any
+    failure (including Cloudflare block) — callers must fall through.
+    """
+    base_version = re.sub(r"\(\d+\)$", "", version_name).strip()
+    try:
+        from src import utils as _utils
+        cached = _utils.get_cli_version_code(package, base_version)
+        if cached:
+            return cached
+    except Exception:
+        pass
+
+    try:
+        config = _find_config_by_package(package)
+        if not config or not config.get("org") or not config.get("name"):
+            return None
+        release_url = find_release_page_from_main(base_version, config)
+        if not release_url:
+            return None
+        resp = _cf_get(release_url)
+        if resp.status_code != 200:
+            return None
+        soup = BeautifulSoup(resp.content, "html.parser")
+        page_text = soup.get_text(separator=" ")
+        code = _extract_version_code_from_text(page_text, base_version)
+        if code:
+            register_version_code(package, base_version, code)
+            register_version_code(package, version_name, code)
+            logging.info(f"APKMirror: resolved {package} {version_name} → versionCode {code}")
+            return code
+        # Fallback: scan individual variant rows for a parenthetical code
+        for row in soup.find_all("div", class_="table-row headerFont"):
+            row_text = row.get_text(separator=" ")
+            if base_version in row_text or base_version.replace(".", "-") in row_text:
+                code = _extract_version_code_from_text(row_text, base_version)
+                if code:
+                    register_version_code(package, base_version, code)
+                    register_version_code(package, version_name, code)
+                    logging.info(f"APKMirror: resolved {package} {version_name} → versionCode {code} (variant row)")
+                    return code
+    except ApkMirrorBlocked:
+        return None
+    except Exception as e:
+        logging.debug(f"APKMirror: versionCode scrape failed for {package} {version_name}: {e}")
     return None

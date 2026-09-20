@@ -5,6 +5,7 @@ from pathlib import Path
 from src import (
     utils,
     apkpure,
+    apkcombo,
     session,
     uptodown,
     aptoide,
@@ -229,6 +230,16 @@ def download_apkpure(
     override_version: str = None,
 ) -> tuple[Path | None, str | None, list[str]]:
     return download_platform(app_name, "apkpure", cli, patches, arch, override_version)
+
+def download_apkcombo(
+    app_name: str,
+    cli: str,
+    patches: list[Path],
+    arch: str = None,
+    override_version: str = None,
+) -> tuple[Path | None, str | None, list[str]]:
+    """Fallback source: APKCombo (Cloudflare R2 CDN, no CF challenges on downloads)."""
+    return download_platform(app_name, "apkcombo", cli, patches, arch, override_version)
 
 def download_aptoide(
     app_name: str,
