@@ -479,6 +479,7 @@ jobs:
           fi
 
           python scripts/generate_patch_lists.py pages/public/patch_lists.json || echo "[WARN] generate_patch_lists.py failed"
+          python scripts/generate_downloads_page.py pages/public/downloads.html || echo "[WARN] generate_downloads_page.py failed"
 
           python scripts/update_readme_obtainium.py || echo "[WARN] update_readme_obtainium.py failed"
           

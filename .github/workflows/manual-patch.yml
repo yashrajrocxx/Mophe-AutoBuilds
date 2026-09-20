@@ -262,6 +262,7 @@ jobs:
           echo "Syncing Manifest, Obtainium, README, and Pages Data..."
           mkdir -p pages/public
           cp manifest.json pages/public/manifest.json || true
+          python scripts/generate_downloads_page.py pages/public/downloads.html || echo "[WARN] generate_downloads_page.py failed"
           if [ -f obtainium.json ]; then
             cp obtainium.json pages/public/obtainium.json || true
           fi

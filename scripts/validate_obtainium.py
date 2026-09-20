@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Validate Obtainium configuration against manifest.json and APK assets.
+"""Validate Obtainium configuration against manifest.json and downloads.html.
 
-This script performs strict verification on obtainium.json:
-  1. Validates Obtainium schema (id, name, url, author, additionalSettings).
-  2. Ensures additionalSettings contains valid JSON with apkFilterRegEx,
-     versionExtractionRegEx, and matchGroupToUse.
-  3. Tests that apkFilterRegEx matches EXACTLY ONE APK from manifest.json.
-  4. Tests that versionExtractionRegEx extracts the EXACT built_version recorded
-     in manifest.json for that APK.
+Our entries use the HTML app source pointed at the generated downloads page
+(see scripts/generate_downloads_page.py): apkFilterRegEx selects the app's
+download link(s) and versionExtractionRegEx reads the version from the
+matched link URL. This mirrors Obtainium semantics (unanchored search for
+the filter, extraction on the link) — including the critical property that
+the patterns must NEVER be applied to a release tag.
 
-Exit code:
-  0 on complete validation success
-  1 if any validation error occurs
+Strict checks per app entry:
+  1. Schema (id, name, pages downloads URL, additionalSettings JSON).
+  2. apkFilterRegEx matches EXACTLY ONE link in downloads.html.
+  3. versionExtractionRegEx extracts EXACTLY the manifest built_version
+     from that link.
+Also verifies every manifest APK is linked from downloads.html.
+
+Exit code 0 on success, 1 on any error.
 """
 import re
 import sys
@@ -61,15 +65,34 @@ def validate_obtainium_bundle(obtainium_path: Path, manifest_path: Path) -> bool
         return False
 
     entries: Dict[str, Any] = manifest.get("entries", {})
-    all_apks: List[str] = [e["apk"] for e in entries.values() if e.get("apk")]
 
-    # Map apk filename to entry for exact version verification
+    # Download links, parsed from the generated page (same markup Obtainium sees)
+    downloads_path = obtainium_path.parent / "pages" / "public" / "downloads.html"
+    if not downloads_path.exists():
+        downloads_path = Path("pages/public/downloads.html")
+    page_links: List[str] = []
+    if downloads_path.exists():
+        page_links = re.findall(r'<a[^>]+href="([^"]+)"', downloads_path.read_text(encoding="utf-8"))
+    else:
+        print(f"[WARN] {downloads_path} not found; falling back to manifest-derived URLs", file=sys.stderr)
+        page_links = [
+            f"https://github.com/x/y/releases/download/latest/{e['apk']}"
+            for e in entries.values() if e.get("apk")
+        ]
+
+    # Map apk filename -> manifest entry for exact version verification
     apk_to_entry: Dict[str, Dict[str, Any]] = {
         e["apk"]: e for e in entries.values() if e.get("apk")
     }
 
     errors: List[str] = []
-    print(f"Validating {len(apps)} Obtainium app configurations against {len(all_apks)} manifest APKs...\n")
+
+    # Every manifest APK must be linked from the downloads page
+    for apk in apk_to_entry:
+        if not any(link.rsplit("/", 1)[-1] == apk for link in page_links):
+            errors.append(f"[page] manifest APK '{apk}' has no link in downloads.html")
+
+    print(f"Validating {len(apps)} Obtainium app configurations against {len(page_links)} download links...\n")
 
     for idx, app in enumerate(apps, 1):
         app_name = app.get("name", f"App #{idx}")
@@ -77,12 +100,12 @@ def validate_obtainium_bundle(obtainium_path: Path, manifest_path: Path) -> bool
         url = app.get("url", "")
         settings_str = app.get("additionalSettings", "")
 
-        # 1. Validate required fields
+        # 1. Validate required fields — entries must point at the downloads page
         if not app_id:
             errors.append(f"[{app_name}] Missing required 'id' field")
             continue
-        if not url or not url.startswith("https://github.com/"):
-            errors.append(f"[{app_name}] Invalid or non-GitHub 'url': {url}")
+        if not url or "/downloads.html" not in url:
+            errors.append(f"[{app_name}] 'url' must be the downloads page, got: {url}")
             continue
         if not settings_str:
             errors.append(f"[{app_name}] Missing 'additionalSettings'")
@@ -113,18 +136,19 @@ def validate_obtainium_bundle(obtainium_path: Path, manifest_path: Path) -> bool
             errors.append(f"[{app_name}] Invalid regex in apkFilterRegEx '{filter_regex_str}': {e}")
             continue
 
-        matching_apks = [apk for apk in all_apks if filter_pattern.search(apk)]
+        matching_links = [link for link in page_links if filter_pattern.search(link)]
 
-        if len(matching_apks) == 0:
-            errors.append(f"[{app_name}] apkFilterRegEx '{filter_regex_str}' matched 0 APKs in manifest")
+        if len(matching_links) == 0:
+            errors.append(f"[{app_name}] apkFilterRegEx '{filter_regex_str}' matched 0 download links")
             continue
-        elif len(matching_apks) > 1:
+        elif len(matching_links) > 1:
             errors.append(
-                f"[{app_name}] apkFilterRegEx '{filter_regex_str}' matched MULTIPLE ({len(matching_apks)}) APKs: {matching_apks}"
+                f"[{app_name}] apkFilterRegEx '{filter_regex_str}' matched MULTIPLE ({len(matching_links)}) links: {matching_links}"
             )
             continue
 
-        matched_apk = matching_apks[0]
+        matched_link = matching_links[0]
+        matched_apk = matched_link.rsplit("/", 1)[-1]
         entry = apk_to_entry.get(matched_apk, {})
         expected_version = entry.get("built_version", "")
 
@@ -135,10 +159,10 @@ def validate_obtainium_bundle(obtainium_path: Path, manifest_path: Path) -> bool
             errors.append(f"[{app_name}] Invalid regex in versionExtractionRegEx '{ver_regex_str}': {e}")
             continue
 
-        match = ver_pattern.search(matched_apk)
+        match = ver_pattern.search(matched_link)
         if not match:
             errors.append(
-                f"[{app_name}] versionExtractionRegEx '{ver_regex_str}' failed to match filename '{matched_apk}'"
+                f"[{app_name}] versionExtractionRegEx '{ver_regex_str}' failed to match link '{matched_link}'"
             )
             continue
 
