@@ -75,6 +75,7 @@ export function InfoPage() {
           {[
             { icon: <GitBranch size={15} />, label: 'GitHub repository', href: 'https://github.com/yashrajrocxx/Mophe-AutoBuilds' },
             { icon: <RefreshCw size={15} />, label: 'Latest release', href: 'https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/latest' },
+            { icon: <Smartphone size={15} />, label: 'Telegram channel', href: 'https://t.me/morphe_autobuilds' },
           ].map(l => (
             <a
               key={l.label}

@@ -25,6 +25,7 @@ A sophisticated, automated pipeline that builds ready-to-install custom patched 
 </p>
 
 [![View Latest Release](https://img.shields.io/badge/View%20Latest%20Release-0A0A0A?style=flat&logo=github&logoColor=white)](https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/latest)
+[![Telegram Channel](https://img.shields.io/badge/Telegram_Channel-0A0A0A?style=flat&logo=telegram&logoColor=white)](https://t.me/morphe_autobuilds)
 [![Report Bug](https://img.shields.io/badge/Report%20Bug-0A0A0A?style=flat&logo=github&logoColor=white)](https://github.com/yashrajrocxx/Mophe-AutoBuilds/issues)
 [![Request Feature](https://img.shields.io/badge/Request%20Feature-0A0A0A?style=flat&logo=github&logoColor=white)](https://github.com/yashrajrocxx/Mophe-AutoBuilds/issues)
 

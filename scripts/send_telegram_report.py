@@ -3,7 +3,9 @@
 Send beautifully formatted Morphe AutoBuilds reports to Telegram via Bot API.
 
 Security & Privacy:
-- Never exposes or requires a phone number (Telegram uses numeric chat_id).
+- Never exposes or requires a phone number. Destinations are chat IDs,
+  group IDs, or channel usernames (@channel) / IDs (-100...), comma-separated
+  for multiple targets.
 - Credentials (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID) are read exclusively from
   environment variables (e.g. GitHub Secrets).
 - All tokens are masked in logs.
