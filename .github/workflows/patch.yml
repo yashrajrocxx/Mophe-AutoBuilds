@@ -478,6 +478,8 @@ jobs:
             cp ./release-apks/patch_changelogs.json pages/public/patch_changelogs.json || true
           fi
 
+          python scripts/generate_patch_lists.py pages/public/patch_lists.json || echo "[WARN] generate_patch_lists.py failed"
+
           python scripts/update_readme_obtainium.py || echo "[WARN] update_readme_obtainium.py failed"
           
           # Only commit if there are changes to data

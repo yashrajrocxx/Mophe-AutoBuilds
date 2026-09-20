@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -20,14 +21,9 @@ export default {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
-        accent: {
-          DEFAULT: "hsl(var(--yr-accent))",
-          soft: "hsl(var(--yr-accent-soft))",
-          foreground: "#ffffff",
-        },
+        surface: "hsl(var(--surface))",
         destructive: "hsl(var(--destructive))",
-        sidebar: "hsl(var(--yr-sidebar))",
-        surface: "hsl(var(--yr-surface))",
+        sidebar: "hsl(var(--sidebar))",
       },
       borderRadius: {
         lg: "var(--radius)",

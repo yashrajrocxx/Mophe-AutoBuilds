@@ -1,105 +1,306 @@
-import React, { useState, useEffect } from 'react';
-import { FileCode2, Zap, AlertTriangle, PlayCircle, Settings2, Hash } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Search, X, ChevronDown, CheckCircle2, XCircle, Download,
+  Plus, Minus, Zap, ExternalLink, Calendar, Package, Globe
+} from 'lucide-react';
+import { ChangelogViewer } from '../components/ChangelogViewer';
+import { formatTimeAgo } from '../utils/dateUtils';
+
+const DL_LABELS = {
+  download_direct: 'Manual link',
+  download_playstore: 'Google Play',
+  download_apkmirror: 'APKMirror',
+  download_uptodown: 'Uptodown',
+  download_apkpure: 'APKPure',
+  download_apkcombo: 'APKCombo',
+  download_aptoide: 'Aptoide',
+  download_github: 'GitHub',
+};
+
+function StatusBadge({ status }) {
+  const ok = status === 'success';
+  return (
+    <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border text-xs font-semibold shrink-0">
+      {ok ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+      {ok ? 'Success' : 'Failed'}
+    </span>
+  );
+}
+
+function PatchList({ title, icon, items, emptyText }) {
+  return (
+    <div>
+      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+        {icon}
+        {title}
+        <span className="font-mono font-normal">({items.length})</span>
+      </p>
+      {items.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {items.map((p, i) => (
+            <span key={i} className="px-2 py-1 rounded-md bg-muted text-xs font-medium font-mono">
+              {p}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">{emptyText}</p>
+      )}
+    </div>
+  );
+}
 
 export function LogsPage() {
   const [reports, setReports] = useState(null);
+  const [manifest, setManifest] = useState(null);
+  const [patchLists, setPatchLists] = useState({});
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}build_report.json`)
-      .then(res => res.json())
-      .then(data => {
-        setReports(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch reports:", err);
-        setLoading(false);
-      });
+    Promise.allSettled([
+      fetch(`${import.meta.env.BASE_URL}build_report.json`).then(r => r.ok ? r.json() : null),
+      fetch(`${import.meta.env.BASE_URL}manifest.json`).then(r => r.ok ? r.json() : null),
+      fetch(`${import.meta.env.BASE_URL}patch_lists.json`).then(r => r.ok ? r.json() : null),
+    ]).then(([repRes, manRes, listsRes]) => {
+      setReports(repRes.status === 'fulfilled' ? repRes.value : null);
+      setManifest(manRes.status === 'fulfilled' ? manRes.value : null);
+      setPatchLists(listsRes.status === 'fulfilled' && listsRes.value ? listsRes.value : {});
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
+
+  const manifestByKey = useMemo(() => {
+    const map = {};
+    const entries = manifest?.entries || {};
+    Object.values(entries).forEach(e => {
+      map[`${e.app_name}|${e.arch}`] = e;
+    });
+    return map;
+  }, [manifest]);
+
+  const rows = useMemo(() => {
+    const list = Array.isArray(reports) ? reports : [];
+    return list
+      .map((r, idx) => ({ ...r, _idx: idx, _entry: manifestByKey[`${r.app}|${r.arch}`] || null }))
+      .filter(r => {
+        if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return (r.app || '').toLowerCase().includes(q) ||
+          (r.source || '').toLowerCase().includes(q) ||
+          (r.version || '').toLowerCase().includes(q);
+      });
+  }, [reports, manifestByKey, searchQuery, statusFilter]);
+
+  const counts = useMemo(() => {
+    const list = Array.isArray(reports) ? reports : [];
+    return {
+      total: list.length,
+      success: list.filter(r => r.status === 'success').length,
+      failed: list.filter(r => r.status !== 'success').length,
+    };
+  }, [reports]);
+
+  const toggle = (idx) => setExpanded(prev => ({ ...prev, [idx]: !prev[idx] }));
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 yr-fade-up">
-          <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-          <p className="text-muted-foreground text-sm font-medium">Fetching build telemetry...</p>
+      <div className="w-full flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-3 fade-up">
+          <div className="w-7 h-7 rounded-full border-2 border-border border-t-foreground animate-spin" />
+          <p className="text-muted-foreground text-xs font-medium">Loading build logs…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto w-full yr-fade-up">
-      <div className="mb-10">
-        <h2 className="text-3xl font-semibold mb-2">Build Telemetry</h2>
-        <p className="text-muted-foreground text-[15px]">Detailed logs of the patching process and global patch injections.</p>
-      </div>
-
-      {!reports || reports.length === 0 ? (
-        <div className="text-center p-12 bg-muted/20 border border-border rounded-xl">
-          <FileCode2 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-1">No telemetry found</h3>
-          <p className="text-muted-foreground text-sm">Awaiting the next CI/CD build cycle.</p>
-        </div>
-      ) : (
-        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-6 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-          {reports.map((report, idx) => (
-            <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-              {/* Icon / Node */}
-              <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-background bg-muted text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors group-[.is-active]:bg-accent group-[.is-active]:text-white">
-                {report.status === 'success' ? <PlayCircle size={20} /> : <AlertTriangle size={20} />}
-              </div>
-              
-              {/* Card */}
-              <div className="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] p-5 rounded-xl border border-border bg-background shadow-sm hover:shadow-md transition-shadow relative">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-lg capitalize">{report.app}</span>
-                    <span className="px-2 py-0.5 rounded bg-muted text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{report.arch}</span>
-                  </div>
-                  {report.status === 'success' ? (
-                    <span className="text-[11px] font-medium px-2 py-1 bg-emerald-500/10 text-emerald-500 rounded-md">SUCCESS</span>
-                  ) : (
-                    <span className="text-[11px] font-medium px-2 py-1 bg-rose-500/10 text-rose-500 rounded-md">FAILED</span>
-                  )}
-                </div>
-                
-                <div className="space-y-3 mt-4 text-sm">
-                  <div className="flex items-start gap-3 text-muted-foreground">
-                    <Settings2 size={16} className="mt-0.5 shrink-0" />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground">Source & Version</span>
-                      <span>{report.source} • v{report.version || 'Unknown'}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3 text-muted-foreground">
-                    <Zap size={16} className="mt-0.5 shrink-0 text-amber-500" />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-foreground">Patch Source Repository</span>
-                      <span className="text-sm">{report.source || 'Unknown Repo'}</span>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {report.patches && report.patches.length > 0 ? (
-                          <>
-                            <span className="text-xs opacity-80 w-full mb-1">Global Overrides:</span>
-                            {report.patches.filter(p => p !== '-e').map((patch, i) => (
-                              <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[11px] font-medium border border-accent/20">
-                                <Hash size={10} />
-                                {patch}
-                              </span>
-                            ))}
-                          </>
-                        ) : (
-                          <span className="text-xs opacity-60 italic mt-1">App-specific patches only (Auto)</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto w-full fade-up space-y-5">
+      {/* Header */}
+      <div className="pb-5 border-b border-border">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Build logs</h2>
+        <p className="text-muted-foreground text-[13px] sm:text-sm mt-1">
+          Per-app results from the latest pipeline run — download source, every patch switch, and upstream changelogs.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {[
+            { label: 'Total', value: counts.total },
+            { label: 'Success', value: counts.success },
+            { label: 'Failed', value: counts.failed },
+          ].map(s => (
+            <div key={s.label} className="px-3 py-1.5 rounded-lg border border-border bg-card">
+              <span className="text-[11px] text-muted-foreground font-medium mr-2">{s.label}</span>
+              <span className="text-sm font-bold font-mono">{s.value}</span>
             </div>
           ))}
+          {manifest?.updated_at && (
+            <div className="px-3 py-1.5 rounded-lg border border-border bg-card flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Calendar size={12} />
+              <span>Updated {formatTimeAgo(manifest.updated_at)}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Search + status filter */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by app, source, or version…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-10 pl-9 pr-9 bg-background border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-1 p-1 rounded-lg border border-border bg-card self-start">
+          {['all', 'success', 'failed'].map(s => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`h-8 px-3 rounded-md text-xs font-semibold capitalize transition-colors ${
+                statusFilter === s ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Rows */}
+      {!rows.length ? (
+        <div className="text-center p-12 border border-border rounded-xl">
+          <Package size={28} className="mx-auto mb-3 text-muted-foreground" />
+          <h3 className="text-sm font-semibold mb-1">No matching builds</h3>
+          <p className="text-muted-foreground text-xs">Try a different search or filter.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((r) => {
+            const isOpen = Boolean(expanded[r._idx]);
+            const entry = r._entry;
+            const lists = patchLists[`${r.app}|${r.source}`] || { include: [], exclude: [] };
+            const injected = (r.patches || []).filter(p => p && p !== '-e');
+            const apkUrl = r.apk
+              ? `https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/${r.apk}`
+              : null;
+
+            return (
+              <div key={r._idx} className="bg-card rounded-xl border border-border overflow-hidden">
+                <button
+                  onClick={() => toggle(r._idx)}
+                  aria-expanded={isOpen}
+                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[15px] font-semibold capitalize truncate">{r.app}</span>
+                      <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono font-bold uppercase">
+                        {r.arch}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-semibold capitalize">
+                        {r.source}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono mt-1 truncate">
+                      v{r.version || entry?.built_version || 'unknown'}
+                      {entry?.built_at ? ` · built ${formatTimeAgo(entry.built_at)}` : ''}
+                    </p>
+                  </div>
+                  <StatusBadge status={r.status} />
+                  <ChevronDown size={17} className={`shrink-0 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isOpen && (
+                  <div className="px-4 pb-5 pt-1 border-t border-border space-y-5 mt-1">
+                    {/* Build facts */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3">
+                      {[
+                        { label: 'Version', value: `v${r.version || entry?.built_version || '—'}` },
+                        { label: 'Downloaded via', value: DL_LABELS[r.dl_method] || r.dl_method || '—' },
+                        { label: 'Patch tag', value: entry?.patch_tag || '—' },
+                        { label: 'Built', value: entry?.built_at ? formatTimeAgo(entry.built_at) : '—' },
+                      ].map(f => (
+                        <div key={f.label} className="rounded-lg border border-border p-2.5">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{f.label}</p>
+                          <p className="text-[13px] font-semibold font-mono mt-0.5 truncate" title={f.value}>{f.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Patch switches */}
+                    <PatchList
+                      title="Included patches"
+                      icon={<Plus size={12} />}
+                      items={lists.include}
+                      emptyText="No explicit includes — defaults apply."
+                    />
+                    <PatchList
+                      title="Excluded patches"
+                      icon={<Minus size={12} />}
+                      items={lists.exclude}
+                      emptyText="Nothing excluded."
+                    />
+                    <PatchList
+                      title="Auto-injected at build time"
+                      icon={<Zap size={12} />}
+                      items={injected}
+                      emptyText="None."
+                    />
+
+                    {/* Upstream changelog */}
+                    {entry?.patch_changelog && (
+                      <div>
+                        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                          <Globe size={12} />
+                          Upstream patch notes
+                          {entry.patch_url && (
+                            <a
+                              href={entry.patch_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="ml-1 flex items-center gap-1 normal-case tracking-normal font-medium text-foreground underline underline-offset-2 hover:opacity-70"
+                            >
+                              {entry.patch_tag || 'release'}
+                              <ExternalLink size={11} />
+                            </a>
+                          )}
+                        </p>
+                        <div className="rounded-lg border border-border p-3.5 max-h-80 overflow-y-auto">
+                          <ChangelogViewer text={entry.patch_changelog} />
+                        </div>
+                      </div>
+                    )}
+
+                    {apkUrl && r.status === 'success' && (
+                      <a
+                        href={apkUrl}
+                        className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-foreground text-background text-[13px] font-semibold hover:opacity-85 transition-opacity"
+                      >
+                        <Download size={14} />
+                        Download APK
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

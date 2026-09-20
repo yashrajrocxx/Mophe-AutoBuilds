@@ -1,14 +1,11 @@
 import React from 'react';
-import { ExternalLink, Bug, Sparkles, Rocket, Wrench, ChevronRight } from 'lucide-react';
 
 export function ChangelogViewer({ text }) {
   if (!text) return null;
 
-  // Clean lines
   const lines = text.replace(/\r\n/g, '\n').split('\n');
 
   const renderFormattedText = (line) => {
-    // Replace markdown links [text](url) with clickable <a> tags
     const parts = [];
     let lastIndex = 0;
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
@@ -24,7 +21,7 @@ export function ChangelogViewer({ text }) {
           href={match[2]}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent hover:underline inline-flex items-center gap-0.5 font-medium"
+          className="font-medium underline underline-offset-2 hover:opacity-70"
         >
           {match[1]}
         </a>
@@ -35,11 +32,9 @@ export function ChangelogViewer({ text }) {
       parts.push(line.substring(lastIndex));
     }
 
-    // Now format bold text (**text** or `code`) in parts
     return parts.map((part, pIdx) => {
       if (typeof part !== 'string') return part;
-      
-      // Simple splitter for code `code` and bold **bold**
+
       const subParts = [];
       const codeRegex = /`([^`]+)`|\*\*([^*]+)\*\*/g;
       let subLast = 0;
@@ -50,16 +45,14 @@ export function ChangelogViewer({ text }) {
           subParts.push(part.substring(subLast, subMatch.index));
         }
         if (subMatch[1]) {
-          // code
           subParts.push(
-            <code key={subMatch.index} className="px-1.5 py-0.5 rounded bg-muted text-[12px] font-mono text-accent">
+            <code key={subMatch.index} className="px-1.5 py-0.5 rounded bg-muted font-mono text-xs">
               {subMatch[1]}
             </code>
           );
         } else if (subMatch[2]) {
-          // bold
           subParts.push(
-            <strong key={subMatch.index} className="font-semibold text-foreground">
+            <strong key={subMatch.index} className="font-semibold">
               {subMatch[2]}
             </strong>
           );
@@ -74,43 +67,39 @@ export function ChangelogViewer({ text }) {
   };
 
   return (
-    <div className="space-y-2 text-sm text-foreground/90 font-normal leading-relaxed">
+    <div className="space-y-2 text-sm leading-relaxed">
       {lines.map((line, idx) => {
         const trimmed = line.trim();
         if (!trimmed) return <div key={idx} className="h-1.5" />;
 
-        // Header 2 / 3 (e.g. ## [1.40.0], ### Bug Fixes)
         if (trimmed.startsWith('###') || trimmed.startsWith('##')) {
-          const headerText = trimmed.replace(/^#+\s*/, '');
-          const isBug = /bug|fix/i.test(headerText);
-          const isFeature = /feature|new/i.test(headerText);
-          const isSupport = /support|app/i.test(headerText);
-
           return (
-            <div key={idx} className="flex items-center gap-2 pt-3 pb-1 border-b border-border/40 font-semibold text-foreground text-[14px]">
-              {isBug && <Bug size={15} className="text-accent shrink-0" />}
-              {isFeature && <Sparkles size={15} className="text-emerald-500 shrink-0" />}
-              {isSupport && <Rocket size={15} className="text-sky-500 shrink-0" />}
-              {!isBug && !isFeature && !isSupport && <Wrench size={15} className="text-accent shrink-0" />}
-              <span>{renderFormattedText(headerText)}</span>
-            </div>
+            <h4 key={idx} className="pt-3 pb-1 border-b border-border font-semibold text-[14px]">
+              {renderFormattedText(trimmed.replace(/^#+\s*/, ''))}
+            </h4>
           );
         }
 
-        // List items (* item or - item)
         if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
-          const itemText = trimmed.substring(2);
           return (
-            <div key={idx} className="flex items-start gap-2 pl-2 text-[13.5px] text-muted-foreground hover:text-foreground transition-colors">
-              <span className="text-accent text-[10px] mt-1.5 shrink-0">●</span>
-              <div className="flex-1">{renderFormattedText(itemText)}</div>
+            <div key={idx} className="flex items-start gap-2 pl-1 text-[13px] text-muted-foreground">
+              <span aria-hidden="true" className="mt-[7px] w-1 h-1 rounded-full bg-foreground shrink-0" />
+              <div className="flex-1">{renderFormattedText(trimmed.substring(2))}</div>
             </div>
           );
         }
 
-        // Normal paragraph
+        if (/^\d+\.\s/.test(trimmed)) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 text-[13px] text-muted-foreground">
+              <span className="font-mono text-xs mt-0.5 shrink-0">{trimmed.split('.')[0]}.</span>
+              <div className="flex-1">{renderFormattedText(trimmed.replace(/^\d+\.\s*/, ''))}</div>
+            </div>
+          );
+        }
+
         return (
-          <p key={idx} className="text-[13.5px] text-muted-foreground">
+          <p key={idx} className="text-[13px] text-muted-foreground">
             {renderFormattedText(trimmed)}
           </p>
         );

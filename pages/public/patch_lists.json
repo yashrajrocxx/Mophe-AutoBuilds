@@ -1,0 +1,208 @@
+{
+  "autosync|": {
+    "include": [
+      "Purchase All Items",
+      "Disable Folder Pair Deletion",
+      "Disable Temper Detection"
+    ],
+    "exclude": []
+  },
+  "brave|kveld9": {
+    "include": [
+      "Block Brave Telemetry",
+      "Brave In-Product & Commercial Notification Optimizer",
+      "Brave Origin",
+      "Brave Startup Performance Optimization",
+      "Clean New Tab Page",
+      "Clean Share URL",
+      "Disable Background Sync & Periodic Sync",
+      "Disable Battery Status API & OS Listener",
+      "Sensor Privacy Guard",
+      "Skip First Run"
+    ],
+    "exclude": [
+      "Locale PAK Slimmer",
+      "Native Bloat Slimmer"
+    ]
+  },
+  "depthwallpaper|rushiranpise": {
+    "include": [],
+    "exclude": []
+  },
+  "gboard|kveld9": {
+    "include": [
+      "Add AMOLED Theme",
+      "Allow Modified APK",
+      "Block Telemetry",
+      "Clipboard Enhancements",
+      "Disable Diagnostics",
+      "Disable Google Primes",
+      "Disable Remote Configuration",
+      "Disable Tenor Share Tracking",
+      "Enable Access Points Menu Redesign",
+      "Enable Key Shape Selection",
+      "Hardened Intent Security",
+      "Resource Slimmer"
+    ],
+    "exclude": [
+      "Clone Gboard",
+      "Force Incognito Mode"
+    ]
+  },
+  "google-photos|rookie": {
+    "include": [
+      "Change package name"
+    ],
+    "exclude": [
+      "Spoof build info",
+      "Enable DCIM folders backup control"
+    ]
+  },
+  "instagram|piko": {
+    "include": [],
+    "exclude": []
+  },
+  "jiohotstar|durgesh": {
+    "include": [],
+    "exclude": []
+  },
+  "jiotvplus|durgesh": {
+    "include": [],
+    "exclude": []
+  },
+  "messenger|rookie": {
+    "include": [],
+    "exclude": [
+      "Hide inbox ads"
+    ]
+  },
+  "minimalwidgets|rushiranpise": {
+    "include": [],
+    "exclude": []
+  },
+  "nfctools|666": {
+    "include": [
+      "Unlock pro"
+    ],
+    "exclude": []
+  },
+  "phone|": {
+    "include": [
+      "Change package name"
+    ],
+    "exclude": []
+  },
+  "pinterest|browzomje": {
+    "include": [],
+    "exclude": []
+  },
+  "pocketcasts|rushiranpise": {
+    "include": [],
+    "exclude": []
+  },
+  "reddit|morphe": {
+    "include": [],
+    "exclude": []
+  },
+  "sdmaidse|paresh": {
+    "include": [],
+    "exclude": []
+  },
+  "soundcloud|revanced": {
+    "include": [
+      "Change package name"
+    ],
+    "exclude": []
+  },
+  "spotify|revanced": {
+    "include": [
+      "Change package name"
+    ],
+    "exclude": []
+  },
+  "telegram|paresh": {
+    "include": [],
+    "exclude": []
+  },
+  "teuida|hoo": {
+    "include": [],
+    "exclude": [
+      "GmsCore support"
+    ]
+  },
+  "threads|rookie": {
+    "include": [],
+    "exclude": []
+  },
+  "tradingview|rushiranpise": {
+    "include": [],
+    "exclude": []
+  },
+  "trakt|": {
+    "include": [],
+    "exclude": [
+      "Hide ADB"
+    ]
+  },
+  "vivaldi|kveld9": {
+    "include": [
+      "Block Vivaldi Telemetry",
+      "Clean Speed Dial Bookmarks",
+      "Disable Background Sync & Periodic Sync",
+      "Disable Battery Status API & OS Listener",
+      "Disable Chromium Tips & Notification Scheduler",
+      "Disable Vivaldi Prompts & In-App Popups",
+      "Locale PAK Slimmer",
+      "Resource Slimmer",
+      "Skip First Run",
+      "Vivaldi Startup Performance Optimization",
+      "Close Tabs on Exit",
+      "APK Junk Cleaner",
+      "Locale Resource Slimmer",
+      "PNG Asset Optimizer"
+    ],
+    "exclude": [
+      "Block Vivaldi Sync",
+      "DPI Resource Slimmer"
+    ]
+  },
+  "vn|paresh": {
+    "include": [],
+    "exclude": []
+  },
+  "youtube|morphe": {
+    "include": [],
+    "exclude": []
+  },
+  "youtube-music|morphe": {
+    "include": [],
+    "exclude": [
+      "AddResourcesPatch"
+    ]
+  },
+  "youtube-music|revanced-extended": {
+    "include": [],
+    "exclude": [
+      "Custom branding name for YouTube Music",
+      "Custom branding icon for YouTube Music"
+    ]
+  },
+  "youtube|revanced-extended-dev": {
+    "include": [],
+    "exclude": [
+      "Custom branding name for YouTube",
+      "Custom branding icon for YouTube"
+    ]
+  },
+  "youtube|revanced-extended": {
+    "include": [],
+    "exclude": [
+      "Custom branding name for YouTube",
+      "Custom branding icon for YouTube"
+    ]
+  },
+  "youtube|revanced": {
+    "include": [],
+    "exclude": []
+  }
+}

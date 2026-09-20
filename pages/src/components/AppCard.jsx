@@ -7,119 +7,76 @@ export function AppCard({ appName, appEntries, isRecentlyUpdated, manifestUpdate
   const [imgError, setImgError] = useState(false);
   const meta = getAppMeta(appName);
   const firstEntry = appEntries[0] || {};
-  const patchSource = firstEntry.source || "morphe";
+  const patchSource = firstEntry.source || 'morphe';
 
-  // Use icon from manifest, fallback to curated high-res icon
   const iconUrl = (!imgError && (firstEntry.icon_url || meta.icon)) || meta.icon;
 
-  // Get most recent built_at timestamp among all arch entries
   const latestBuildDate = appEntries.reduce((latest, e) => {
     if (!e.built_at) return latest;
     if (!latest) return e.built_at;
     return e.built_at > latest ? e.built_at : latest;
   }, firstEntry.built_at || manifestUpdatedAt);
 
-  const getSourceBadge = (source) => {
-    const s = (source || "").toLowerCase();
-    if (s.includes("piko-dev")) {
-      return { label: "Piko (Dev)", bg: "bg-accent/10 text-accent border-accent/20" };
-    }
-    if (s.includes("piko")) {
-      return { label: "Piko", bg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" };
-    }
-    if (s.includes("morphe")) {
-      return { label: "Morphe", bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20" };
-    }
-    if (s.includes("paresh")) {
-      return { label: "Paresh", bg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" };
-    }
-    if (s.includes("rookie")) {
-      return { label: "Rookie", bg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20" };
-    }
-    if (s.includes("rushi")) {
-      return { label: "Rushi", bg: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20" };
-    }
-    return { label: source, bg: "bg-accent/10 text-accent border-accent/20" };
-  };
-
-  const sourceBadge = getSourceBadge(patchSource);
-  const versionDisplay = firstEntry.built_version || firstEntry.config_version || "Latest";
+  const versionDisplay = firstEntry.built_version || firstEntry.config_version || 'Latest';
 
   return (
-    <div className={`group relative bg-card/90 backdrop-blur-md rounded-2xl border ${isRecentlyUpdated ? 'border-accent/40 shadow-xs' : 'border-border/60'} hover:border-accent/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden`}>
-      
-      {/* Subtle top indicator for recently updated */}
+    <div className="relative bg-card rounded-xl border border-border flex flex-col justify-between overflow-hidden hover:border-foreground/30 transition-colors">
       {isRecentlyUpdated && (
-        <div className="bg-accent/10 px-3.5 py-1 border-b border-accent/20 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-accent tracking-wide uppercase">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-            </span>
-            <span>Recently Updated</span>
-          </div>
-          <span className="text-[10.5px] font-medium text-muted-foreground">
+        <div className="px-4 py-1.5 border-b border-border flex items-center justify-between bg-muted/50">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
+            Recently updated
+          </span>
+          <span className="text-[11px] text-muted-foreground">
             {formatTimeAgo(latestBuildDate)}
           </span>
         </div>
       )}
 
-      {/* Main Info */}
-      <div className="p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3 mb-3.5">
-          
-          {/* Strictly Sized App Icon */}
-          <div className="w-12 h-12 sm:w-13 sm:h-13 relative shrink-0">
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="w-12 h-12 relative shrink-0">
             {iconUrl ? (
               <img
                 src={iconUrl}
                 alt={meta.name}
                 onError={() => setImgError(true)}
-                className="w-12 h-12 sm:w-13 sm:h-13 rounded-xl object-contain shadow-2xs border border-border/60 bg-white p-1"
+                className="w-12 h-12 rounded-xl object-contain border border-border bg-white p-1"
                 loading="lazy"
               />
             ) : (
-              <div 
-                className="w-12 h-12 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-2xs"
-                style={{ backgroundColor: meta.color || '#FF6F61' }}
-              >
+              <div className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground font-bold text-lg">
                 {meta.name.charAt(0)}
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background rounded-full flex items-center justify-center shadow-2xs border border-border/40">
-              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background rounded-full flex items-center justify-center border border-border">
+              <CheckCircle2 className="w-3 h-3" />
             </div>
           </div>
 
-          {/* Source Badge */}
-          <span className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold tracking-wide border ${sourceBadge.bg} shrink-0`}>
-            {sourceBadge.label}
+          <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold border border-border text-muted-foreground capitalize shrink-0">
+            {patchSource}
           </span>
         </div>
 
-        {/* Title & Metadata */}
-        <div className="mb-2.5">
-          <h4 className="text-sm sm:text-base font-bold text-foreground group-hover:text-accent transition-colors truncate mb-0.5">
-            {meta.name}
-          </h4>
-          <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground">
-            <span className="truncate">{meta.category}</span>
-            <span className="opacity-40">•</span>
-            <span className="font-mono text-[11px] font-medium text-foreground/80 shrink-0">v{versionDisplay}</span>
-          </div>
+        <h4 className="text-[15px] font-semibold truncate mb-0.5">
+          {meta.name}
+        </h4>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+          <span className="truncate">{meta.category}</span>
+          <span aria-hidden="true">·</span>
+          <span className="font-mono shrink-0">v{versionDisplay}</span>
         </div>
 
-        {/* Timestamp */}
         {!isRecentlyUpdated && (
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-2 border-t border-border/40">
-            <Clock size={11} className="opacity-60 shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-2.5 border-t border-border">
+            <Clock size={12} className="shrink-0" />
             <span>Updated {formatTimeAgo(latestBuildDate)}</span>
           </div>
         )}
       </div>
 
-      {/* Downloads Section */}
-      <div className="p-2.5 bg-muted/20 border-t border-border/40 flex flex-col gap-1.5">
+      <div className="px-3 pb-3 flex flex-col gap-2">
         {appEntries.map((entry, idx) => {
           if (!entry.apk) return null;
           const archLabel = (entry.arch || 'universal').toUpperCase();
@@ -127,24 +84,21 @@ export function AppCard({ appName, appEntries, isRecentlyUpdated, manifestUpdate
           const obtainiumUrl = entry.obtainium_url;
 
           return (
-            <div key={idx} className="flex items-center gap-1.5">
+            <div key={idx} className="flex items-center gap-2">
               <a
                 href={apkUrl}
                 title={`Download ${archLabel} APK`}
-                className="flex-1 flex items-center justify-between px-3 py-1.5 bg-background hover:bg-accent hover:text-white border border-border/60 hover:border-accent rounded-lg text-xs font-semibold text-foreground transition-all duration-150 group/btn shadow-2xs"
+                className="flex-1 flex items-center justify-between px-3 h-9 bg-foreground text-background rounded-lg text-[13px] font-semibold hover:opacity-85 transition-opacity"
               >
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[11px] font-bold tracking-wider opacity-90 group-hover/btn:opacity-100">
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold tracking-wide">
                     {archLabel}
                   </span>
-                  <span className="text-[10.5px] font-mono font-normal opacity-60 group-hover/btn:opacity-90">
+                  <span className="text-xs font-mono font-normal opacity-70">
                     v{entry.built_version || versionDisplay}
                   </span>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Download size={12} className="group-hover/btn:translate-y-0.5 transition-transform" />
-                </div>
+                </span>
+                <Download size={14} />
               </a>
 
               {obtainiumUrl && (
@@ -153,10 +107,10 @@ export function AppCard({ appName, appEntries, isRecentlyUpdated, manifestUpdate
                   title="Add to Obtainium"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2.5 py-1.5 bg-background hover:bg-violet-600 hover:text-white text-muted-foreground hover:border-violet-600 border border-border/60 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center gap-1 shadow-2xs shrink-0 group/obt"
+                  className="h-9 px-3 flex items-center gap-1.5 bg-background text-foreground border border-border rounded-lg text-[13px] font-semibold hover:bg-muted transition-colors shrink-0"
                 >
-                  <Smartphone size={12} className="text-violet-500 group-hover/obt:text-white transition-colors" />
-                  <span className="text-[10.5px] font-medium tracking-tight">Obtainium</span>
+                  <Smartphone size={14} />
+                  <span>Obtainium</span>
                 </a>
               )}
             </div>
