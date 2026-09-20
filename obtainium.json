@@ -6,7 +6,7 @@
       "author": "yashrajrocxx",
       "name": "YouTube",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^youtube-arm64-v8a-morphe-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^youtube-arm64-v8a-morphe-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^youtube-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^youtube-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.google.android.apps.youtube.music",
@@ -14,7 +14,7 @@
       "author": "yashrajrocxx",
       "name": "YouTube Music",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^youtube-music-arm64-v8a-morphe-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^youtube-music-arm64-v8a-morphe-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^youtube-music-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^youtube-music-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.reddit.frontpage",
@@ -22,7 +22,7 @@
       "author": "yashrajrocxx",
       "name": "Reddit",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^reddit-arm64-v8a-morphe-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^reddit-arm64-v8a-morphe-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^reddit-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^reddit-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.instagram.android",
@@ -30,7 +30,7 @@
       "author": "yashrajrocxx",
       "name": "Instagram",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^instagram-arm64-v8a-piko-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^instagram-arm64-v8a-piko-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^instagram-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^instagram-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.pinterest",
@@ -38,7 +38,7 @@
       "author": "yashrajrocxx",
       "name": "Pinterest",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^pinterest-arm64-v8a-browzomje-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^pinterest-arm64-v8a-browzomje-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^pinterest-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^pinterest-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "org.telegram.messenger",
@@ -46,7 +46,7 @@
       "author": "yashrajrocxx",
       "name": "Telegram",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^telegram-arm64-v8a-paresh-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^telegram-arm64-v8a-paresh-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^telegram-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^telegram-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "eu.darken.sdmse",
@@ -54,7 +54,7 @@
       "author": "yashrajrocxx",
       "name": "SD Maid 2 / SE",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^sdmaidse-arm64-v8a-paresh-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^sdmaidse-arm64-v8a-paresh-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^sdmaidse-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^sdmaidse-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.instagram.barcelona",
@@ -62,7 +62,7 @@
       "author": "yashrajrocxx",
       "name": "Threads",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^threads-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^threads-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^threads-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^threads-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.google.android.apps.photos",
@@ -70,7 +70,7 @@
       "author": "yashrajrocxx",
       "name": "Google Photos",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^google-photos-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^google-photos-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^google-photos-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^google-photos-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.jndapp.depth.live.wallpaper",
@@ -78,7 +78,7 @@
       "author": "yashrajrocxx",
       "name": "Depth Wallpaper",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^depthwallpaper-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^depthwallpaper-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^depthwallpaper-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^depthwallpaper-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "au.com.shiftyjelly.pocketcasts",
@@ -86,7 +86,7 @@
       "author": "yashrajrocxx",
       "name": "Pocket Casts",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^pocketcasts-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^pocketcasts-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^pocketcasts-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^pocketcasts-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.jndapp.minimal.widgets",
@@ -94,7 +94,7 @@
       "author": "yashrajrocxx",
       "name": "Minimal Widgets",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^minimalwidgets-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^minimalwidgets-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^minimalwidgets-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^minimalwidgets-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "proton.android.pass",
@@ -102,7 +102,7 @@
       "author": "yashrajrocxx",
       "name": "Proton Pass",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^protonpass-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^protonpass-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^protonpass-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^protonpass-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.server.auditor.ssh.client",
@@ -110,7 +110,7 @@
       "author": "yashrajrocxx",
       "name": "Server Auditor (Termius)",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^serverauditor-arm64-v8a-morphe-patches-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^serverauditor-arm64-v8a-morphe-patches-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^serverauditor-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^serverauditor-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.hrd.vocabulary",
@@ -118,7 +118,7 @@
       "author": "yashrajrocxx",
       "name": "Vocabulary",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^vocabulary-arm64-v8a-morning-entree-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^vocabulary-arm64-v8a-morning-entree-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^vocabulary-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^vocabulary-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.roehl.habitkit",
@@ -126,7 +126,7 @@
       "author": "yashrajrocxx",
       "name": "HabitKit",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^habitkit-arm64-v8a-paresh-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^habitkit-arm64-v8a-paresh-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^habitkit-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^habitkit-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.streetwriters.notesnook",
@@ -134,7 +134,7 @@
       "author": "yashrajrocxx",
       "name": "Notesnook",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^notesnook-arm64-v8a-hxreborn-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^notesnook-arm64-v8a-hxreborn-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^notesnook-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^notesnook-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.duolingo",
@@ -142,7 +142,7 @@
       "author": "yashrajrocxx",
       "name": "Duolingo",
       "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"^duolingo-arm64-v8a-hoodles-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^duolingo-arm64-v8a-hoodles-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+      "additionalSettings": "{\"apkFilterRegEx\":\"^duolingo-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"^duolingo-arm64-v8a-.*-v(.*)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     }
   ]
 }

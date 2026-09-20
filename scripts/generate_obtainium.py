@@ -101,12 +101,21 @@ def build_obtainium_app(
     if not prefix:
         raise ValueError(f"Could not determine identity prefix from APK filename: {apk}")
 
+    # Source-agnostic identity: "{app}-{arch}-". The patch-source name is
+    # deliberately NOT baked in — sources get renamed (dh6k → kveld9, …)
+    # and baked regexes then match zero assets, which surfaces in Obtainium
+    # as "Could not determine release version".
+    head = f"{app_name}-{arch}-"
+    if not prefix.startswith(head):
+        # Unexpected filename layout — fall back to the exact baked prefix.
+        head = prefix.rsplit("-", 1)[0] + "-" if "-" in prefix else prefix + "-"
+
     base_name = get_display_name(app_name)
     # If this app has builds for multiple architectures, disambiguate with arch in name
     display_name = f"{base_name} ({arch})" if arch_counts.get(app_name, 0) > 1 else base_name
 
-    filter_pat = f"^{prefix}-v.*\\.apk$"
-    ver_pat = f"^{prefix}-v(.*)\\.apk$"
+    filter_pat = f"^{head}.*-v.*\\.apk$"
+    ver_pat = f"^{head}.*-v(.*)\\.apk$"
 
     additional_settings = json.dumps({
         "apkFilterRegEx": filter_pat,
