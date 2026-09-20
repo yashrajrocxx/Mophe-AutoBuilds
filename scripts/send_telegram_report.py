@@ -226,16 +226,23 @@ def format_app_display(app_name: str) -> str:
 
 def main() -> int:
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-    chat_id = (os.environ.get("TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHATID") or "").strip()
+    raw_chats = (os.environ.get("TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHATID") or "").strip()
 
-    if not token or not chat_id:
+    if not token or not raw_chats:
         logging.info(
             "[INFO] Telegram credentials (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID / TELEGRAM_CHATID) "
             "not set. Skipping Telegram notification."
         )
         return 0
 
-    logging.info(f"Preparing Telegram report for chat_id={chat_id} (token={mask_token(token)})...")
+    # One or many destinations: personal chat, group/supergroup, or channel.
+    # Channels use @username (public) or -100... numeric ID (private).
+    chat_ids = [c.strip() for c in raw_chats.split(",") if c.strip()]
+    if not chat_ids:
+        logging.info("[INFO] No valid Telegram chat IDs configured. Skipping.")
+        return 0
+
+    logging.info(f"Preparing Telegram report for {len(chat_ids)} destination(s) (token={mask_token(token)})...")
 
     # Context info
     repo = os.environ.get("GITHUB_REPOSITORY", "yashrajrocxx/Mophe-AutoBuilds")
@@ -363,13 +370,14 @@ def main() -> int:
     full_message = "\n".join(lines)
     chunks = split_message(full_message)
 
-    logging.info(f"Sending Telegram notification in {len(chunks)} message(s)...")
+    logging.info(f"Sending Telegram notification in {len(chunks)} message(s) × {len(chat_ids)} destination(s)...")
     success = True
-    for idx, chunk in enumerate(chunks, 1):
-        ok = send_telegram_message(token, chat_id, chunk)
-        if not ok:
-            logging.warning(f"Failed to deliver Telegram chunk {idx}/{len(chunks)}")
-            success = False
+    for chat_id in chat_ids:
+        for idx, chunk in enumerate(chunks, 1):
+            ok = send_telegram_message(token, chat_id, chunk)
+            if not ok:
+                logging.warning(f"Failed to deliver Telegram chunk {idx}/{len(chunks)} to {chat_id}")
+                success = False
 
     if success:
         logging.info("[OK] Telegram build report delivered successfully.")

@@ -55,6 +55,17 @@ class TestTelegramReport(unittest.TestCase):
     def test_escape_html(self):
         self.assertEqual(tgr.escape_html("<b>&"), "&lt;b&gt;&amp;")
 
+    def test_multiple_destinations(self):
+        """Comma-separated chat IDs each receive the report."""
+        env = {"TELEGRAM_BOT_TOKEN": "tok", "TELEGRAM_CHAT_ID": "@chan, 12345"}
+        with patch.dict(os.environ, env, clear=True):
+            with patch.object(tgr, "send_telegram_message", return_value=True) as mock_send:
+                with patch.object(tgr, "load_build_reports", return_value=[]):
+                    self.assertEqual(tgr.main(), 0)
+        self.assertEqual(mock_send.call_count, 2)
+        targets = [c.args[1] for c in mock_send.call_args_list]
+        self.assertEqual(targets, ["@chan", "12345"])
+
 
 if __name__ == "__main__":
     unittest.main()
