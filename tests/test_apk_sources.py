@@ -1,7 +1,10 @@
 import unittest
 from unittest.mock import Mock, patch
 
+from bs4 import BeautifulSoup
+
 from src import apkcombo
+from src import apkmirror
 from src import apkpure
 
 
@@ -61,6 +64,37 @@ class TestApkPureCdnGating(unittest.TestCase):
     def test_probe_error_returns_optimistic_url(self, _mock_head, _mock_vc):
         url = apkpure._cdn_download_url("com.example.app", "1.0")
         self.assertTrue(url.startswith("https://d.apkpure.net/b/APK/com.example.app?version=1.0"))
+
+
+class TestApkMirrorBundleButton(unittest.TestCase):
+
+    VARIANT_HTML = """
+    <html><body>
+      <a class="downloadButton" href="/apk/x/y-2-android-apk-download/download/?key=ABC&forcebaseapk=true">APK</a>
+      <a class="downloadButton" href="/apk/x/y-2-android-apk-download/download/?key=ABC">Bundle</a>
+    </body></html>
+    """
+
+    def test_bundle_request_skips_forcebaseapk(self):
+        soup = BeautifulSoup(self.VARIANT_HTML, "html.parser")
+        url = apkmirror._pick_download_button(soup, want_bundle=True)
+        self.assertTrue(url.endswith("/download/?key=ABC"))
+
+    def test_apk_request_prefers_forcebaseapk(self):
+        soup = BeautifulSoup(self.VARIANT_HTML, "html.parser")
+        url = apkmirror._pick_download_button(soup, want_bundle=False)
+        self.assertIn("forcebaseapk=true", url)
+
+    def test_no_buttons_returns_none(self):
+        soup = BeautifulSoup("<html></html>", "html.parser")
+        self.assertIsNone(apkmirror._pick_download_button(soup, want_bundle=True))
+
+    def test_bare_number_version_code(self):
+        row = "8.2.4147.77 BUNDLE 1 S 541470077 September 14, 2026 arm64-v8a Android 10+ nodpi"
+        self.assertEqual(apkmirror._extract_version_code_from_text(row, "8.2.4147.77"), 541470077)
+
+    def test_year_not_mistaken_for_code(self):
+        self.assertIsNone(apkmirror._extract_version_code_from_text("Released September 14, 2026", "9.9.9"))
 
 
 if __name__ == "__main__":

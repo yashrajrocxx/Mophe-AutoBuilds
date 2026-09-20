@@ -621,9 +621,9 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Variant Page")
         soup = BeautifulSoup(response.content, "html.parser")
 
-        sub_url = soup.find('a', class_='downloadButton')
-        if sub_url:
-            final_download_page_url = base_url + sub_url['href']
+        want_bundle = config.get("type") == "BUNDLE"
+        final_download_page_url = _pick_download_button(soup, want_bundle)
+        if final_download_page_url:
             response = _cf_get(final_download_page_url)
             response.raise_for_status()
             content_size = len(response.content)
@@ -637,6 +637,32 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         logging.error(f"Error in download flow: {e}")
 
     return None
+
+def _pick_download_button(soup, want_bundle: bool) -> str | None:
+    """Pick the right download button from an APKMirror variant page.
+
+    Bundle variants expose two buttons: the full .apkm bundle
+    (`.../download/?key=...`) and the base APK only
+    (`.../download/?key=...&forcebaseapk=true`). Patch fingerprints are
+    built against the full bundle, so BUNDLE requests must take the former —
+    taking the base APK is exactly what causes mass fingerprint failures.
+    """
+    buttons = [
+        a.get("href", "")
+        for a in soup.find_all("a", class_="downloadButton")
+        if a.get("href")
+    ]
+    if not buttons:
+        return None
+    if want_bundle:
+        for href in buttons:
+            if "forcebaseapk" not in href:
+                return base_url + href
+    else:
+        for href in buttons:
+            if "forcebaseapk" in href:
+                return base_url + href
+    return base_url + buttons[0]
 
 def get_architecture_criteria(arch: str) -> dict:
     """Map architecture names to APKMirror criteria"""
@@ -753,6 +779,15 @@ def _extract_version_code_from_text(text: str, version: str) -> int | None:
             return int(m.group(1))
         except ValueError:
             pass
+    # 3. bare 7-11 digit number (APKMirror variant rows list the raw
+    # versionCode, e.g. "8.2.4147.77 BUNDLE 1 S 541470077 ..."). The lower
+    # bound excludes years/days; dotted version parts are excluded by the
+    # boundary checks.
+    for m in re.finditer(r"(?<![\d.])(\d{7,11})(?![\d.])", text):
+        try:
+            return int(m.group(1))
+        except ValueError:
+            continue
     return None
 
 
