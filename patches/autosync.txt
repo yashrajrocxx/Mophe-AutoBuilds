@@ -1,3 +1,0 @@
-+ Purchase All Items
-+ Disable Folder Pair Deletion
-+ Disable Temper Detection

@@ -1,12 +1,4 @@
 {
-  "autosync|": {
-    "include": [
-      "Purchase All Items",
-      "Disable Folder Pair Deletion",
-      "Disable Temper Detection"
-    ],
-    "exclude": []
-  },
   "brave|kveld9": {
     "include": [
       "Block Brave Telemetry",
@@ -66,30 +58,8 @@
     "include": [],
     "exclude": []
   },
-  "jiotvplus|durgesh": {
-    "include": [],
-    "exclude": []
-  },
-  "messenger|rookie": {
-    "include": [],
-    "exclude": [
-      "Hide inbox ads"
-    ]
-  },
   "minimalwidgets|rushiranpise": {
     "include": [],
-    "exclude": []
-  },
-  "nfctools|666": {
-    "include": [
-      "Unlock pro"
-    ],
-    "exclude": []
-  },
-  "phone|": {
-    "include": [
-      "Change package name"
-    ],
     "exclude": []
   },
   "pinterest|browzomje": {
@@ -108,41 +78,13 @@
     "include": [],
     "exclude": []
   },
-  "soundcloud|revanced": {
-    "include": [
-      "Change package name"
-    ],
-    "exclude": []
-  },
-  "spotify|revanced": {
-    "include": [
-      "Change package name"
-    ],
-    "exclude": []
-  },
   "telegram|paresh": {
     "include": [],
     "exclude": []
   },
-  "teuida|hoo": {
-    "include": [],
-    "exclude": [
-      "GmsCore support"
-    ]
-  },
   "threads|rookie": {
     "include": [],
     "exclude": []
-  },
-  "tradingview|rushiranpise": {
-    "include": [],
-    "exclude": []
-  },
-  "trakt|": {
-    "include": [],
-    "exclude": [
-      "Hide ADB"
-    ]
   },
   "vivaldi|kveld9": {
     "include": [
@@ -166,10 +108,6 @@
       "DPI Resource Slimmer"
     ]
   },
-  "vn|paresh": {
-    "include": [],
-    "exclude": []
-  },
   "youtube|morphe": {
     "include": [],
     "exclude": []
@@ -179,30 +117,5 @@
     "exclude": [
       "AddResourcesPatch"
     ]
-  },
-  "youtube-music|revanced-extended": {
-    "include": [],
-    "exclude": [
-      "Custom branding name for YouTube Music",
-      "Custom branding icon for YouTube Music"
-    ]
-  },
-  "youtube|revanced-extended-dev": {
-    "include": [],
-    "exclude": [
-      "Custom branding name for YouTube",
-      "Custom branding icon for YouTube"
-    ]
-  },
-  "youtube|revanced-extended": {
-    "include": [],
-    "exclude": [
-      "Custom branding name for YouTube",
-      "Custom branding icon for YouTube"
-    ]
-  },
-  "youtube|revanced": {
-    "include": [],
-    "exclude": []
   }
 }

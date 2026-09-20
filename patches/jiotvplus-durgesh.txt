@@ -1,2 +1,0 @@
-# JioTV+ durgesh Patches
-# Left empty to apply all default recommended patches automatically (like removing ads).
