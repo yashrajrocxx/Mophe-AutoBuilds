@@ -4,7 +4,7 @@
     "arch": "arm64-v8a",
     "source": "kveld9",
     "status": "success",
-    "version": "1.95.101",
+    "version": "1.95.104",
     "patches": [
       "Block Brave Telemetry",
       "Brave In-Product & Commercial Notification Optimizer",
@@ -20,7 +20,7 @@
       "Change installer source"
     ],
     "dl_method": "download_direct",
-    "apk": "brave-arm64-v8a-kveld9-v1.95.101.apk"
+    "apk": "brave-arm64-v8a-kveld9-v1.95.104.apk"
   },
   {
     "app": "depthwallpaper",
@@ -33,19 +33,6 @@
     ],
     "dl_method": "download_playstore",
     "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk"
-  },
-  {
-    "app": "duolingo",
-    "arch": "arm64-v8a",
-    "source": "hoodles",
-    "status": "success",
-    "version": "6.95.4",
-    "patches": [
-      "Disable Play Store updates",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "duolingo-arm64-v8a-hoodles-v6.95.4.apk"
   },
   {
     "app": "gboard",
@@ -86,30 +73,6 @@
     "apk": "google-photos-arm64-v8a-morphe-patches-v7.92.0.977185651.apk"
   },
   {
-    "app": "habitkit",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "1.15.2",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk"
-  },
-  {
-    "app": "instagram",
-    "arch": "arm64-v8a",
-    "source": "piko",
-    "status": "success",
-    "version": "439.0.0.37.89",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "instagram-arm64-v8a-piko-patches-v439.0.0.37.89.apk"
-  },
-  {
     "app": "jiohotstar",
     "arch": "arm64-v8a",
     "source": "durgesh",
@@ -143,18 +106,6 @@
     "apk": "notesnook-arm64-v8a-hxreborn-v3.4.12.apk"
   },
   {
-    "app": "pinterest",
-    "arch": "arm64-v8a",
-    "source": "browzomje",
-    "status": "success",
-    "version": "14.34.0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "pinterest-arm64-v8a-browzomje-patches-v14.34.0.apk"
-  },
-  {
     "app": "pocketcasts",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
@@ -179,30 +130,6 @@
     "apk": "protonpass-arm64-v8a-morphe-patches-v1.40.3.apk"
   },
   {
-    "app": "reddit",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "2026.14.0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
-  },
-  {
-    "app": "sdmaidse",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "1.7.3-rc0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "sdmaidse-arm64-v8a-paresh-v1.7.3-rc0.apk"
-  },
-  {
     "app": "serverauditor",
     "arch": "arm64-v8a",
     "source": "rushiranpise",
@@ -213,18 +140,6 @@
     ],
     "dl_method": "download_playstore",
     "apk": "serverauditor-arm64-v8a-morphe-patches-v7.9.0.apk"
-  },
-  {
-    "app": "telegram",
-    "arch": "arm64-v8a",
-    "source": "paresh",
-    "status": "success",
-    "version": "12.10.3",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "telegram-arm64-v8a-paresh-v12.10.3.apk"
   },
   {
     "app": "threads",
@@ -243,7 +158,7 @@
     "arch": "arm64-v8a",
     "source": "kveld9",
     "status": "success",
-    "version": "8.2.4147.77",
+    "version": "8.2.4147.93",
     "patches": [
       "Block Vivaldi Telemetry",
       "Clean Speed Dial Bookmarks",
@@ -262,43 +177,6 @@
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "vivaldi-arm64-v8a-kveld9-v8.2.4147.77.apk"
-  },
-  {
-    "app": "vocabulary",
-    "arch": "arm64-v8a",
-    "source": "morning-entree",
-    "status": "success",
-    "version": "5.5.1",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk"
-  },
-  {
-    "app": "youtube-music",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "9.15.51",
-    "patches": [
-      "Disable Play Store updates",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "youtube-music-arm64-v8a-morphe-v9.15.51.apk"
-  },
-  {
-    "app": "youtube",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "21.13.164",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "youtube-arm64-v8a-morphe-v21.13.164.apk"
+    "apk": "vivaldi-arm64-v8a-kveld9-v8.2.4147.93.apk"
   }
 ]
