@@ -197,6 +197,70 @@ class TestPlaystoreResolver(unittest.TestCase):
         self.assertEqual(ver, "2.372.0")
         self.assertEqual(code, "29663417")
 
+    def test_parse_info_output_real_apps(self):
+        """Test with verbatim output captured from real Google Play runs."""
+        # Brave Browser
+        brave_out = """
+┌────────────┬─────────────────────────────────────────────────────────────────┐
+│ Package    │ com.brave.browser                                               │
+│ Version    │ 1.95.104 (429510404)                                            │
+│ Developer  │ Brave Software                                                  │
+└────────────┴─────────────────────────────────────────────────────────────────┘
+"""
+        ver, code = playstore._parse_info_output(brave_out)
+        self.assertEqual(ver, "1.95.104")
+        self.assertEqual(code, "429510404")
+
+        # YouTube
+        yt_out = """
+┌────────────┬─────────────────────────────────────────────────────────────────┐
+│ Package    │ com.google.android.youtube                                      │
+│ Version    │ 21.38.130 (1561297264)                                          │
+│ Developer  │ Google LLC                                                      │
+└────────────┴─────────────────────────────────────────────────────────────────┘
+"""
+        ver, code = playstore._parse_info_output(yt_out)
+        self.assertEqual(ver, "21.38.130")
+        self.assertEqual(code, "1561297264")
+
+        # Instagram
+        insta_out = """
+┌────────────┬─────────────────────────────────────────────────────────────────┐
+│ Package    │ com.instagram.android                                           │
+│ Version    │ 448.0.0.52.84 (385412061)                                       │
+│ Developer  │ Instagram                                                       │
+└────────────┴─────────────────────────────────────────────────────────────────┘
+"""
+        ver, code = playstore._parse_info_output(insta_out)
+        self.assertEqual(ver, "448.0.0.52.84")
+        self.assertEqual(code, "385412061")
+
+    @patch('src.playstore._tool_available', return_value=True)
+    @patch('src.playstore._run_info')
+    def test_resolve_version_code_via_gplaydl_info(self, mock_info, mock_avail):
+        """gplaydl info must take precedence over scrapers when version matches."""
+        mock_info.return_value = Mock(
+            returncode=0,
+            stdout="│ Version    │ 1.95.104 (429510404)                                            │"
+        )
+        code = playstore.resolve_version_code("com.brave.browser", "1.95.104")
+        self.assertEqual(code, 429510404)
+        mock_info.assert_called_once_with("com.brave.browser")
+        # Ensure it was cached
+        self.assertEqual(playstore._exodus_cache.get("com.brave.browser:1.95.104"), 429510404)
+
+    @patch('src.playstore._tool_available', return_value=True)
+    @patch('src.playstore._run_info')
+    def test_get_latest_version_caches_code(self, mock_info, mock_avail):
+        """get_latest_version must cache the discovered versionCode for instant lookup."""
+        mock_info.return_value = Mock(
+            returncode=0,
+            stdout="│ Version    │ 21.38.130 (1561297264)                                          │"
+        )
+        ver = playstore.get_latest_version("youtube", {"package": "com.google.android.youtube"})
+        self.assertEqual(ver, "21.38.130")
+        self.assertEqual(playstore._exodus_cache.get("com.google.android.youtube:21.38.130"), 1561297264)
+
     @patch('src.playstore.subprocess.run')
     def test_gplaydl_supports_json_detection(self, mock_run):
         playstore._JSON_SUPPORTED = None
@@ -210,3 +274,4 @@ class TestPlaystoreResolver(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

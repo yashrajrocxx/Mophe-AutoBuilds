@@ -25,17 +25,29 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from src.utils import get_cli_version_code
 
-_TOOL = "gplaydl"
+def _get_tool() -> str:
+    """Find gplaydl binary, checking sys.executable directory (venv) then PATH."""
+    venv_tool = Path(sys.executable).parent / "gplaydl"
+    if venv_tool.exists() and os.access(venv_tool, os.X_OK):
+        return str(venv_tool)
+    which_tool = shutil.which("gplaydl")
+    if which_tool:
+        return which_tool
+    return "gplaydl"
+
+_TOOL = _get_tool()
 _ARCH = "arm64"   # gplaydl uses 'arm64', not 'arm64-v8a'
 
 _exodus_cache = {}
 
 _JSON_SUPPORTED: bool | None = None
+
 
 
 def _gplaydl_supports_json() -> bool:
@@ -106,15 +118,21 @@ class ExodusApiError(Exception):
 
 def _tool_available() -> bool:
     """Check that gplaydl is installed and has a linked account."""
-    if not shutil.which(_TOOL):
-        logging.warning("PlayStore: gplaydl not found in PATH — install with `pip install gplaydl`")
+    tool = _get_tool()
+    if not (Path(tool).exists() or shutil.which(tool)):
+        logging.warning("PlayStore: gplaydl not found in PATH or virtualenv — install with `pip install gplaydl`")
         return False
     return True
 
 
 def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    logging.info(f"PlayStore: {' '.join(cmd)}")
-    return subprocess.run(cmd, **kwargs)
+    # Ensure command uses the dynamically resolved tool path
+    resolved_cmd = list(cmd)
+    if resolved_cmd and resolved_cmd[0] in ("gplaydl", _TOOL):
+        resolved_cmd[0] = _get_tool()
+    logging.info(f"PlayStore: {' '.join(resolved_cmd)}")
+    return subprocess.run(resolved_cmd, **kwargs)
+
 
 def scrape_exodus_version_code(package_name: str, version_name: str) -> int | None:
     """Scrape the public Exodus Privacy web report for a package and version without authentication."""
@@ -188,16 +206,27 @@ def resolve_version_code(package_name: str, version_name: str, arch: str = None)
             info_res = _run_info(package_name)
             if info_res.returncode == 0:
                 play_version, play_code = _parse_info_output(info_res.stdout)
-                if play_version and play_code and (
-                    play_version == version_name
-                    or play_version.startswith(version_name + ".")
-                    or play_version.startswith(version_name + "-")
-                ):
-                    _exodus_cache[cache_key] = int(play_code)
-                    logging.info(f"PlayStore: versionCode {play_code} for {package_name} {version_name} (from gplaydl info)")
-                    return int(play_code)
+                if play_version and play_code:
+                    try:
+                        _exodus_cache[f"{package_name}:{play_version}"] = int(play_code)
+                    except (ValueError, TypeError):
+                        pass
+
+                    # Check if requested version matches Play Store version
+                    if (
+                        play_version == version_name
+                        or play_version.startswith(version_name + ".")
+                        or play_version.startswith(version_name + "-")
+                        or version_name.startswith(play_version + ".")
+                        or version_name.startswith(play_version + "-")
+                    ):
+                        code_int = int(play_code)
+                        _exodus_cache[cache_key] = code_int
+                        logging.info(f"PlayStore: versionCode {code_int} for {package_name} {version_name} (from gplaydl info)")
+                        return code_int
         except Exception as e:
             logging.debug(f"PlayStore: gplaydl info lookup failed for {package_name}: {e}")
+
 
     # ── 3. APKPure mobile API — primary historical versionCode resolver ──────────
     # api.pureapk.com returns versionCode per version with no Cloudflare.
@@ -424,10 +453,16 @@ def get_latest_version(app_name: str, config: dict) -> str | None:
         if result.returncode != 0:
             return None
 
-        ver, _ = _parse_info_output(result.stdout)
+        ver, code = _parse_info_output(result.stdout)
         if ver:
-            logging.info(f"PlayStore: latest version for {app_name} is {ver}")
+            if code:
+                try:
+                    _exodus_cache[f"{package}:{ver}"] = int(code)
+                except (ValueError, TypeError):
+                    pass
+            logging.info(f"PlayStore: latest version for {app_name} is {ver} (vc={code})")
             return ver
+
 
         # Legacy line-by-line fallback
         for line in result.stdout.splitlines():

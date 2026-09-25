@@ -1,2 +1,3 @@
 # YouTube morphe Patches
-# Left empty to apply default recommended patches.
++ GmsCore support
+
