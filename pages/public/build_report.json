@@ -4,7 +4,7 @@
     "arch": "arm64-v8a",
     "source": "kveld9",
     "status": "success",
-    "version": "1.95.104",
+    "version": "1.96.59",
     "patches": [
       "Block Brave Telemetry",
       "Brave In-Product & Commercial Notification Optimizer",
@@ -20,7 +20,32 @@
       "Change installer source"
     ],
     "dl_method": "download_direct",
-    "apk": "brave-arm64-v8a-kveld9-v1.95.104.apk"
+    "apk": "brave-arm64-v8a-kveld9-v1.96.59.apk"
+  },
+  {
+    "app": "depthwallpaper",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "2.1.06",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "depthwallpaper-arm64-v8a-morphe-patches-v2.1.06.apk"
+  },
+  {
+    "app": "duolingo",
+    "arch": "arm64-v8a",
+    "source": "hoodles",
+    "status": "success",
+    "version": "6.95.4",
+    "patches": [
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "duolingo-arm64-v8a-hoodles-v6.95.4.apk"
   },
   {
     "app": "gboard",
@@ -47,6 +72,44 @@
     "apk": "gboard-arm64-v8a-kveld9-v18.2.4.969776716-lite_beta.apk"
   },
   {
+    "app": "google-photos",
+    "arch": "arm64-v8a",
+    "source": "rookie",
+    "status": "success",
+    "version": "7.92.0.977185651",
+    "patches": [
+      "Change package name",
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "google-photos-arm64-v8a-morphe-patches-v7.92.0.977185651.apk"
+  },
+  {
+    "app": "habitkit",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "1.15.2",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "habitkit-arm64-v8a-paresh-v1.15.2.apk"
+  },
+  {
+    "app": "instagram",
+    "arch": "arm64-v8a",
+    "source": "piko",
+    "status": "success",
+    "version": "439.0.0.37.89",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "instagram-arm64-v8a-piko-patches-v439.0.0.37.89.apk"
+  },
+  {
     "app": "jiohotstar",
     "arch": "arm64-v8a",
     "source": "durgesh",
@@ -54,6 +117,18 @@
     "version": null,
     "patches": [],
     "error": "Failed to download version 26.06.22.3"
+  },
+  {
+    "app": "minimalwidgets",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "2.1.04",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "minimalwidgets-arm64-v8a-morphe-patches-v2.1.04.apk"
   },
   {
     "app": "notesnook",
@@ -68,16 +143,101 @@
     "apk": "notesnook-arm64-v8a-hxreborn-v3.4.12.apk"
   },
   {
+    "app": "pinterest",
+    "arch": "arm64-v8a",
+    "source": "browzomje",
+    "status": "success",
+    "version": "14.34.0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "pinterest-arm64-v8a-browzomje-patches-v14.34.0.apk"
+  },
+  {
+    "app": "pocketcasts",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "8.16",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "pocketcasts-arm64-v8a-morphe-patches-v8.16.apk"
+  },
+  {
+    "app": "protonpass",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "1.40.3",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "protonpass-arm64-v8a-morphe-patches-v1.40.3.apk"
+  },
+  {
     "app": "reddit",
     "arch": "arm64-v8a",
     "source": "morphe",
     "status": "success",
     "version": "2026.14.0",
     "patches": [
+      "Disable Play Store updates",
+      "Change installer source"
+    ],
+    "dl_method": "download_apkmirror",
+    "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
+  },
+  {
+    "app": "sdmaidse",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "1.7.3-rc0",
+    "patches": [
       "Disable Play Store updates"
     ],
     "dl_method": "download_playstore",
-    "apk": "reddit-arm64-v8a-morphe-v2026.14.0.apk"
+    "apk": "sdmaidse-arm64-v8a-paresh-v1.7.3-rc0.apk"
+  },
+  {
+    "app": "serverauditor",
+    "arch": "arm64-v8a",
+    "source": "rushiranpise",
+    "status": "success",
+    "version": "7.9.0",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "serverauditor-arm64-v8a-morphe-patches-v7.9.0.apk"
+  },
+  {
+    "app": "telegram",
+    "arch": "arm64-v8a",
+    "source": "paresh",
+    "status": "success",
+    "version": "12.10.4",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "telegram-arm64-v8a-paresh-v12.10.4.apk"
+  },
+  {
+    "app": "threads",
+    "arch": "arm64-v8a",
+    "source": "rookie",
+    "status": "success",
+    "version": "448.0.0.54.85",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "threads-arm64-v8a-morphe-patches-v448.0.0.54.85.apk"
   },
   {
     "app": "vivaldi",
@@ -104,6 +264,18 @@
     ],
     "dl_method": "download_playstore",
     "apk": "vivaldi-arm64-v8a-kveld9-v8.2.4147.93.apk"
+  },
+  {
+    "app": "vocabulary",
+    "arch": "arm64-v8a",
+    "source": "morning-entree",
+    "status": "success",
+    "version": "5.5.1",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "vocabulary-arm64-v8a-morning-entree-v5.5.1.apk"
   },
   {
     "app": "youtube-music",
