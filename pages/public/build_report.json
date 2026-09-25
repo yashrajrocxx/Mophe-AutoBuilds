@@ -1,1 +1,1 @@
-[{"app": "youtube", "arch": "universal", "source": "morphe", "status": "success", "version": "21.16.256", "patches": ["Disable Play Store updates", "Change installer source"], "dl_method": "download_apkmirror", "apk": "youtube-universal-morphe-v21.16.256.apk"}]
+[{"app": "youtube", "arch": "universal", "source": "morphe", "status": "success", "version": "21.16.256", "patches": ["GmsCore support", "Disable Play Store updates", "Change installer source"], "dl_method": "download_apkmirror", "apk": "youtube-universal-morphe-v21.16.256.apk"}]
