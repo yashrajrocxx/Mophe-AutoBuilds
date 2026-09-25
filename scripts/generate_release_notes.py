@@ -66,7 +66,7 @@ def format_app_display(app_name: str) -> str:
         "youtube-music": "YouTube Music",
         "reddit": "Reddit",
         "instagram": "Instagram",
-        "x": "X (Twitter)",
+        "twitter": "X (Twitter)",
         "pinterest": "Pinterest",
         "telegram": "Telegram",
         "vn": "VN Video Editor",

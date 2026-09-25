@@ -1,26 +1,96 @@
 {
   "patch_list": [
-    { "app_name": "youtube", "source": "morphe" },
-    { "app_name": "youtube-music", "source": "morphe" },
-    { "app_name": "reddit", "source": "morphe" },
-    { "app_name": "instagram", "source": "piko" },
-    { "app_name": "pinterest", "source": "browzomje" },
-    { "app_name": "telegram", "source": "paresh" },
-    { "app_name": "sdmaidse", "source": "paresh" },
-    { "app_name": "threads", "source": "rookie" },
-    { "app_name": "google-photos", "source": "rookie" },
-    { "app_name": "depthwallpaper", "source": "rushiranpise" },
-    { "app_name": "pocketcasts", "source": "rushiranpise" },
-    { "app_name": "minimalwidgets", "source": "rushiranpise" },
-    { "app_name": "protonpass", "source": "rushiranpise" },
-    { "app_name": "serverauditor", "source": "rushiranpise" },
-    { "app_name": "vocabulary", "source": "morning-entree" },
-    { "app_name": "gboard", "source": "kveld9" },
-    { "app_name": "habitkit", "source": "paresh" },
-    { "app_name": "notesnook", "source": "hxreborn" },
-    { "app_name": "duolingo", "source": "hoodles" },
-    { "app_name": "brave", "source": "kveld9" },
-    { "app_name": "vivaldi", "source": "kveld9" },
-    { "app_name": "jiohotstar", "source": "durgesh" }
+    {
+      "app_name": "youtube",
+      "source": "morphe"
+    },
+    {
+      "app_name": "youtube-music",
+      "source": "morphe"
+    },
+    {
+      "app_name": "reddit",
+      "source": "morphe"
+    },
+    {
+      "app_name": "instagram",
+      "source": "piko"
+    },
+    {
+      "app_name": "twitter",
+      "source": "piko"
+    },
+    {
+      "app_name": "pinterest",
+      "source": "browzomje"
+    },
+    {
+      "app_name": "telegram",
+      "source": "paresh"
+    },
+    {
+      "app_name": "sdmaidse",
+      "source": "paresh"
+    },
+    {
+      "app_name": "threads",
+      "source": "rookie"
+    },
+    {
+      "app_name": "google-photos",
+      "source": "rookie"
+    },
+    {
+      "app_name": "depthwallpaper",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "pocketcasts",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "minimalwidgets",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "protonpass",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "serverauditor",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "vocabulary",
+      "source": "morning-entree"
+    },
+    {
+      "app_name": "gboard",
+      "source": "kveld9"
+    },
+    {
+      "app_name": "habitkit",
+      "source": "paresh"
+    },
+    {
+      "app_name": "notesnook",
+      "source": "hxreborn"
+    },
+    {
+      "app_name": "duolingo",
+      "source": "hoodles"
+    },
+    {
+      "app_name": "brave",
+      "source": "kveld9"
+    },
+    {
+      "app_name": "vivaldi",
+      "source": "kveld9"
+    },
+    {
+      "app_name": "jiohotstar",
+      "source": "durgesh"
+    }
   ]
 }

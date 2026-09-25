@@ -31,6 +31,13 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/yHi59jmO_lVamcyJ1i3rM1_E8bAiAspShnGjjURq05ipQQSUksO3QVEsXTegRSqul038-4YNA7O644XAcx251Q=w240-h480",
     color: "#E1306C"
   },
+  "twitter": {
+    name: "X (Twitter)",
+    category: "Social",
+    package: "com.twitter.android",
+    icon: "https://play-lh.googleusercontent.com/TKHnIPNIAiEcvJWFqOTcnWqVFXxGJumIBfTLXdSy70hVUq5IkAZ2R3hOW08mHqEAmg=w240-h480",
+    color: "#000000"
+  },
   "pinterest": {
     name: "Pinterest",
     category: "Lifestyle & Design",

@@ -1,0 +1,9 @@
+{
+    "org": "twitter-inc",
+    "name": "twitter",
+    "type": "APK",
+    "arch": "universal",
+    "dpi": "",
+    "package": "com.twitter.android",
+    "version": ""
+}
