@@ -129,14 +129,6 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"vocabulary-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"vocabulary-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "com.google.android.inputmethod.latin",
-      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
-      "author": "yashrajrocxx",
-      "name": "Gboard",
-      "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"gboard-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"gboard-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
-    },
-    {
       "id": "com.roehl.habitkit",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",

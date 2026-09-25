@@ -86,6 +86,10 @@
     "include": [],
     "exclude": []
   },
+  "twitter|piko": {
+    "include": [],
+    "exclude": []
+  },
   "vivaldi|kveld9": {
     "include": [
       "Block Vivaldi Telemetry",
@@ -109,11 +113,15 @@
     ]
   },
   "youtube|morphe": {
-    "include": [],
+    "include": [
+      "GmsCore support"
+    ],
     "exclude": []
   },
   "youtube-music|morphe": {
-    "include": [],
+    "include": [
+      "GmsCore support"
+    ],
     "exclude": [
       "AddResourcesPatch"
     ]
