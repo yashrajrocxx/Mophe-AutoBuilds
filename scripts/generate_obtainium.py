@@ -216,13 +216,18 @@ def main() -> int:
         json.dump(bundle_data, f, indent=2)
     print(f"[OK] Generated obtainium.json ({len(obtainium_apps)} apps)")
 
-    # 3. Mirror obtainium.json to pages/public/ if directory exists
+    # 3. Mirror obtainium.json and manifest.json to pages/public/ if directory exists
     pages_public = Path("pages/public")
     if pages_public.exists():
         pages_obtainium = pages_public / "obtainium.json"
         with pages_obtainium.open("w", encoding="utf-8", newline="\n") as f:
             json.dump(bundle_data, f, indent=2)
         print(f"[OK] Copied obtainium.json to pages/public/obtainium.json")
+
+        pages_manifest = pages_public / "manifest.json"
+        with pages_manifest.open("w", encoding="utf-8", newline="\n") as f:
+            json.dump(manifest, f, indent=2)
+        print(f"[OK] Copied manifest.json to pages/public/manifest.json")
 
     return 0
 
