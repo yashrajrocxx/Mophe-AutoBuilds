@@ -327,7 +327,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 try:
                     morphe_cmd = [
                         "java", "-jar", str(cli),
-                        "patch", "--continue-on-error"
+                        "patch", "--continue-on-error", "-f"
                     ]
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])
@@ -350,7 +350,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     logging.info("Trying alternative Morphe command format...")
                     morphe_cmd = [
                         "java", "-jar", str(cli),
-                        "--continue-on-error"
+                        "--continue-on-error", "-f"
                     ]
                     for p in patches:
                         morphe_cmd.extend(["--patches", str(p)])

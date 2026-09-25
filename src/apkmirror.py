@@ -264,6 +264,11 @@ def _scrape_release_url_from_soup(soup, version: str, config: dict, build_number
     # (e.g. 6.77.5 -> 6.77, but stop at min_parts=2 so we never loosely match single digits like "9")
     min_parts = 2 if len(version_parts) >= 2 else 1
     for i in range(len(version_parts), min_parts - 1, -1):
+        # Only allow stripping trailing parts if the stripped parts are all zeros (e.g. 14.34.0 -> 14.34)
+        # Never strip meaningful non-zero build/patch numbers (e.g. 21.16.256 -> 21.16)
+        if i < len(version_parts) and any(p != "0" for p in version_parts[i:]):
+            continue
+
         current_ver = ".".join(version_parts[:i])
         current_ver_dash = "-".join(version_parts[:i])
         
