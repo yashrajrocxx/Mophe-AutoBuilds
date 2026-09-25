@@ -489,7 +489,9 @@ jobs:
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add -f manifest.json obtainium.json README.md pages/public/
             git commit -m "chore: auto-sync manifest, obtainium bundle, and README catalog [skip ci]" || true
+            git pull --rebase origin main || true
             git push
+
             echo "Repository and Pages data pushed successfully!"
           else
             echo "No changes detected, skipping push."
