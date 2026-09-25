@@ -63,10 +63,11 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
             data = response.json()
             arch = config.get("arch", "arm64-v8a").lower()
             
+            ver_pattern = rf"(?:^|[-_v]){re.escape(version)}(?:[-_.]|$)"
             for asset in data.get("assets", []):
                 name = asset.get("name", "").lower()
-                # Check version and extension
-                if version in name and name.endswith((".apk", ".apkm", ".xapk")):
+                # Check version with boundary and extension
+                if re.search(ver_pattern, name, re.IGNORECASE) and name.endswith((".apk", ".apkm", ".xapk")):
                     # Check architecture match if arch is specified, allow all/both to passthrough
                     if arch in ("all", "both") or arch in name:
                         logging.info(f"Found GitHub download link for {app_name} {version}")
@@ -75,7 +76,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
             # If explicit arch failed, try to fallback to first matched version available
             for asset in data.get("assets", []):
                 name = asset.get("name", "").lower()
-                if version in name and name.endswith((".apk", ".apkm", ".xapk")):
+                if re.search(ver_pattern, name, re.IGNORECASE) and name.endswith((".apk", ".apkm", ".xapk")):
                     logging.info(f"Fallback arch: Found GitHub download link for {app_name} {version}")
                     return asset.get("browser_download_url")
                     

@@ -61,15 +61,20 @@ def check_prerequisites():
         print(f"[WARN] Warning during apksigner check: {e}")
 
     # 4. gplaydl (Google Play) check — non-fatal, scrapers are fallbacks
-    gplaydl_bin = shutil.which("gplaydl")
+    venv_tool = Path(sys.executable).parent / "gplaydl"
+    if venv_tool.exists() and os.access(venv_tool, os.X_OK):
+        gplaydl_bin = str(venv_tool)
+    else:
+        gplaydl_bin = shutil.which("gplaydl")
+
     if not gplaydl_bin:
-        print("  [WARN] gplaydl not found in PATH")
+        print("  [WARN] gplaydl not found in PATH or venv")
         print("         Google Play source will be skipped; fallback scrapers will be used.")
     else:
         print(f"  [OK] gplaydl found at: {gplaydl_bin}")
         try:
             test = subprocess.run(
-                ["gplaydl", "info", "--help"],
+                [gplaydl_bin, "info", "--help"],
                 capture_output=True, text=True, timeout=5
             )
             if test.returncode == 0:

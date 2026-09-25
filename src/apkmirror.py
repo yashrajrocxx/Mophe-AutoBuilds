@@ -5,6 +5,7 @@ import time
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 from curl_cffi import requests as cffi_requests
+from src import utils
 
 base_url = "https://www.apkmirror.com"
 _blocked_by_cloudflare = False
@@ -486,37 +487,34 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
                         page_text = soup.get_text()
                         
                         # VALIDATION: Check if this page is for our EXACT version
-                        # Check multiple possible version formats
                         version_checks = [
-                            version,  # 6.6
+                            version,  # e.g. 6.6
                             version.replace('.', '-'),  # 6-6
-                            current_ver_str,  # 6-6-build-002 (if stripped)
-                            ".".join(version_parts[:i])  # 6.6 (if stripped)
                         ]
                         
                         # Add build suffix format if we have a build number
                         if build_number:
                             if build_format == 'build_suffix':
                                 version_checks.append(f"{version} build {build_number}")  # 6.6 build 002
-                                version_checks.append(f"{version.replace('.', '-')}-build-{build_number}")  # 6-6-build-002
+                                version_checks.append(f"{version.replace('.', '-')}-build-{build_number}")
                             else:
                                 version_checks.append(f"{version}({build_number})")  # 32.30.0(1575420)
+                                version_checks.append(f"{version.replace('.', '-')}{build_number}")
                         
-                        # Also check page title and headings for version
+                        # Check page title and headings for exact version
                         title_tag = soup.find('title')
                         headings = soup.find_all(['h1', 'h2', 'h3'])
                         
                         is_correct_page = False
                         
-                        # Check in page text
-                        for check in version_checks:
-                            if check and check in page_text:
-                                # Accept version match if it's the base version or includes build info
-                                if check == version or check == version.replace('.', '-') or check == current_ver_str:
+                        # Check in page title and headings first (most reliable)
+                        if title_tag:
+                            title_text = title_tag.get_text()
+                            for check in version_checks:
+                                if check and check in title_text:
                                     is_correct_page = True
                                     break
-                        
-                        # Check in title and headings
+
                         if not is_correct_page:
                             for heading in headings:
                                 heading_text = heading.get_text()
@@ -526,27 +524,20 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
                                         break
                                 if is_correct_page:
                                     break
-                        
-                        if not is_correct_page and title_tag:
-                            title_text = title_tag.get_text()
+
+                        if not is_correct_page:
                             for check in version_checks:
-                                if check and check in title_text:
+                                if check and check in page_text:
                                     is_correct_page = True
                                     break
                         
                         if is_correct_page:
-                            content_size = len(response.content)
                             logging.info(f"Correct version page found: {response.url}")
                             found_soup = soup
                             correct_version_page = True
                             break  # Found correct page!
                         else:
-                            # Page exists but doesn't have our version as primary
-                            logging.warning(f"Page found but not for version {version}: {url}")
-                            # Save as fallback ONLY if we haven't found any page yet
-                            if found_soup is None:
-                                found_soup = soup
-                                logging.warning(f"Saved as fallback page (may list multiple versions)")
+                            logging.debug(f"Page found but not for version {version}: {url}")
                             continue
                             
                     elif response.status_code == 404:
@@ -563,15 +554,11 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
             if correct_version_page:
                 break  # Found correct page for this version part
     
-    # If we didn't find the exact version page but found a fallback
-    if not correct_version_page and found_soup:
-        logging.warning(f"Using fallback page for {app_name} {version} (may contain multiple versions)")
-    
-    if not found_soup:
-        logging.error(f"Could not find any release page for {app_name} {version}")
+    if not correct_version_page or not found_soup:
+        logging.error(f"Could not find any release page matching version {version} for {app_name}")
         return None
     
-    # --- VARIANT FINDER (works with both exact pages and fallback pages) ---
+    # --- VARIANT FINDER (strictly matches target version) ---
     rows = found_soup.find_all('div', class_='table-row headerFont')
     download_page_url = None
     
@@ -581,42 +568,24 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         types_to_try.append('BUNDLE')
 
     for try_type in types_to_try:
-        # Try to find exact version match first
         for row in rows:
             row_text = row.get_text()
             
-            # Check if row contains our exact version
-            if version in row_text or version.replace('.', '-') in row_text:
-                type_match = try_type in row_text
-                dpi_match = config['dpi'] in row_text
-                if config['dpi'] == 'nodpi' and not dpi_match:
-                    dpi_match = 'universal' in row_text or 'noarch' in row_text or 'dpi' in row_text or '-' in row_text
-                    
-                arch_match = target_arch in row_text
-                if try_type == 'BUNDLE' and not arch_match:
-                    arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
-                
-                if type_match and dpi_match and arch_match:
-                    sub_url = row.find('a', class_='accent_color')
-                    if sub_url:
-                        download_page_url = base_url + sub_url['href']
-                        # Opportunistically cache any versionCode visible in the row
-                        try:
-                            _vc = _extract_version_code_from_text(row_text, version)
-                            if _vc and config.get("package"):
-                                register_version_code(config["package"], version, _vc, target_arch)
-                        except Exception:
-                            pass
-                        if try_type != config['type']:
-                            logging.info(f"Fallback to {try_type} variant succeeded for {app_name} {version}")
+            # Check if row contains our exact version (or compatible)
+            row_ver_match = False
+            if not version:
+                row_ver_match = True
+            elif version in row_text or version.replace('.', '-') in row_text:
+                row_ver_match = True
+            else:
+                for token in re.findall(r'\b\d+(?:\.\d+)+[^\s<]*', row_text):
+                    if utils.is_version_compatible(token, version):
+                        row_ver_match = True
                         break
-        
-        if download_page_url:
-            break
 
-        # If exact version not found, try to find any variant matching criteria
-        for row in rows:
-            row_text = row.get_text()
+            if not row_ver_match:
+                continue
+            
             type_match = try_type in row_text
             dpi_match = config['dpi'] in row_text
             if config['dpi'] == 'nodpi' and not dpi_match:
@@ -625,20 +594,22 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
             arch_match = target_arch in row_text
             if try_type == 'BUNDLE' and not arch_match:
                 arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
-                
+            
             if type_match and dpi_match and arch_match:
-                # Check if this looks like a variant row (has version numbers)
-                if re.search(r'\d+(\.\d+)+', row_text):
-                    sub_url = row.find('a', class_='accent_color')
-                    if sub_url:
-                        download_page_url = base_url + sub_url['href']
-                        # Extract version for logging
-                        match = re.search(r'(\d+(\.\d+)+(\.\w+)*)', row_text)
-                        if match:
-                            actual_version = match.group(1)
-                            logging.warning(f"Using variant {actual_version} (criteria match, type={try_type})")
-                        break
-
+                sub_url = row.find('a', class_='accent_color')
+                if sub_url:
+                    download_page_url = base_url + sub_url['href']
+                    # Opportunistically cache any versionCode visible in the row
+                    try:
+                        _vc = _extract_version_code_from_text(row_text, version)
+                        if _vc and config.get("package"):
+                            register_version_code(config["package"], version, _vc, target_arch)
+                    except Exception:
+                        pass
+                    if try_type != config['type']:
+                        logging.info(f"Fallback to {try_type} variant succeeded for {app_name} {version}")
+                    break
+        
         if download_page_url:
             break
     

@@ -178,10 +178,28 @@ def download_platform(
             result_path = Path(result)
             if result_path.exists() and result_path.is_file():
                 logging.info(f"Using local file from {platform}: {result_path}")
-                return result_path, target_version, []
-            
-            # All other sources return an HTTP URL — download it.
-            filepath = download_resource(result)
+                filepath = result_path
+            else:
+                # All other sources return an HTTP URL — download it.
+                filepath = download_resource(result)
+
+            # Verify the downloaded APK version if it's an .apk file
+            if filepath.suffix == ".apk":
+                manifest_info = utils.get_apk_manifest_info(filepath)
+                actual_vn = manifest_info.get("versionName")
+                if actual_vn and target_version:
+                    if not utils.is_version_compatible(actual_vn, target_version):
+                        logging.warning(
+                            f"Downloaded APK from {platform} has version '{actual_vn}', "
+                            f"which does not match target version '{target_version}'. Rejecting."
+                        )
+                        filepath.unlink(missing_ok=True)
+                        return None, None, []
+                    logging.info(
+                        f"Verified APK version from {platform}: '{actual_vn}' (target: '{target_version}')"
+                    )
+                return filepath, actual_vn or target_version, []
+
             return filepath, target_version, []
         except Exception as e:
             logging.error(f"Download failed for {app_name} v{target_version} on {platform}: {e}")

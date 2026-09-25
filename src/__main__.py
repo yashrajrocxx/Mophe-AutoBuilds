@@ -242,6 +242,19 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             input_apk = merged_apk
             logging.info(f"Merged APK file generated: {input_apk}")
 
+        # Verify real APK manifest version and adopt canonical versionName
+        apk_manifest = utils.get_apk_manifest_info(input_apk)
+        actual_vn = apk_manifest.get("versionName")
+        if actual_vn:
+            if ver and not utils.is_version_compatible(actual_vn, ver):
+                logging.error(
+                    f"APK manifest version '{actual_vn}' is not compatible with target version '{ver}'. Rejecting."
+                )
+                input_apk.unlink(missing_ok=True)
+                continue
+            version = actual_vn
+            logging.info(f"Verified APK manifest version: {version}")
+
         # --- ARCHITECTURE-SPECIFIC PROCESSING ---
         if arch != "universal":
             logging.info(f"Processing APK for {arch} architecture...")

@@ -4,6 +4,8 @@ import re
 import shutil
 import time
 import logging
+import struct
+import zipfile
 from typing import List, Optional
 from github.GithubException import BadCredentialsException
 from src import gh
@@ -227,6 +229,136 @@ def get_highest_version(versions: list[str]) -> str | None:
         if normalize_version(v) > normalize_version(highest_version):
             highest_version = v
     return highest_version
+
+def is_version_compatible(actual: str, target: str | None) -> bool:
+    """Check if actual APK version is compatible with the requested target version.
+
+    Rejects mismatched minor/patch versions (e.g. 21.16.249 vs 21.16.256).
+    Accepts identical versions, build/release suffixes (e.g. 4.9.49-googleplay vs 4.9.49),
+    parenthetical builds (e.g. 32.30.0(1575420) vs 32.30.0), and stripped arch tags.
+    """
+    if not target or target.strip().lower() in ("", "latest"):
+        return True
+    if not actual:
+        return False
+
+    def clean_v(v: str) -> str:
+        v = v.strip().lstrip("vV")
+        v = re.sub(r"\(.*?\)$", "", v)
+        v = strip_arch_suffix(v)
+        return v.strip().lower()
+
+    c_act = clean_v(actual)
+    c_tgt = clean_v(target)
+
+    if c_act == c_tgt:
+        return True
+
+    # Check variant suffixes (e.g. 4.9.49-googleplay vs 4.9.49, or 1.0.0-release vs 1.0.0)
+    for sep in ("-", "+", "_"):
+        if c_act.startswith(c_tgt + sep):
+            return True
+        if c_tgt.startswith(c_act + sep):
+            return True
+
+    return False
+
+def get_apk_manifest_info(apk_path: str | Path) -> dict:
+    """Extract package, versionName, and versionCode from an APK's AndroidManifest.xml.
+
+    Parses compiled binary XML (AXML) directly in pure Python without external dependencies.
+    Returns a dict with 'package', 'versionName', 'versionCode' keys, or empty dict on error.
+    """
+    apk_file = Path(apk_path)
+    if not apk_file.exists() or not apk_file.is_file():
+        return {}
+
+    try:
+        with zipfile.ZipFile(apk_file, "r") as z:
+            if "AndroidManifest.xml" not in z.namelist():
+                return {}
+            d = z.read("AndroidManifest.xml")
+    except Exception as e:
+        logging.debug(f"get_apk_manifest_info: failed to read zip {apk_file}: {e}")
+        return {}
+
+    if len(d) < 8:
+        return {}
+
+    magic, _ = struct.unpack("<II", d[:8])
+    if magic != 0x00080003:  # RES_XML_TYPE
+        return {}
+
+    offset = 8
+    strings = []
+    meta = {}
+
+    while offset < len(d):
+        if offset + 8 > len(d):
+            break
+        ctype, hsize, csize = struct.unpack("<HHI", d[offset:offset+8])
+        if csize <= 0:
+            break
+
+        if ctype == 0x0001:  # RES_STRING_POOL_TYPE
+            scnt, style_cnt, flags, s_start, sy_start = struct.unpack("<IIIII", d[offset+8:offset+28])
+            is_utf8 = bool(flags & (1 << 8))
+            str_data = offset + s_start
+            offs = [struct.unpack("<I", d[offset+28+i*4:offset+32+i*4])[0] for i in range(scnt)]
+            for o in offs:
+                pos = str_data + o
+                if is_utf8:
+                    if pos >= len(d):
+                        strings.append("")
+                        continue
+                    u16len = d[pos]
+                    pos += 1
+                    if u16len & 0x80 and pos < len(d):
+                        pos += 1
+                    if pos >= len(d):
+                        strings.append("")
+                        continue
+                    u8len = d[pos]
+                    pos += 1
+                    if u8len & 0x80 and pos < len(d):
+                        pos += 1
+                    s = d[pos:pos+u8len].decode("utf-8", errors="replace")
+                else:
+                    if pos + 2 > len(d):
+                        strings.append("")
+                        continue
+                    u16len = struct.unpack("<H", d[pos:pos+2])[0]
+                    pos += 2
+                    if u16len & 0x8000 and pos + 2 <= len(d):
+                        pos += 2
+                    s = d[pos:pos+u16len*2].decode("utf-16le", errors="replace")
+                strings.append(s)
+
+        elif ctype == 0x0102:  # START_TAG
+            if offset + 36 <= len(d):
+                ns_idx, name_idx, attr_start, attr_size, attr_count, id_idx, cl_idx, st_idx = struct.unpack(
+                    "<IIHHHHHH", d[offset+16:offset+36]
+                )
+                tag_name = strings[name_idx] if name_idx < len(strings) else ""
+                if tag_name == "manifest":
+                    cur = offset + 16 + attr_start
+                    for _ in range(attr_count):
+                        if cur + 20 > len(d):
+                            break
+                        ans, aname, aval_str, atype, adata = struct.unpack("<IIIIi", d[cur:cur+20])
+                        aname_str = strings[aname] if aname < len(strings) else ""
+                        if aname_str == "versionName":
+                            meta["versionName"] = strings[aval_str] if (aval_str < len(strings) and aval_str != 0xFFFFFFFF) else str(adata)
+                        elif aname_str == "versionCode":
+                            meta["versionCode"] = adata
+                        elif aname_str == "package":
+                            meta["package"] = strings[aval_str] if (aval_str < len(strings) and aval_str != 0xFFFFFFFF) else ""
+                        cur += attr_size
+                    break  # Got root manifest tag
+
+        offset += csize
+
+    return meta
 
 cli_version_codes: dict[tuple[str, str], dict[str, int]] = {}
 

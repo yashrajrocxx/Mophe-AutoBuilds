@@ -213,13 +213,8 @@ def resolve_version_code(package_name: str, version_name: str, arch: str = None)
                         pass
 
                     # Check if requested version matches Play Store version
-                    if (
-                        play_version == version_name
-                        or play_version.startswith(version_name + ".")
-                        or play_version.startswith(version_name + "-")
-                        or version_name.startswith(play_version + ".")
-                        or version_name.startswith(play_version + "-")
-                    ):
+                    from src import utils
+                    if utils.is_version_compatible(play_version, version_name):
                         code_int = int(play_code)
                         _exodus_cache[cache_key] = code_int
                         logging.info(f"PlayStore: versionCode {code_int} for {package_name} {version_name} (from gplaydl info)")
@@ -512,9 +507,8 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
                     play_code = m.group(2)
 
         if play_version and play_code:
-            if (play_version == version
-                    or play_version.startswith(version + ".")
-                    or play_version.startswith(version + "-")):
+            from src import utils
+            if utils.is_version_compatible(play_version, version):
                 version_code = play_code
                 logging.info(f"PlayStore: target is latest version, using code {version_code}")
 
@@ -552,5 +546,15 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         logging.error(f"PlayStore: merge failed for {app_name} {version}")
         return None
 
-    logging.info(f"PlayStore: {app_name} {version} -> {output_apk}")
+    from src import utils
+    info = utils.get_apk_manifest_info(output_apk)
+    actual_vn = info.get("versionName")
+    if actual_vn and not utils.is_version_compatible(actual_vn, version):
+        logging.warning(
+            f"PlayStore: downloaded APK version '{actual_vn}' does not match requested '{version}'. Rejecting."
+        )
+        output_apk.unlink(missing_ok=True)
+        return None
+
+    logging.info(f"PlayStore: {app_name} {version} -> {output_apk} (verified manifest: {actual_vn or version})")
     return str(output_apk)
