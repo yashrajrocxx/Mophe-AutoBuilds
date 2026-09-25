@@ -26,35 +26,29 @@ DEFAULT_REPO = "yashrajrocxx/Mophe-AutoBuilds"
 DEFAULT_AUTHOR = "yashrajrocxx"
 
 NAME_MAP = {
-    "youtube": "YouTube",
-    "youtube-music": "YouTube Music",
-    "reddit": "Reddit",
-    "instagram": "Instagram",
-    "x": "X (Twitter)",
-    "pinterest": "Pinterest",
-    "telegram": "Telegram",
-    "vn": "VN Video Editor",
-    "sdmaidse": "SD Maid 2 / SE",
-    "threads": "Threads",
-    "google-photos": "Google Photos",
-    "tradingview": "TradingView",
-    "pocketcasts": "Pocket Casts",
-    "depthwallpaper": "Depth Wallpaper",
-    "minimalwidgets": "Minimal Widgets",
-    "protonpass": "Proton Pass",
-    "serverauditor": "Server Auditor (Termius)",
-    "vocabulary": "Vocabulary",
-    "pinnit": "Pinnit",
-    "gboard": "Gboard",
-    "vivaldi-snapshot": "Vivaldi Snapshot",
-    "vivaldi": "Vivaldi Browser",
-    "taskmanager": "TaskManager",
-    "habitkit": "HabitKit",
-    "notesnook": "Notesnook",
-    "duolingo": "Duolingo",
-    "brave": "Brave Browser",
-    "jiotvplus": "JioTV+",
-    "jiohotstar": "JioHotstar",
+    "youtube":          "YouTube",
+    "youtube-music":    "YouTube Music",
+    "reddit":           "Reddit",
+    "instagram":        "Instagram",
+    "twitter":          "X (Twitter)",
+    "pinterest":        "Pinterest",
+    "telegram":         "Telegram",
+    "sdmaidse":         "SD Maid 2 / SE",
+    "threads":          "Threads",
+    "google-photos":    "Google Photos",
+    "pocketcasts":      "Pocket Casts",
+    "depthwallpaper":   "Depth Wallpaper",
+    "minimalwidgets":   "Minimal Widgets",
+    "protonpass":       "Proton Pass",
+    "serverauditor":    "Server Auditor (Termius)",
+    "vocabulary":       "Vocabulary",
+    "gboard":           "Gboard",
+    "vivaldi":          "Vivaldi Browser",
+    "habitkit":         "HabitKit",
+    "notesnook":        "Notesnook",
+    "duolingo":         "Duolingo",
+    "brave":            "Brave Browser",
+    "jiohotstar":       "JioHotstar",
 }
 
 
@@ -113,9 +107,8 @@ def build_obtainium_app(
 
     # Identity head: "{app}-{arch}-". The patch-source name is deliberately
     # NOT baked in — sources get renamed (dh6k → kveld9, …) and baked regexes
-    # then match zero assets. Patterns target the download URL (the HTML
-    # source matches them against link URLs, not bare filenames), hence the
-    # leading "/" boundary.
+    # then match zero assets. We target just the app+arch prefix so source
+    # renames never break the filter.
     head = f"{app_name}-{arch}-"
     if not prefix.startswith(head):
         # Unexpected filename layout — fall back to the exact baked prefix.
@@ -125,14 +118,20 @@ def build_obtainium_app(
     # If this app has builds for multiple architectures, disambiguate with arch in name
     display_name = f"{base_name} ({arch})" if arch_counts.get(app_name, 0) > 1 else base_name
 
-    filter_pat = f"/{head}.*-v.*\\.apk$"
-    ver_pat = f"/{head}.*-v(.*)\\.apk$"
+    # ── Regex patterns (NO /.../ delimiters — Obtainium uses raw regex strings) ──
+    # Obtainium's HTML source matches against the full download link URL, so the
+    # pattern needs to match the filename portion. Do NOT wrap in /.../ — Obtainium
+    # is not JavaScript; delimiters cause "No APK found" every time.
+    # [^/]+ in the version group avoids over-matching across path separators.
+    filter_pat = f"{head}.*-v.*\\.apk$"
+    ver_pat    = f"{head}.*-v([^/]+)\\.apk$"
 
     additional_settings = json.dumps({
         "apkFilterRegEx": filter_pat,
         "versionExtractionRegEx": ver_pat,
         "matchGroupToUse": "1"
     }, separators=(',', ':'))
+
 
     return {
         "id": pkg,
