@@ -33,14 +33,6 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"instagram-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"instagram-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "com.twitter.android",
-      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
-      "author": "yashrajrocxx",
-      "name": "X (Twitter)",
-      "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"twitter-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"twitter-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
-    },
-    {
       "id": "com.pinterest",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
@@ -49,7 +41,7 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"pinterest-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"pinterest-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "org.telegram.messenger.web",
+      "id": "org.telegram.messenger",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
       "name": "Telegram",
@@ -89,14 +81,6 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"depthwallpaper-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"depthwallpaper-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "au.com.shiftyjelly.pocketcasts",
-      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
-      "author": "yashrajrocxx",
-      "name": "Pocket Casts",
-      "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"pocketcasts-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"pocketcasts-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
-    },
-    {
       "id": "com.jndapp.minimal.widgets",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
@@ -127,6 +111,22 @@
       "name": "Vocabulary",
       "preferredApkIndex": 0,
       "additionalSettings": "{\"apkFilterRegEx\":\"vocabulary-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"vocabulary-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+    },
+    {
+      "id": "com.google.android.inputmethod.latin",
+      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
+      "author": "yashrajrocxx",
+      "name": "Gboard (Jasonwu, arm64-v8a)",
+      "preferredApkIndex": 0,
+      "additionalSettings": "{\"apkFilterRegEx\":\"gboard-arm64-v8a-jasonwu-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"gboard-arm64-v8a-jasonwu-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+    },
+    {
+      "id": "com.google.android.inputmethod.latin",
+      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
+      "author": "yashrajrocxx",
+      "name": "Gboard (Flexboard, arm64-v8a)",
+      "preferredApkIndex": 0,
+      "additionalSettings": "{\"apkFilterRegEx\":\"gboard-arm64-v8a-flexboard-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"gboard-arm64-v8a-flexboard-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
       "id": "com.roehl.habitkit",

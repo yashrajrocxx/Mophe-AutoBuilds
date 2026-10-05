@@ -21,25 +21,13 @@
     "include": [],
     "exclude": []
   },
-  "gboard|kveld9": {
-    "include": [
-      "Add AMOLED Theme",
-      "Allow Modified APK",
-      "Block Telemetry",
-      "Clipboard Enhancements",
-      "Disable Diagnostics",
-      "Disable Google Primes",
-      "Disable Remote Configuration",
-      "Disable Tenor Share Tracking",
-      "Enable Access Points Menu Redesign",
-      "Enable Key Shape Selection",
-      "Hardened Intent Security",
-      "Resource Slimmer"
-    ],
-    "exclude": [
-      "Clone Gboard",
-      "Force Incognito Mode"
-    ]
+  "gboard|flexboard": {
+    "include": [],
+    "exclude": []
+  },
+  "gboard|jasonwu": {
+    "include": [],
+    "exclude": []
   },
   "google-photos|rookie": {
     "include": [
