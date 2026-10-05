@@ -6,6 +6,10 @@ on:
       - main
     paths:
       - 'pages/**'
+  workflow_run:
+    workflows: ["Auto Build and Release Morphe", "Manual Patch and Update"]
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -20,6 +24,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

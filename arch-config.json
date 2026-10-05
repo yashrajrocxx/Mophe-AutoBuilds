@@ -22,7 +22,7 @@
   },
   {
     "app_name": "instagram",
-    "source": "piko",
+    "source": "hushgram",
     "arches": [
       "arm64-v8a"
     ]
@@ -36,14 +36,14 @@
   },
   {
     "app_name": "pinterest",
-    "source": "browzomje",
+    "source": "hushpinterest",
     "arches": [
       "arm64-v8a"
     ]
   },
   {
     "app_name": "telegram",
-    "source": "paresh",
+    "source": "hushtelegram",
     "arches": [
       "arm64-v8a"
     ]
@@ -57,7 +57,7 @@
   },
   {
     "app_name": "threads",
-    "source": "rookie",
+    "source": "hushthreads",
     "arches": [
       "arm64-v8a"
     ]
@@ -113,7 +113,14 @@
   },
   {
     "app_name": "gboard",
-    "source": "kveld9",
+    "source": "jasonwu",
+    "arches": [
+      "arm64-v8a"
+    ]
+  },
+  {
+    "app_name": "gboard",
+    "source": "flexboard",
     "arches": [
       "arm64-v8a"
     ]
@@ -121,13 +128,6 @@
   {
     "app_name": "habitkit",
     "source": "paresh",
-    "arches": [
-      "arm64-v8a"
-    ]
-  },
-  {
-    "app_name": "notesnook",
-    "source": "hxreborn",
     "arches": [
       "arm64-v8a"
     ]
@@ -142,20 +142,6 @@
   {
     "app_name": "brave",
     "source": "kveld9",
-    "arches": [
-      "arm64-v8a"
-    ]
-  },
-  {
-    "app_name": "vivaldi",
-    "source": "kveld9",
-    "arches": [
-      "arm64-v8a"
-    ]
-  },
-  {
-    "app_name": "jiohotstar",
-    "source": "durgesh",
     "arches": [
       "arm64-v8a"
     ]

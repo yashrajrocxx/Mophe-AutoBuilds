@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import logging
@@ -8,19 +9,25 @@ from curl_cffi import requests as cffi_requests
 from src import utils
 
 base_url = "https://www.apkmirror.com"
-_blocked_by_cloudflare = False
+_blocked_until: float = 0.0
 
 # Browser fingerprints to rotate through on Cloudflare challenges.
-# CF's bot detection is fingerprint-specific — a profile blocked by one TLS
-# signature may sail through with another.
+# Modern Safari and Firefox profiles consistently pass CF Turnstile/WAF rules on APKMirror.
 _CF_PROFILES = [
-    "chrome124",
-    "safari17_0",
-    "chrome120",
-    "firefox117",
-    "chrome110",
-    "safari15_6_1",
+    "safari184",
+    "firefox144",
+    "safari180",
+    "firefox135",
+    "chrome145",
+    "chrome142",
+    "safari260",
+    "tor145",
 ]
+
+def reset_cloudflare_block() -> None:
+    """Reset the temporary Cloudflare cooldown so a new app can attempt APKMirror."""
+    global _blocked_until
+    _blocked_until = 0.0
 
 # Sticky state: the profile that last cleared Cloudflare is tried first on
 # subsequent requests, and sessions persist (cookies like cf_clearance are
@@ -45,6 +52,45 @@ def _ordered_profiles() -> list:
 
 class ApkMirrorBlocked(RuntimeError):
     """APKMirror declined this runner before it served an application page."""
+
+
+def _get_cf_session(profile: str) -> cffi_requests.Session:
+    sess = _CF_SESSIONS.get(profile)
+    if sess is not None:
+        return sess
+
+    proxies = None
+    proxy_url = os.environ.get("APKMIRROR_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    if proxy_url:
+        proxies = {"http": proxy_url, "https": proxy_url}
+
+    sess = cffi_requests.Session(impersonate=profile, proxies=proxies)
+
+    if hasattr(sess, "headers") and isinstance(sess.headers, dict):
+        sess.headers.update({
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+        })
+
+    if hasattr(sess, "cookies") and hasattr(sess.cookies, "set"):
+        cf_clearance = os.environ.get("CF_CLEARANCE")
+        if cf_clearance:
+            sess.cookies.set("cf_clearance", cf_clearance, domain=".apkmirror.com")
+
+        custom_cookie = os.environ.get("APKMIRROR_COOKIE")
+        if custom_cookie:
+            for item in custom_cookie.split(";"):
+                if "=" in item:
+                    k, v = item.strip().split("=", 1)
+                    sess.cookies.set(k.strip(), v.strip(), domain=".apkmirror.com")
+
+    _CF_SESSIONS[profile] = sess
+    return sess
 
 
 def _app_slug_candidates(config: dict) -> list[str]:
@@ -86,16 +132,16 @@ def _cf_get(url, use_cache=True, **kwargs):
       2. Try the last-known-good profile first on a persistent session
          (cookies survive across requests, so CF stops seeing a new bot).
       3. On a Cloudflare challenge (403/503 + CF headers/body markers), rotate
-         to the next profile after a brief backoff delay.
-      4. Only flag the entire source as permanently blocked once every profile
-         has been tried and all returned challenges.
+         to the next profile after a brief backoff delay, purging the tainted session.
+      4. Temporary time-based cooldown on exhaustion, never a permanent global kill switch.
       5. Non-Cloudflare 4xx/5xx responses are passed back to the caller as-is.
-
-    This replaces the old fail-fast behaviour that gave up on the first CF challenge.
     """
-    global _blocked_by_cloudflare, _good_profile
-    if _blocked_by_cloudflare:
-        raise ApkMirrorBlocked("APKMirror blocked this runner earlier in the build")
+    global _blocked_until, _good_profile
+    now = time.time()
+    if _blocked_until > now:
+        raise ApkMirrorBlocked(
+            f"APKMirror in temporary cooldown ({int(_blocked_until - now)}s remaining)"
+        )
 
     if use_cache and url in _PAGE_CACHE:
         return _PAGE_CACHE[url]
@@ -104,14 +150,11 @@ def _cf_get(url, use_cache=True, **kwargs):
     profiles = _ordered_profiles()
 
     for attempt, profile in enumerate(profiles):
-        # Increasing polite delay — gives CF's rate-limiting some breathing room
-        time.sleep(1.2 + attempt * 0.6)
+        if attempt > 0:
+            time.sleep(1.0 + attempt * 0.5)
 
         try:
-            cf_sess = _CF_SESSIONS.get(profile)
-            if cf_sess is None:
-                cf_sess = cffi_requests.Session(impersonate=profile)
-                _CF_SESSIONS[profile] = cf_sess
+            cf_sess = _get_cf_session(profile)
             response = cf_sess.get(url, **kwargs)
         except Exception as exc:
             logging.debug(f"APKMirror [{profile}]: network error — {exc}")
@@ -133,16 +176,23 @@ def _cf_get(url, use_cache=True, **kwargs):
                 f"APKMirror: CF challenge on profile '{profile}' "
                 f"(attempt {attempt + 1}/{len(profiles)}), rotating..."
             )
+            # Evict tainted session so subsequent requests with this profile don't carry bad cookies
+            _CF_SESSIONS.pop(profile, None)
             continue  # Try next profile
 
-        # Non-challenge response (404, 429, 5xx, etc.) — return immediately
+        if response.status_code == 429:
+            logging.warning(f"APKMirror [{profile}]: HTTP 429 rate limit received, backing off 2.5s...")
+            time.sleep(2.5)
+            continue
+
+        # Non-challenge response (404, 5xx, etc.) — return immediately
         return response
 
-    # All profiles exhausted
-    _blocked_by_cloudflare = True
-    logging.error(
-        f"APKMirror: Cloudflare defeated all {len(profiles)} impersonation profiles. "
-        "APKMirror will be skipped for the rest of this build."
+    # All profiles exhausted for this URL — initiate temporary cooldown
+    _blocked_until = time.time() + 60.0
+    logging.warning(
+        f"APKMirror: Cloudflare challenged all {len(profiles)} impersonation profiles. "
+        "Setting 60s cooldown for APKMirror."
     )
     raise ApkMirrorBlocked("APKMirror Cloudflare challenge — all profiles exhausted")
 
@@ -365,6 +415,10 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
     
     criteria = [config['type'], target_arch, config['dpi']]
     
+    # Clean arch and release qualifiers from version string if present (e.g. '18.0.3.954559732-release-arm64-v8a' -> '18.0.3.954559732')
+    version = re.sub(r'-(?:arm64-v8a|armeabi-v7a|x86_64|x86|universal)$', '', version, flags=re.I)
+    version = re.sub(r'-(?:release|beta|alpha|nodpi)$', '', version, flags=re.I)
+
     # --- UNIVERSAL URL FINDER WITH VALIDATION ---
     # Extract build number if present (e.g., "32.30.0(1575420)" -> version="32.30.0", build="1575420")
     build_number = None
@@ -418,7 +472,7 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
     # Once Cloudflare has challenged this runner, generated URL probes cannot
     # succeed. Stop here so one app does not emit misleading 404s for every
     # possible release slug and the configured fallback can run immediately.
-    if _blocked_by_cloudflare:
+    if _blocked_until > time.time():
         return None
     
     # --- FALLBACK: Construct URLs from config fields ---
@@ -632,6 +686,7 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         want_bundle = config.get("type") == "BUNDLE"
         final_download_page_url = _pick_download_button(soup, want_bundle)
         if final_download_page_url:
+            time.sleep(1.0)
             response = _cf_get(final_download_page_url)
             response.raise_for_status()
             content_size = len(response.content)

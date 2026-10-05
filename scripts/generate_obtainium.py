@@ -43,12 +43,9 @@ NAME_MAP = {
     "serverauditor":    "Server Auditor (Termius)",
     "vocabulary":       "Vocabulary",
     "gboard":           "Gboard",
-    "vivaldi":          "Vivaldi Browser",
     "habitkit":         "HabitKit",
-    "notesnook":        "Notesnook",
     "duolingo":         "Duolingo",
     "brave":            "Brave Browser",
-    "jiohotstar":       "JioHotstar",
 }
 
 
@@ -78,13 +75,40 @@ def extract_identity_prefix(apk_name: str) -> str:
     return ""
 
 
+SOURCE_MAP = {
+    "morphe": "Morphe",
+    "piko": "Piko",
+    "paresh": "Paresh",
+    "rookie": "Rookie",
+    "rushiranpise": "Rushi",
+    "hoodles": "Hoodles",
+    "kveld9": "Kveld9",
+    "jasonwu": "Jasonwu",
+    "flexboard": "Flexboard",
+    "morning-entree": "Morning Entree",
+    "browzomje": "Browzomje",
+    "hxreborn": "HxReborn",
+    "hushgram": "Hushgram",
+    "hushpinterest": "HushPinterest",
+    "hushtelegram": "HushTelegram",
+    "hushthreads": "HushThreads",
+}
+
+
+def get_source_display_name(source: str) -> str:
+    """Format source for human-readable display."""
+    s = source.lower().strip()
+    return SOURCE_MAP.get(s, s.title())
+
+
 def build_obtainium_app(
     entry_key: str,
     entry: Dict[str, Any],
     repo_slug: str,
     author: str,
-    arch_counts: Dict[str, int],
-    pages_url: str,
+    arch_counts: Dict[str, int] = None,
+    source_counts_or_pages_url: Any = None,
+    pages_url: str = "",
 ) -> Dict[str, Any]:
     """Construct an Obtainium App entry for a single manifest entry.
 
@@ -96,8 +120,16 @@ def build_obtainium_app(
     HTML source instead applies the regex to the matched download link,
     where our filenames carry the per-app version.
     """
+    if arch_counts is None:
+        arch_counts = {}
+    if isinstance(source_counts_or_pages_url, str):
+        pages_url = source_counts_or_pages_url
+        source_counts = {}
+    else:
+        source_counts = source_counts_or_pages_url or {}
     app_name = entry.get("app_name", "")
     arch = entry.get("arch", "arm64-v8a")
+    source = entry.get("source", "")
     apk = entry.get("apk", "")
     pkg = entry.get("package") or f"org.morphe.{app_name}"
 
@@ -105,24 +137,30 @@ def build_obtainium_app(
     if not prefix:
         raise ValueError(f"Could not determine identity prefix from APK filename: {apk}")
 
-    # Identity head: "{app}-{arch}-". The patch-source name is deliberately
-    # NOT baked in — sources get renamed (dh6k → kveld9, …) and baked regexes
-    # then match zero assets. We target just the app+arch prefix so source
-    # renames never break the filter.
-    head = f"{app_name}-{arch}-"
-    if not prefix.startswith(head):
-        # Unexpected filename layout — fall back to the exact baked prefix.
-        head = prefix.rsplit("-", 1)[0] + "-" if "-" in prefix else prefix + "-"
-
     base_name = get_display_name(app_name)
-    # If this app has builds for multiple architectures, disambiguate with arch in name
-    display_name = f"{base_name} ({arch})" if arch_counts.get(app_name, 0) > 1 else base_name
+    is_multi_source = source_counts.get(app_name, 0) > 1
+    is_multi_arch = arch_counts.get(app_name, 0) > 1
+
+    if is_multi_source and is_multi_arch:
+        display_name = f"{base_name} ({get_source_display_name(source)}, {arch})"
+    elif is_multi_source:
+        display_name = f"{base_name} ({get_source_display_name(source)})"
+    elif is_multi_arch:
+        display_name = f"{base_name} ({arch})"
+    else:
+        display_name = base_name
 
     # ── Regex patterns (NO /.../ delimiters — Obtainium uses raw regex strings) ──
-    # Obtainium's HTML source matches against the full download link URL, so the
-    # pattern needs to match the filename portion. Do NOT wrap in /.../ — Obtainium
-    # is not JavaScript; delimiters cause "No APK found" every time.
-    # [^/]+ in the version group avoids over-matching across path separators.
+    # Obtainium's HTML source matches against the full download link URL.
+    # For single-source apps, head is "{app}-{arch}-" so future upstream patch source
+    # renames (e.g. dh6k -> kveld9) do not break existing Obtainium installs.
+    # For multi-source apps (e.g. gboard with jasonwu & flexboard), head includes
+    # the source to prevent regex collision across links in downloads.html.
+    if is_multi_source:
+        head = f"{app_name}-{arch}-{source}-"
+    else:
+        head = f"{app_name}-{arch}-"
+
     filter_pat = f"{head}.*-v.*\\.apk$"
     ver_pat    = f"{head}.*-v([^/]+)\\.apk$"
 
@@ -131,7 +169,6 @@ def build_obtainium_app(
         "versionExtractionRegEx": ver_pat,
         "matchGroupToUse": "1"
     }, separators=(',', ':'))
-
 
     return {
         "id": pkg,
@@ -171,12 +208,17 @@ def main() -> int:
     repo_name = repo_slug.split("/")[1] if "/" in repo_slug else repo_slug
     pages_url = f"https://{author}.github.io/{repo_name}/downloads.html"
 
-    # Count architectures per app to label disambiguated names if needed
+    # Count architectures and unique sources per app to label disambiguated names
     arch_counts: Dict[str, int] = {}
+    app_sources: Dict[str, set] = {}
     for entry in entries.values():
         if entry.get("apk") and entry.get("built_version"):
             app = entry.get("app_name", "")
             arch_counts[app] = arch_counts.get(app, 0) + 1
+            src = entry.get("source", "")
+            if src:
+                app_sources.setdefault(app, set()).add(src)
+    source_counts = {app: len(srcs) for app, srcs in app_sources.items()}
 
     obtainium_apps: List[Dict[str, Any]] = []
     generated_count = 0
@@ -191,7 +233,7 @@ def main() -> int:
             continue
 
         try:
-            app_obj = build_obtainium_app(key, entry, repo_slug, author, arch_counts, pages_url)
+            app_obj = build_obtainium_app(key, entry, repo_slug, author, arch_counts, source_counts, pages_url)
             direct_link, redirect_url = make_deep_links(app_obj)
 
             # Store links in manifest entry for direct web consumption

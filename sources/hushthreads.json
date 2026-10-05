@@ -1,0 +1,17 @@
+[
+  {
+    "name": "hushthreads-patches"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "SysAdminDoc",
+    "repo": "HushThreads",
+    "tag": "latest"
+  }
+]

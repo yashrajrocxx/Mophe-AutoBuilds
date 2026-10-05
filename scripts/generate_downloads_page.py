@@ -22,7 +22,7 @@ DEFAULT_REPO = "yashrajrocxx/Mophe-AutoBuilds"
 
 
 def apk_download_url(repo_slug: str, apk_name: str) -> str:
-    return f"https://github.com/{repo_slug}/releases/download/latest/{apk_name}"
+    return f"https://github.com/{repo_slug}/releases/latest/download/{apk_name}"
 
 
 def main() -> int:

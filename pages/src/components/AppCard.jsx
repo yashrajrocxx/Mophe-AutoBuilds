@@ -80,7 +80,7 @@ export function AppCard({ appName, appEntries, isRecentlyUpdated, manifestUpdate
         {appEntries.map((entry, idx) => {
           if (!entry.apk) return null;
           const archLabel = (entry.arch || 'universal').toUpperCase();
-          const apkUrl = `https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/${entry.apk}`;
+          const apkUrl = `https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/latest/download/${entry.apk}`;
           const obtainiumUrl = entry.obtainium_url;
 
           return (

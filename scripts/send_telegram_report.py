@@ -215,14 +215,10 @@ def format_app_display(app_name: str) -> str:
         "vocabulary": "Vocabulary",
         "pinnit": "Pinnit",
         "gboard": "Gboard",
-        "vivaldi-snapshot": "Vivaldi Snapshot",
-        "vivaldi": "Vivaldi Browser",
         "taskmanager": "TaskManager",
         "habitkit": "HabitKit",
-        "notesnook": "Notesnook",
         "duolingo": "Duolingo",
         "brave": "Brave Browser",
-        "jiohotstar": "JioHotstar",
     }
     return name_map.get(app_name.lower().strip(), app_name.replace("-", " ").title())
 

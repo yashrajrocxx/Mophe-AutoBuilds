@@ -76,7 +76,7 @@ def validate_obtainium_bundle(obtainium_path: Path, manifest_path: Path) -> bool
     else:
         print(f"[WARN] {downloads_path} not found; falling back to manifest-derived URLs", file=sys.stderr)
         page_links = [
-            f"https://github.com/x/y/releases/download/latest/{e['apk']}"
+            f"https://github.com/x/y/releases/latest/download/{e['apk']}"
             for e in entries.values() if e.get("apk")
         ]
 

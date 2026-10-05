@@ -24,6 +24,11 @@ venv/
 # Build and release artifacts
 /build_records/
 /build_report.json
+bin/
+scratch/
+SHA256SUMS.txt
+patches-*.cdx.json
+release-receipt-*.json
 
 # AI & Agent configurations
 AGENTS.md

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "hushpinterest-patches"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "SysAdminDoc",
+    "repo": "HushPinterest",
+    "tag": "latest"
+  }
+]

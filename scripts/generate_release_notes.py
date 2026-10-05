@@ -82,14 +82,10 @@ def format_app_display(app_name: str) -> str:
         "vocabulary": "Vocabulary",
         "pinnit": "Pinnit",
         "gboard": "Gboard",
-        "vivaldi-snapshot": "Vivaldi Snapshot",
-        "vivaldi": "Vivaldi Browser",
         "taskmanager": "TaskManager",
         "habitkit": "HabitKit",
-        "notesnook": "Notesnook",
         "duolingo": "Duolingo",
         "brave": "Brave Browser",
-        "jiohotstar": "JioHotstar",
     }
     return name_map.get(app_name.lower().strip(), app_name.replace("-", " ").title())
 
@@ -100,15 +96,18 @@ def get_source_display_name(source: str) -> str:
         "piko": "Piko Patches",
         "piko-dev": "Piko (Dev) Patches",
         "paresh": "Paresh Patches",
-        "durgesh": "Durgesh (Chiggi) Patches",
         "rookie": "Rookie Patches",
         "rushiranpise": "Rushi (Doom) Patches",
         "browzomje": "Browzomje Patches",
+        "hushgram": "HushGram Patches",
+        "hushpinterest": "HushPinterest Patches",
+        "hushtelegram": "HushTelegram Patches",
+        "hushthreads": "HushThreads Patches",
         "dh6k": "dh6k Patches",
         "morning-entree": "Morning Entree Patches",
-        "hxreborn": "hxreborn Patches",
         "ample": "Ample Patches",
         "jasonwu": "Jasonwu (Gboard) Patches",
+        "flexboard": "Flexboard (JZ6) Patches",
         "kveld9": "kveld9 Patches",
         "hoodles": "Hoodles Patches",
     }
@@ -130,7 +129,7 @@ def parse_apk_details(filename: str) -> tuple[str, str, str]:
     known_sources = [
         "morphe", "piko-dev", "piko", "paresh", "durgesh", "chiggi", 
         "rookie", "rushiranpise", "rushi", "browzomje", "dh6k", 
-        "morning-entree", "entree", "hxreborn", "ample", "jasonwu", "kveld9", "hoodles"
+        "morning-entree", "entree", "hxreborn", "ample", "jasonwu", "flexboard", "kveld9", "hoodles"
     ]
     for s in known_sources:
         if f"-{s}-" in name_no_ext or f"-{s}" in name_no_ext:
@@ -232,7 +231,7 @@ def main() -> int:
         for apk in sorted(rebuilt_apks, key=lambda a: a.name.lower()):
             fn = apk.name
             arch = detect_arch(fn)
-            dl_url = f"https://github.com/{repo_name}/releases/download/latest/{fn}"
+            dl_url = f"https://github.com/{repo_name}/releases/latest/download/{fn}"
 
             record = built_records_map.get(fn, {})
             manifest_entry = apk_to_manifest.get(fn, {})
@@ -286,7 +285,7 @@ def main() -> int:
             ver = entry.get("built_version", "Latest")
             src_title = get_source_display_name(entry.get("source", "")).replace(" Patches", "")
             arch_token = entry.get("arch", "arm64-v8a")
-            dl_link = f"https://github.com/{repo_name}/releases/download/latest/{apk_fn}"
+            dl_link = f"https://github.com/{repo_name}/releases/latest/download/{apk_fn}"
             obt_url = entry.get("obtainium_url")
             badge = (
                 f"[![Add to Obtainium](https://img.shields.io/badge/Obtainium-Add-7C3AED?style=flat-square&logo=android&logoColor=white)]({obt_url})"
@@ -356,12 +355,12 @@ def main() -> int:
     content.append("- **Rushi (Doom):** [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches)")
     content.append("- **Morning Entree:** [Entree3k/Morning-Entree-Patches](https://github.com/Entree3k/Morning-Entree-Patches)")
     content.append("- **Gboard Patches:** [jasonwu1994/Gboard-patches](https://github.com/jasonwu1994/Gboard-patches)")
+    content.append("- **Flexboard:** [JZ6/Flexboard](https://github.com/JZ6/Flexboard)")
     content.append("- **kveld9 Patches:** [kveld9/kveld-morphe-patches](https://github.com/kveld9/kveld-morphe-patches)")
     content.append("- **Ample Patches:** [AmpleReVanced/revanced-patches](https://github.com/AmpleReVanced/revanced-patches)")
     content.append("- **Hoodles:** [hoo-dles/morphe-patches](https://github.com/hoo-dles/morphe-patches)")
-    content.append("- **hxreborn Patches:** [hxreborn/morphe-patches](https://github.com/hxreborn/morphe-patches)")
+    content.append("- **SysAdminDoc (Hush):** [SysAdminDoc](https://github.com/SysAdminDoc)")
     content.append("- **Rookie Patches:** [RookieEnough/De-ReVanced](https://github.com/RookieEnough/De-ReVanced)")
-    content.append("- **Durgesh/Chiggi:** [durgesh0505/chiggi_morphe_patches](https://github.com/durgesh0505/chiggi_morphe_patches)")
     content.append("- **Browzomje:** [browzomje/browzomje-patches](https://github.com/browzomje/browzomje-patches)")
     content.append("- **dh6k:** [dh6k/morphe-patches](https://github.com/dh6k/morphe-patches)\n")
 

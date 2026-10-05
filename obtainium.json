@@ -49,7 +49,7 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"pinterest-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"pinterest-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "org.telegram.messenger",
+      "id": "org.telegram.messenger.web",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
       "name": "Telegram",
@@ -137,14 +137,6 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"habitkit-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"habitkit-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
-      "id": "com.streetwriters.notesnook",
-      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
-      "author": "yashrajrocxx",
-      "name": "Notesnook",
-      "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"notesnook-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"notesnook-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
-    },
-    {
       "id": "com.duolingo",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
@@ -159,14 +151,6 @@
       "name": "Brave Browser",
       "preferredApkIndex": 0,
       "additionalSettings": "{\"apkFilterRegEx\":\"brave-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"brave-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
-    },
-    {
-      "id": "com.vivaldi.browser",
-      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
-      "author": "yashrajrocxx",
-      "name": "Vivaldi Browser",
-      "preferredApkIndex": 0,
-      "additionalSettings": "{\"apkFilterRegEx\":\"vivaldi-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"vivaldi-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     }
   ]
 }

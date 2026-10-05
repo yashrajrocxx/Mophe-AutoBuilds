@@ -50,11 +50,7 @@
       "Enable DCIM folders backup control"
     ]
   },
-  "instagram|piko": {
-    "include": [],
-    "exclude": []
-  },
-  "jiohotstar|durgesh": {
+  "instagram|hushgram": {
     "include": [],
     "exclude": []
   },
@@ -62,7 +58,7 @@
     "include": [],
     "exclude": []
   },
-  "pinterest|browzomje": {
+  "pinterest|hushpinterest": {
     "include": [],
     "exclude": []
   },
@@ -78,39 +74,17 @@
     "include": [],
     "exclude": []
   },
-  "telegram|paresh": {
+  "telegram|hushtelegram": {
     "include": [],
     "exclude": []
   },
-  "threads|rookie": {
+  "threads|hushthreads": {
     "include": [],
     "exclude": []
   },
   "twitter|piko": {
     "include": [],
     "exclude": []
-  },
-  "vivaldi|kveld9": {
-    "include": [
-      "Block Vivaldi Telemetry",
-      "Clean Speed Dial Bookmarks",
-      "Disable Background Sync & Periodic Sync",
-      "Disable Battery Status API & OS Listener",
-      "Disable Chromium Tips & Notification Scheduler",
-      "Disable Vivaldi Prompts & In-App Popups",
-      "Locale PAK Slimmer",
-      "Resource Slimmer",
-      "Skip First Run",
-      "Vivaldi Startup Performance Optimization",
-      "Close Tabs on Exit",
-      "APK Junk Cleaner",
-      "Locale Resource Slimmer",
-      "PNG Asset Optimizer"
-    ],
-    "exclude": [
-      "Block Vivaldi Sync",
-      "DPI Resource Slimmer"
-    ]
   },
   "youtube|morphe": {
     "include": [

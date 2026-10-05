@@ -1,0 +1,2 @@
+# Threads HushThreads Patches (SysAdminDoc/HushThreads)
+# Left empty to apply all default recommended patches automatically.

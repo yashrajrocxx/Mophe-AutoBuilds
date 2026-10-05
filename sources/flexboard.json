@@ -1,0 +1,17 @@
+[
+  {
+    "name": "flexboard"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "JZ6",
+    "repo": "Flexboard",
+    "tag": "latest"
+  }
+]

@@ -1,0 +1,3 @@
+# Telegram Web HushTelegram Patches (SysAdminDoc/HushTelegram)
+# Target Package: org.telegram.messenger.web
+# Left empty to apply all default recommended patches automatically.

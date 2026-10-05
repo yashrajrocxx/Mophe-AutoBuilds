@@ -383,6 +383,8 @@ def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
         )
         return True
 
+    output_apk.unlink(missing_ok=True)
+
     try:
         result = _run(
             ["java", "-jar", str(apkeditor), "m",

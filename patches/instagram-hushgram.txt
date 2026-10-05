@@ -1,0 +1,2 @@
+# Instagram HushGram Patches (SysAdminDoc/HushGram)
+# Left empty to apply all default recommended patches automatically.

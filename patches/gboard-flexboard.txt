@@ -1,0 +1,2 @@
+# Gboard Patches (JZ6 / Flexboard)
+# Applies all author-recommended default patches (Swipe Left to Delete, Bigger Toolbar, Toolbar Hotkeys, etc.).

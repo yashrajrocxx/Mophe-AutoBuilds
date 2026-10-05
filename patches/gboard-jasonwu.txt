@@ -1,0 +1,2 @@
+# Gboard Patches (jasonwu1994 / Gboard-patches)
+# Applies all author-recommended default patches (Clipboard Enhancements, Key Shape Selection, AI Writing Tools, etc.).

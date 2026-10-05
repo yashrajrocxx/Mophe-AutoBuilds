@@ -16,7 +16,10 @@ from src import (
 )
 
 def download_resource(url: str, name: str = None) -> Path:
-    res = session.get(url, stream=True)
+    headers = {}
+    if "apkmirror.com" in url:
+        headers["Referer"] = "https://www.apkmirror.com/"
+    res = session.get(url, headers=headers, stream=True)
     res.raise_for_status()
     final_url = res.url
 
@@ -183,9 +186,21 @@ def download_platform(
                 # All other sources return an HTTP URL — download it.
                 filepath = download_resource(result)
 
-            # Verify the downloaded APK version if it's an .apk file
+            # Verify the downloaded APK version and package if it's an .apk file
             if filepath.suffix == ".apk":
                 manifest_info = utils.get_apk_manifest_info(filepath)
+
+                # Check package name matches expectation
+                expected_pkg = config.get("package")
+                actual_pkg = manifest_info.get("package")
+                if expected_pkg and actual_pkg and actual_pkg != expected_pkg:
+                    logging.warning(
+                        f"Downloaded APK from {platform} has package '{actual_pkg}', "
+                        f"which does not match expected package '{expected_pkg}'. Rejecting."
+                    )
+                    filepath.unlink(missing_ok=True)
+                    return None, None, []
+
                 actual_vn = manifest_info.get("versionName")
                 if actual_vn and target_version:
                     if not utils.is_version_compatible(actual_vn, target_version):
@@ -304,3 +319,38 @@ def download_apkeditor() -> Path:
                 raise RuntimeError(f"Failed to download APKEditor after {max_retries} attempts: {e}")
             logging.warning(f"APKEditor download attempt {attempt + 1} failed: {e}. Retrying...")
             time.sleep(2)  # Wait 2 seconds before retry
+
+_cached_morphe_patches: Path | None = None
+
+def download_global_morphe_patches() -> Path | None:
+    """Download and cache the official MorpheApp/morphe-patches MPP bundle for universal patches."""
+    global _cached_morphe_patches
+    if _cached_morphe_patches and _cached_morphe_patches.exists():
+        return _cached_morphe_patches
+
+    # Check local bin/ or /tmp first
+    for candidate in [Path("bin/morphe-patches.mpp"), Path("/tmp/morphe-patches.mpp")]:
+        if candidate.exists() and candidate.stat().st_size > 1000000:
+            _cached_morphe_patches = candidate
+            return candidate
+
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            release = utils.detect_github_release("MorpheApp", "morphe-patches", "latest")
+            for asset in release["assets"]:
+                asset_name = asset["name"]
+                if asset_name.endswith(".mpp"):
+                    dest = Path("bin") / "morphe-patches.mpp"
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    downloaded = download_resource(asset["browser_download_url"], name=str(dest))
+                    _cached_morphe_patches = downloaded
+                    return downloaded
+            logging.warning("No .mpp asset found in MorpheApp/morphe-patches latest release")
+            return None
+        except Exception as e:
+            if attempt == max_retries - 1:
+                logging.warning(f"Could not download global morphe-patches bundle: {e}")
+                return None
+            time.sleep(2)
+    return None

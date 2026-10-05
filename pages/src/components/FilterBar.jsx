@@ -18,11 +18,18 @@ export function FilterBar({
       morphe: 'Morphe',
       piko: 'Piko',
       paresh: 'Paresh',
-      durgesh: 'Durgesh',
       rookie: 'Rookie',
       rushiranpise: 'Rushi',
       browzomje: 'Browzomje',
-      dh6k: 'dh6k'
+      hushgram: 'HushGram',
+      hushpinterest: 'HushPinterest',
+      hushtelegram: 'HushTelegram',
+      hushthreads: 'HushThreads',
+      dh6k: 'dh6k',
+      jasonwu: 'Jasonwu (Gboard)',
+      flexboard: 'Flexboard',
+      kveld9: 'kveld9',
+      hoodles: 'Hoodles'
     };
     return map[src.toLowerCase()] || src.charAt(0).toUpperCase() + src.slice(1);
   };

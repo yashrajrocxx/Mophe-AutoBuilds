@@ -19,27 +19,27 @@ class TestApkComboSlugDiscovery(unittest.TestCase):
 
     SEARCH_HTML = """
     <html><body>
-      <a href="/pt/search/in.startv.hotstar">PT</a>
-      <a href="/search/in.startv.hotstar">EN</a>
-      <a href="/jiohotstar/in.startv.hotstar/">JioHotstar</a>
-      <a href="/pt/jiohotstar/in.startv.hotstar/download/phone-26.06.22.3-apk">DL</a>
+      <a href="/pt/search/com.example.sample">PT</a>
+      <a href="/search/com.example.sample">EN</a>
+      <a href="/sampleapp/com.example.sample/">SampleApp</a>
+      <a href="/pt/sampleapp/com.example.sample/download/phone-1.0.0-apk">DL</a>
     </body></html>
     """
 
     @patch("src.apkcombo._get")
     def test_locale_prefix_never_returned(self, mock_get):
         mock_get.return_value = _resp(200, self.SEARCH_HTML)
-        self.assertEqual(apkcombo._discover_slug("in.startv.hotstar"), "jiohotstar")
+        self.assertEqual(apkcombo._discover_slug("com.example.sample"), "sampleapp")
 
     @patch("src.apkcombo._get")
     def test_locale_only_page_returns_none(self, mock_get):
-        mock_get.return_value = _resp(200, '<a href="/pt/search/in.startv.hotstar">x</a>')
-        self.assertIsNone(apkcombo._discover_slug("in.startv.hotstar"))
+        mock_get.return_value = _resp(200, '<a href="/pt/search/com.example.sample">x</a>')
+        self.assertIsNone(apkcombo._discover_slug("com.example.sample"))
 
     @patch("src.apkcombo._get")
     def test_http_failure_returns_none(self, mock_get):
         mock_get.return_value = _resp(410, "")
-        self.assertIsNone(apkcombo._discover_slug("in.startv.hotstar"))
+        self.assertIsNone(apkcombo._discover_slug("com.example.sample"))
 
 
 class TestApkPureCdnGating(unittest.TestCase):
@@ -47,7 +47,7 @@ class TestApkPureCdnGating(unittest.TestCase):
     @patch("src.apkpure.std_requests.head")
     def test_403_falls_through_to_none(self, mock_head, _mock_vc):
         mock_head.return_value = Mock(status_code=403, url="https://d.apkpure.net/x")
-        self.assertIsNone(apkpure._cdn_download_url("in.startv.hotstar", "26.06.22.3"))
+        self.assertIsNone(apkpure._cdn_download_url("com.example.sample", "1.0.0"))
 
     @patch("src.apkpure.get_version_code_from_api", return_value=None)
     @patch("src.apkpure.std_requests.head")
@@ -136,11 +136,12 @@ class TestApkMirrorSessionReuse(unittest.TestCase):
         apkmirror._CF_SESSIONS.clear()
         apkmirror._PAGE_CACHE.clear()
         apkmirror._good_profile = None
-        apkmirror._blocked_by_cloudflare = False
+        apkmirror.reset_cloudflare_block()
 
     def _sessions(self, fail_first=True):
-        """Fake Session factory: chrome124 gets challenged, rest succeed."""
+        """Fake Session factory: first profile gets challenged, rest succeed."""
         made = []
+        first_prof = apkmirror._CF_PROFILES[0]
 
         class FakeSession:
             def __init__(self, impersonate=None, **kwargs):
@@ -150,7 +151,7 @@ class TestApkMirrorSessionReuse(unittest.TestCase):
 
             def get(self, url, **kwargs):
                 self.calls += 1
-                if fail_first and self.profile == "chrome124":
+                if fail_first and self.profile == first_prof:
                     return _cf_resp(403, challenge=True)
                 return _cf_resp(200)
 
@@ -159,11 +160,13 @@ class TestApkMirrorSessionReuse(unittest.TestCase):
     @patch("time.sleep", return_value=None)
     def test_good_profile_tried_first_and_sessions_reused(self, _mock_sleep):
         made, FakeSession = self._sessions()
+        first_prof = apkmirror._CF_PROFILES[0]
+        second_prof = apkmirror._CF_PROFILES[1]
         with patch.object(apkmirror.cffi_requests, "Session", FakeSession):
-            apkmirror._cf_get("http://x/one")   # chrome124 challenged -> safari ok
-            apkmirror._cf_get("http://x/two")   # must lead with safari, no new session
-        self.assertEqual(made, ["chrome124", "safari17_0"])
-        self.assertEqual(apkmirror._good_profile, "safari17_0")
+            apkmirror._cf_get("http://x/one")   # first profile challenged -> second ok
+            apkmirror._cf_get("http://x/two")   # must lead with second, no new session
+        self.assertEqual(made, [first_prof, second_prof])
+        self.assertEqual(apkmirror._good_profile, second_prof)
 
     @patch("time.sleep", return_value=None)
     def test_repeated_url_served_from_cache(self, _mock_sleep):

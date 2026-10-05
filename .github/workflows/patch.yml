@@ -308,6 +308,7 @@ jobs:
           }
           if [ -f manifest.json ]; then
             echo "Generating Obtainium configuration and deep links..."
+            python scripts/generate_downloads_page.py ./release-apks/downloads.html || echo "[WARN] generate_downloads_page.py failed"
             python scripts/generate_obtainium.py || echo "[WARN] generate_obtainium.py failed"
             python scripts/validate_obtainium.py || echo "[WARN] validate_obtainium.py failed"
             echo "[OK] manifest.json built:"
@@ -404,6 +405,10 @@ jobs:
             ASSETS+=( ./release-apks/obtainium.json )
             echo "Including obtainium.json"
           fi
+          if [ -f ./release-apks/downloads.html ]; then
+            ASSETS+=( ./release-apks/downloads.html )
+            echo "Including downloads.html"
+          fi
           if [ -f ./release-apks/build_report.json ]; then
             ASSETS+=( ./release-apks/build_report.json )
             echo "Including build_report.json"
@@ -488,7 +493,7 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add -f manifest.json obtainium.json README.md pages/public/
-            git commit -m "chore: auto-sync manifest, obtainium bundle, and README catalog [skip ci]" || true
+            git commit -m "chore: auto-sync manifest, obtainium bundle, and README catalog" || true
             git pull --rebase origin main || true
             git push
 
@@ -521,9 +526,54 @@ jobs:
         run: |
           python scripts/send_telegram_report.py
 
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: create-single-release
+    runs-on: ubuntu-latest
+    if: always() && needs.create-single-release.result == 'success'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'pages/package-lock.json'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install dependencies
+        working-directory: ./pages
+        run: npm ci
+
+      - name: Build with Vite
+        working-directory: ./pages
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./pages/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   cleanup:
     name: Cleanup Workflow Runs
-    needs: [build-apps, create-single-release]
+    needs: [build-apps, create-single-release, deploy-pages]
     runs-on: ubuntu-latest
     if: always()
     permissions:

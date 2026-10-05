@@ -48,7 +48,7 @@ export const APP_METADATA = {
   "telegram": {
     name: "Telegram",
     category: "Messaging",
-    package: "org.telegram.messenger",
+    package: "org.telegram.messenger.web",
     icon: "https://play-lh.googleusercontent.com/ZU9AnVdaacxATubdaFCVYduw2WPmnwapkcm4ApduPrFGbaAzIlMr4-9wfA1ajSBQiz8=w240-h480",
     color: "#229ED9"
   },
@@ -129,13 +129,6 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/m4_x9b0=w240-h480",
     color: "#4A7C59"
   },
-  "notesnook": {
-    name: "Notesnook",
-    category: "Productivity & Notes",
-    package: "com.streetwriters.notesnook",
-    icon: "https://play-lh.googleusercontent.com/n6_x9c0=w240-h480",
-    color: "#000000"
-  },
   "samsung-keyboard": {
     name: "Samsung Keyboard",
     category: "Tools & Keyboard",
@@ -157,20 +150,6 @@ export const APP_METADATA = {
     icon: "https://play-lh.googleusercontent.com/g8_x9f0=w240-h480",
     color: "#4285F4"
   },
-  "vivaldi": {
-    name: "Vivaldi Browser",
-    category: "Web Browser",
-    package: "com.vivaldi.browser",
-    icon: "https://play-lh.googleusercontent.com/v9_x9g0=w240-h480",
-    color: "#EF3939"
-  },
-  "vivaldi-snapshot": {
-    name: "Vivaldi Snapshot",
-    category: "Web Browser",
-    package: "com.vivaldi.browser.snapshot",
-    icon: "https://play-lh.googleusercontent.com/v9_x9g0=w240-h480",
-    color: "#EF3939"
-  },
   "habitkit": {
     name: "HabitKit",
     category: "Productivity & Habits",
@@ -191,13 +170,6 @@ export const APP_METADATA = {
     package: "com.brave.browser",
     icon: "https://play-lh.googleusercontent.com/78b9_x8=w240-h480",
     color: "#FF3B00"
-  },
-  "jiohotstar": {
-    name: "JioHotstar",
-    category: "Entertainment & Video",
-    package: "in.startv.hotstar",
-    icon: "https://play-lh.googleusercontent.com/02xiO0ptbXjD8NR3sbS2StP1P9aytDN56dDR15zqM_i66Vwq5W_hD-98CoFxvRVoUS4uV_xMSv-iQh3nQFeDeQ=w240-h480",
-    color: "#0C56E9"
   }
 };
 

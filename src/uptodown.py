@@ -56,8 +56,11 @@ def _fetch_version_url(base_url: str, data_code: str, entry: dict, session_obj) 
             soup = BeautifulSoup(version_page.content, "html.parser")
             button = soup.find('button', id='detail-download-button')
 
-        if button and 'data-url' in button.attrs:
-            return f"https://dw.uptodown.com/dwn/{button['data-url']}"
+        if button:
+            if 'data-url' in button.attrs:
+                return f"https://dw.uptodown.com/dwn/{button['data-url']}"
+            if 'data-url-ext' in button.attrs:
+                return button['data-url-ext']
     except Exception as e:
         logging.debug(f"Could not fetch version URL: {e}")
     return None
@@ -141,68 +144,81 @@ def generate_possible_uptodown_names(config: dict) -> list:
     """Generate all possible Uptodown URL patterns from config data"""
     app_name = config.get('name', '')
     package = config.get('package', '')
+    url = config.get('url', '')
     
     possible_names = set()
     
+    # 0. If URL is given in config, extract the subdomain slug
+    if url:
+        m = re.search(r"https?://([^.]+)\.en\.uptodown\.com", url)
+        if m:
+            possible_names.add(m.group(1))
+
     # 1. Basic variations
-    possible_names.add(app_name)
-    possible_names.add(app_name.replace('-', ''))
-    possible_names.add(app_name.replace('-plus', 'plus'))
-    possible_names.add(app_name.replace('-', '_'))
+    if app_name:
+        possible_names.add(app_name)
+        possible_names.add(app_name.replace('-', ''))
+        possible_names.add(app_name.replace('-plus', 'plus'))
+        possible_names.add(app_name.replace('-', '_'))
     
     # 2. Package name variations
-    package_dash = package.replace('.', '-')
-    possible_names.add(package_dash)
-    
-    # Common TLD patterns (com-, org-, net-)
-    if package.startswith('com.'):
+    if package:
+        package_dash = package.replace('.', '-')
         possible_names.add(package_dash)
-        possible_names.add(package_dash.replace('com-', ''))
         
-        # com-package variations
-        parts = package.split('.')
-        if len(parts) >= 2:
-            # com-appname
-            possible_names.add(f"com-{parts[1]}")
-            # com-appname-lastpart
-            possible_names.add(f"com-{parts[1]}-{parts[-1]}")
-            # appname only
-            possible_names.add(parts[1])
-            possible_names.add(parts[-1])
+        # Common TLD patterns (com-, org-, net-)
+        if package.startswith('com.'):
+            possible_names.add(package_dash)
+            possible_names.add(package_dash.replace('com-', ''))
             
-            # For multi-part packages like com.disney.disneyplus
-            if len(parts) >= 3:
-                possible_names.add(f"com-{parts[1]}{parts[2]}")
-                possible_names.add(f"com-{parts[1]}{parts[2]}-mea")
-                possible_names.add(f"com-{'-'.join(parts[1:])}")
-    
+            # com-package variations
+            parts = package.split('.')
+            if len(parts) >= 2:
+                # com-appname
+                possible_names.add(f"com-{parts[1]}")
+                # com-appname-lastpart
+                possible_names.add(f"com-{parts[1]}-{parts[-1]}")
+                # appname only
+                possible_names.add(parts[1])
+                possible_names.add(parts[-1])
+
+                # For multi-part packages like com.disney.disneyplus
+                if len(parts) >= 3:
+                    possible_names.add(f"com-{parts[1]}{parts[2]}")
+                    possible_names.add(f"com-{parts[1]}{parts[2]}-mea")
+                    possible_names.add(f"com-{'-'.join(parts[1:])}")
+
     # 3. Common suffixes (these cover 99% of cases)
     suffixes = ['', '-android', '-mobile', '-mea', '-plus', '-pro', '-lite', '-hd', '-apk']
     for suffix in suffixes:
-        possible_names.add(app_name + suffix)
-        possible_names.add(package_dash + suffix)
-    
+        if app_name:
+            possible_names.add(app_name + suffix)
+        if package:
+            possible_names.add(package_dash + suffix)
+
     # 4. Company/app combinations
-    # Extract company name from package (first meaningful part after TLD)
-    parts = package.split('.')
-    if len(parts) >= 2:
-        company = parts[1]
-        app_basename = parts[-1]
-        possible_names.add(f"{company}-{app_basename}")
-        possible_names.add(f"{company}-{app_name}")
-        
-        # For apps like Adobe
-        if 'adobe' in package.lower():
-            possible_names.add(f"adobe-{app_basename}")
-            possible_names.add(f"adobe-{app_basename}-mobile")
+    if package:
+        parts = package.split('.')
+        if len(parts) >= 2:
+            company = parts[1]
+            app_basename = parts[-1]
+            possible_names.add(f"{company}-{app_basename}")
+            if app_name:
+                possible_names.add(f"{company}-{app_name}")
+
+            # For apps like Adobe
+            if 'adobe' in package.lower():
+                possible_names.add(f"adobe-{app_basename}")
+                possible_names.add(f"adobe-{app_basename}-mobile")
     
     # 5. Remove common words and try variations
-    clean_name = app_name
-    for word in ['plus', 'pro', 'lite', 'free', 'paid', 'mod']:
-        if word in clean_name:
-            clean = clean_name.replace(f'-{word}', '').replace(word, '')
-            possible_names.add(clean)
-            possible_names.add(f"{clean}-{word}")
+    if app_name:
+        clean_name = app_name
+        for word in ['plus', 'pro', 'lite', 'free', 'paid', 'mod']:
+            if word in clean_name:
+                clean = clean_name.replace(f'-{word}', '').replace(word, '')
+                possible_names.add(clean)
+                possible_names.add(f"{clean}-{word}")
     
     # 6. All lowercase
     lowercase_names = {name.lower() for name in possible_names}

@@ -1,0 +1,2 @@
+# Pinterest HushPinterest Patches (SysAdminDoc/HushPinterest)
+# Left empty to apply all default recommended patches automatically.

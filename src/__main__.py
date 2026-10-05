@@ -66,6 +66,9 @@ def _record_failed_patches(app_name: str, output: str):
 
 def run_build(app_name: str, source: str, arch: str = "universal", report: dict = None) -> str:
     """Build APK for specific architecture"""
+    from src import apkmirror
+    apkmirror.reset_cloudflare_block()
+
     download_files, name = downloader.download_required(source)
 
     # Log downloaded files for debugging
@@ -118,6 +121,14 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         if not patches:
             # Fallback to any .mpp file
             patches = utils.find_files(download_files, suffix=".mpp")
+
+        # Ensure universal/global patches bundle is loaded if not already present
+        has_morphe_global = any("morphe-patches" in p.name.lower() for p in patches)
+        if not has_morphe_global:
+            global_mpp = downloader.download_global_morphe_patches()
+            if global_mpp and global_mpp not in patches:
+                patches.append(global_mpp)
+                logging.info(f"Loaded global Morphe patches bundle: {global_mpp.name}")
     else:
         # Find ReVanced files
         cli = utils.find_file(download_files, contains="revanced-cli", suffix=".jar")
@@ -256,23 +267,26 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             logging.info(f"Verified APK manifest version: {version}")
 
         # --- ARCHITECTURE-SPECIFIC PROCESSING ---
-        if arch != "universal":
-            logging.info(f"Processing APK for {arch} architecture...")
-            if arch == "arm64-v8a":
+        try:
+            if arch != "universal":
+                logging.info(f"Processing APK for {arch} architecture...")
+                if arch == "arm64-v8a":
+                    utils.run_process([
+                        "zip", "--delete", str(input_apk),
+                        "lib/x86/*", "lib/x86_64/*", "lib/armeabi-v7a/*"
+                    ], silent=True, check=False)
+                elif arch == "armeabi-v7a":
+                    utils.run_process([
+                        "zip", "--delete", str(input_apk),
+                        "lib/x86/*", "lib/x86_64/*", "lib/arm64-v8a/*"
+                    ], silent=True, check=False)
+            else:
                 utils.run_process([
                     "zip", "--delete", str(input_apk),
-                    "lib/x86/*", "lib/x86_64/*", "lib/armeabi-v7a/*"
+                    "lib/x86/*", "lib/x86_64/*"
                 ], silent=True, check=False)
-            elif arch == "armeabi-v7a":
-                utils.run_process([
-                    "zip", "--delete", str(input_apk),
-                    "lib/x86/*", "lib/x86_64/*", "lib/arm64-v8a/*"
-                ], silent=True, check=False)
-        else:
-            utils.run_process([
-                "zip", "--delete", str(input_apk),
-                "lib/x86/*", "lib/x86_64/*"
-            ], silent=True, check=False)
+        except FileNotFoundError:
+            logging.warning("zip utility not found on PATH; skipping architecture stripping")
 
         # FIX: Repair corrupted APK (e.g. from Uptodown) ONLY when integrity check fails.
         # Previously this ran on every build and could silently alter healthy APKs.
@@ -308,12 +322,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         patch_playstore = "Disable Play Store updates" if is_morphe else "disable-play-store-updates"
         patch_installer = "Change installer source" if is_morphe else "change-installer-source"
         
-        if dl_method_name:
+        if dl_method_name == "download_playstore":
             if patch_playstore not in include_patches and patch_playstore not in exclude_patches:
                 dynamic_includes.append(patch_playstore)
-            if dl_method_name != "download_playstore":
-                if patch_installer not in include_patches and patch_installer not in exclude_patches:
-                    dynamic_includes.append(patch_installer)
+        elif dl_method_name:
+            if patch_installer not in include_patches and patch_installer not in exclude_patches:
+                dynamic_includes.append(patch_installer)
         
         current_include_patches = include_patches + dynamic_includes
 

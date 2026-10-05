@@ -17,7 +17,7 @@ def _settings(app_obj):
     return json.loads(app_obj["additionalSettings"])
 
 
-BRAVE_URL = "https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/download/latest/brave-arm64-v8a-kveld9-v1.95.101.apk"
+BRAVE_URL = "https://github.com/yashrajrocxx/Mophe-AutoBuilds/releases/latest/download/brave-arm64-v8a-kveld9-v1.95.101.apk"
 PAGES_URL = "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html"
 
 
@@ -61,9 +61,9 @@ class TestObtainiumHtmlEntries(unittest.TestCase):
         )
         filt = _settings(yt)["apkFilterRegEx"]
         self.assertRegex(
-            "https://github.com/u/r/releases/download/latest/youtube-arm64-v8a-morphe-v1.0.apk", filt)
+            "https://github.com/u/r/releases/latest/download/youtube-arm64-v8a-morphe-v1.0.apk", filt)
         self.assertNotRegex(
-            "https://github.com/u/r/releases/download/latest/youtube-music-arm64-v8a-morphe-v1.0.apk", filt)
+            "https://github.com/u/r/releases/latest/download/youtube-music-arm64-v8a-morphe-v1.0.apk", filt)
 
     def test_no_source_baked_in(self):
         s = _settings(self._brave())

@@ -19,10 +19,13 @@ export function PatchChangelogsSection({ patchChangelogs, onFilterByApp }) {
       morphe: 'Morphe Patches',
       piko: 'Piko Patches',
       paresh: 'Paresh Patches',
-      durgesh: 'Durgesh (Chiggi) Patches',
       rookie: 'Rookie Patches',
       rushiranpise: 'Rushi Patches',
       browzomje: 'Browzomje Patches',
+      hushgram: 'HushGram Patches',
+      hushpinterest: 'HushPinterest Patches',
+      hushtelegram: 'HushTelegram Patches',
+      hushthreads: 'HushThreads Patches',
     };
     return map[source.toLowerCase()] || `${source.charAt(0).toUpperCase() + source.slice(1)} Patches`;
   };

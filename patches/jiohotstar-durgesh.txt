@@ -1,2 +1,0 @@
-# JioHotstar durgesh Patches
-# Left empty to apply all default recommended patches automatically (Ad-free, Premium UI Unlock, Screen Mirroring, Device Spoofing, Codecs, etc.).

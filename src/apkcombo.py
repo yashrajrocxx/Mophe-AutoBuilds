@@ -43,11 +43,26 @@ def _session():
     return _SESSION
 
 
+_site_down_until: float = 0.0
+
+
 def _get(url: str, **kwargs) -> cffi_requests.Response:
-    """Polite GET with a short delay."""
-    time.sleep(1.0)
-    kwargs.setdefault("timeout", 25)
-    return _session().get(url, **kwargs)
+    """Polite GET with short delay and fast failure on unreachable host."""
+    global _site_down_until
+    now = time.time()
+    if now < _site_down_until:
+        raise RuntimeError("APKCombo is currently unreachable (network timeout)")
+
+    time.sleep(0.5)
+    kwargs.setdefault("timeout", 8)
+    try:
+        return _session().get(url, **kwargs)
+    except Exception as e:
+        err_msg = str(e).lower()
+        if "timed out" in err_msg or "connection" in err_msg or "couldn't connect" in err_msg:
+            _site_down_until = time.time() + 300
+            logging.warning(f"APKCombo connection failed ({e}). Skipping APKCombo for 5 minutes.")
+        raise
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -110,7 +125,7 @@ def _discover_slug(package: str) -> str | None:
                 continue
             slug = parts[-2]
             if len(slug) == 2 or slug.lower() in _LOCALE_OR_RESERVED:
-                # Locale prefix (e.g. pt/jiohotstar/<pkg>) — step one more up
+                # Locale prefix (e.g. pt/<slug>/<pkg>) — step one more up
                 if len(parts) >= 3:
                     slug = parts[-3]
                 else:

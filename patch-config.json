@@ -14,7 +14,7 @@
     },
     {
       "app_name": "instagram",
-      "source": "piko"
+      "source": "hushgram"
     },
     {
       "app_name": "twitter",
@@ -22,11 +22,11 @@
     },
     {
       "app_name": "pinterest",
-      "source": "browzomje"
+      "source": "hushpinterest"
     },
     {
       "app_name": "telegram",
-      "source": "paresh"
+      "source": "hushtelegram"
     },
     {
       "app_name": "sdmaidse",
@@ -34,7 +34,7 @@
     },
     {
       "app_name": "threads",
-      "source": "rookie"
+      "source": "hushthreads"
     },
     {
       "app_name": "google-photos",
@@ -66,15 +66,15 @@
     },
     {
       "app_name": "gboard",
-      "source": "kveld9"
+      "source": "jasonwu"
+    },
+    {
+      "app_name": "gboard",
+      "source": "flexboard"
     },
     {
       "app_name": "habitkit",
       "source": "paresh"
-    },
-    {
-      "app_name": "notesnook",
-      "source": "hxreborn"
     },
     {
       "app_name": "duolingo",
@@ -83,14 +83,6 @@
     {
       "app_name": "brave",
       "source": "kveld9"
-    },
-    {
-      "app_name": "vivaldi",
-      "source": "kveld9"
-    },
-    {
-      "app_name": "jiohotstar",
-      "source": "durgesh"
     }
   ]
 }
