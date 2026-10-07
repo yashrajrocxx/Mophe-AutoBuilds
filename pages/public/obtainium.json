@@ -81,6 +81,14 @@
       "additionalSettings": "{\"apkFilterRegEx\":\"depthwallpaper-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"depthwallpaper-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
     },
     {
+      "id": "au.com.shiftyjelly.pocketcasts",
+      "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
+      "author": "yashrajrocxx",
+      "name": "Pocket Casts",
+      "preferredApkIndex": 0,
+      "additionalSettings": "{\"apkFilterRegEx\":\"pocketcasts-arm64-v8a-.*-v.*\\\\.apk$\",\"versionExtractionRegEx\":\"pocketcasts-arm64-v8a-.*-v([^/]+)\\\\.apk$\",\"matchGroupToUse\":\"1\"}"
+    },
+    {
       "id": "com.jndapp.minimal.widgets",
       "url": "https://yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html",
       "author": "yashrajrocxx",
