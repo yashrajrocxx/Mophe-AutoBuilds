@@ -1,4 +1,8 @@
 {
+  "adm|oyasumi-patches": {
+    "include": [],
+    "exclude": []
+  },
   "brave|kveld9": {
     "include": [
       "Block Brave Telemetry",

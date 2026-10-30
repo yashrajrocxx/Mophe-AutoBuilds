@@ -273,7 +273,7 @@
       "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.brave.browser%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Brave%20Browser%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22brave-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22brave-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
     }
   },
-  "updated_at": "2026-10-29T01:05:27.113738+00:00",
+  "updated_at": "2026-10-30T08:12:02.885277+00:00",
   "patch_changelogs": {
     "hushgram": {
       "source": "hushgram",
