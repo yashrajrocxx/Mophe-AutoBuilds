@@ -1,0 +1,17 @@
+[
+  {
+    "name": "oyasumi-patches"
+  },
+  {
+    "provider": "github",
+    "user": "dunecache",
+    "repo": "oyasumi-patches",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  }
+]
