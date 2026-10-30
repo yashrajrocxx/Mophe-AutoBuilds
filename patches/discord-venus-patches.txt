@@ -1,0 +1,2 @@
+# venus-patches patches for discord
+# Left empty to apply all default recommended patches automatically.
