@@ -78,6 +78,8 @@ def format_app_display(app_name: str) -> str:
         "gboard": "Gboard",
         "duolingo": "Duolingo",
         "brave": "Brave Browser",
+        "discord": "Discord",
+        "chess": "Chess.com",
     }
     return name_map.get(app_name.lower().strip(), app_name.replace("-", " ").title())
 
@@ -96,6 +98,8 @@ def get_source_display_name(source: str) -> str:
         "jasonwu": "Jasonwu (Gboard) Patches",
         "kveld9": "kveld9 Patches",
         "hoodles": "Hoodles Patches",
+        "venus": "Venus Patches",
+        "noam": "Noam Patches",
     }
     return source_map.get(source.lower(), f"{source.capitalize()} Patches")
 

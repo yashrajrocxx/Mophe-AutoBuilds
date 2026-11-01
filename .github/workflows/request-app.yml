@@ -606,7 +606,7 @@ jobs:
             --jq '[.jobs[].steps[]? | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "")
 
           gh api "repos/$REPO/releases/tags/latest" > .request/release.json 2>/dev/null || echo '{}' > .request/release.json
-          asset_jq='[.assets[]? | select(.name | test("^" + $app + "-" + $arch + ".*\\.apk$"))] | sort_by(.updated_at) | last'
+          asset_jq='[.assets[]? | select(.name | test("^" + $app + "-(" + $arch + "|universal).*\\.apk$"))] | sort_by(.updated_at) | last'
           asset_name=$(jq -r --arg app "$app" --arg arch "$arch" "$asset_jq | .name // \"\"" .request/release.json)
           asset_updated=$(jq -r --arg app "$app" --arg arch "$arch" "$asset_jq | .updated_at // \"\"" .request/release.json)
 
@@ -627,17 +627,18 @@ jobs:
           if [ -n "$asset_name" ]; then
             gh release download latest --repo "$REPO" --pattern manifest.json --clobber --dir .request || true
             if [ -f .request/manifest.json ]; then
-              version=$(jq -r --arg key "$app|$source|$arch" '.entries[$key].built_version // ""' .request/manifest.json 2>/dev/null || true)
+              version=$(jq -r --arg akey "$app|$source|$arch" --arg ukey "$app|$source|universal" '.entries[$akey].built_version // .entries[$ukey].built_version // ""' .request/manifest.json 2>/dev/null || true)
             fi
           fi
 
           echo "outcome=$outcome" >> "$GITHUB_OUTPUT"
 
           if [ "$outcome" = "ok" ]; then
+            actual_arch=$(echo "$asset_name" | sed -n 's/^[^-]*-\([^-]*\)-.*/\1/p')
             {
               echo "### Build finished"
               echo
-              echo "- App: \`$app\` (\`$arch\`)"
+              echo "- App: \`$app\` (\`${actual_arch:-$arch}\`)"
               if [ -n "$version" ]; then
                 echo "- Version: \`$version\`"
               fi

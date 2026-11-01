@@ -114,6 +114,20 @@ export const APP_METADATA = {
     package: "com.brave.browser",
     icon: "https://play-lh.googleusercontent.com/78b9_x8=w240-h480",
     color: "#FF3B00"
+  },
+  "discord": {
+    name: "Discord",
+    category: "Communication",
+    package: "com.discord",
+    icon: "https://play-lh.googleusercontent.com/0oO5mmZMt5ZrqA4aqlFTnnUD005nAsKiPqa9qaQAuBpOb5SpST6UWi61IXxPeQN7XWQ=w240-h480",
+    color: "#5865F2"
+  },
+  "chess": {
+    name: "Chess.com",
+    category: "Board Games",
+    package: "com.chess",
+    icon: "https://play-lh.googleusercontent.com/6U8YqjKvdvOQkO9YFkU5nK9uE_7wVqXkZ6zP=w240-h480",
+    color: "#81B64C"
   }
 };
 

@@ -21,11 +21,19 @@
       "Native Bloat Slimmer"
     ]
   },
+  "chess|noam": {
+    "include": [],
+    "exclude": []
+  },
   "chess|prathxm-patches": {
     "include": [],
     "exclude": []
   },
   "depthwallpaper|rushiranpise": {
+    "include": [],
+    "exclude": []
+  },
+  "discord|venus": {
     "include": [],
     "exclude": []
   },

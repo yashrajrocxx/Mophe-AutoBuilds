@@ -1,0 +1,2 @@
+# noam patches for chess
+# Left empty to apply all default recommended patches automatically.

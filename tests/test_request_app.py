@@ -56,6 +56,14 @@ class TestNormalize(unittest.TestCase):
         self.assertIsNone(request["repo_name"])
         self.assertEqual(request["code"], "abc123")
 
+    def test_valid_universal_arch(self):
+        request, error = request_app.normalize_request({
+            "app_name": "Firefox", "package": "org.mozilla.firefox",
+            "source": "morphe", "arch": "universal", "code": "abc123",
+        })
+        self.assertIsNone(error)
+        self.assertEqual(request["arch"], "universal")
+
     def test_custom_repo_variants(self):
         for value in (
             "https://github.com/hoo-dles/morphe-patches",

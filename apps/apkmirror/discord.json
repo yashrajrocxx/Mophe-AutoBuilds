@@ -1,0 +1,9 @@
+{
+  "org": "discord-inc",
+  "name": "discord",
+  "type": "BUNDLE",
+  "arch": "universal",
+  "dpi": "",
+  "package": "com.discord",
+  "version": ""
+}

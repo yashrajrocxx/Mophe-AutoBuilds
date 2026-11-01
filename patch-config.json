@@ -63,6 +63,14 @@
     {
       "app_name": "brave",
       "source": "kveld9"
+    },
+    {
+      "app_name": "discord",
+      "source": "venus"
+    },
+    {
+      "app_name": "chess",
+      "source": "noam"
     }
   ]
 }

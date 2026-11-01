@@ -130,6 +130,7 @@ export function RequestPage({ onOpenStore }) {
   const [sourceMode, setSourceMode] = useState('known');
   const [source, setSource] = useState('morphe');
   const [repoUrl, setRepoUrl] = useState('');
+  const [arch, setArch] = useState(DEFAULT_ARCH);
   const [touched, setTouched] = useState(false);
   const [requests, setRequests] = useState(() => loadRequests());
   const [issues, setIssues] = useState([]);
@@ -287,7 +288,7 @@ export function RequestPage({ onOpenStore }) {
       package: packageText,
       source: sourceMode === 'known' ? source : '',
       repo_url: sourceMode === 'custom' ? repoUrl.trim() : '',
-      arch: DEFAULT_ARCH,
+      arch: arch || DEFAULT_ARCH,
       code: randomCode(),
     };
     const issue = buildIssue(payload);
@@ -297,7 +298,7 @@ export function RequestPage({ onOpenStore }) {
       package: payload.package,
       source: payload.source,
       repo: payload.repo_url,
-      arch: DEFAULT_ARCH,
+      arch: payload.arch,
       createdAt: new Date().toISOString(),
       issueUrl: issue.url,
     };
@@ -402,7 +403,7 @@ export function RequestPage({ onOpenStore }) {
         <p className="text-muted-foreground text-[13px] sm:text-sm mt-1">
           Request any app and the pipeline builds it right away. The APK is published in the latest
           release; a maintainer can add the keep label to list the app in the store and rebuild it on
-          future updates. Every build targets arm64-v8a (64-bit), like the rest of the catalog.
+          future updates. Builds default to arm64-v8a with automatic universal fallback if device-specific splits are unavailable.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
           <div className="px-3 py-1.5 rounded-lg border border-border bg-card flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -556,6 +557,32 @@ export function RequestPage({ onOpenStore }) {
           </div>
         </Field>
 
+        <Field
+          label="Architecture"
+          hint="arm64-v8a is optimized for 64-bit devices; universal works across all architectures and falls back automatically if arm64 is unavailable."
+        >
+          <div className="grid grid-cols-2 gap-1 p-1 rounded-lg border border-border bg-background w-full sm:w-fit sm:min-w-[280px]">
+            {[
+              { id: 'arm64-v8a', label: 'arm64-v8a (64-bit)' },
+              { id: 'universal', label: 'Universal (All)' },
+            ].map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setArch(option.id)}
+                aria-pressed={arch === option.id}
+                className={`h-8 inline-flex items-center justify-center rounded-md text-xs font-semibold transition-colors ${
+                  arch === option.id
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+
         {catalog?.error && (
           <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
             <TriangleAlert size={12} className="mt-0.5 shrink-0" />
@@ -571,7 +598,7 @@ export function RequestPage({ onOpenStore }) {
             <BadgeCheck size={13} className="shrink-0" />
             <span className="font-semibold">Ready</span>
             <span className="font-mono">{slug}</span>
-            <span className="text-muted-foreground">from</span>
+            <span className="text-muted-foreground">({arch}) from</span>
             <span className="min-w-0 truncate">{sourceMode === 'known' ? sourceLabel(source) : repoUrl.trim()}</span>
           </div>
         )}

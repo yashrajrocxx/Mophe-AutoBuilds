@@ -1,0 +1,17 @@
+[
+  {
+    "name": "noam"
+  },
+  {
+    "provider": "github",
+    "user": "ImNoammm",
+    "repo": "Noams-Morphe-Patches",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  }
+]

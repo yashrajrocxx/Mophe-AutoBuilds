@@ -1,0 +1,9 @@
+{
+  "org": "chess-com",
+  "name": "chess-play-learn",
+  "type": "BUNDLE",
+  "arch": "universal",
+  "dpi": "",
+  "package": "com.chess",
+  "version": ""
+}

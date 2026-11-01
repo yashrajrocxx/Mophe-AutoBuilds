@@ -41,10 +41,12 @@ const BUILTIN_SOURCES = [
   'jasonwu',
   'kveld9',
   'morphe',
+  'noam',
   'paresh',
   'piko-newx',
   'rookie',
   'rushiranpise',
+  'venus',
 ];
 
 const SOURCE_LABELS = {
@@ -60,6 +62,8 @@ const SOURCE_LABELS = {
   jasonwu: 'Jasonwu (Gboard)',
   kveld9: 'kveld9',
   hoodles: 'Hoodles',
+  venus: 'Venus (Discord)',
+  noam: 'Noam (Chess.com)',
 };
 
 export function sourceLabel(id) {
@@ -331,21 +335,34 @@ export async function fetchLatestRelease() {
 
 export function findApkAsset(release, app, arch) {
   const assets = Array.isArray(release?.assets) ? release.assets : [];
-  const prefix = `${app}-${arch}-`;
+  const primaryPrefix = `${app}-${arch}-`;
+  const universalPrefix = `${app}-universal-`;
   return (
     assets.find(
       (asset) =>
         typeof asset?.name === 'string' &&
-        asset.name.startsWith(prefix) &&
+        asset.name.startsWith(primaryPrefix) &&
         asset.name.toLowerCase().endsWith('.apk')
-    ) || null
+    ) ||
+    assets.find(
+      (asset) =>
+        typeof asset?.name === 'string' &&
+        asset.name.startsWith(universalPrefix) &&
+        asset.name.toLowerCase().endsWith('.apk')
+    ) ||
+    null
   );
 }
 
 export function versionFromAssetName(name, app, arch) {
-  const prefix = `${app}-${arch}-`;
+  const primaryPrefix = `${app}-${arch}-`;
+  const universalPrefix = `${app}-universal-`;
   let rest = String(name || '');
-  if (rest.startsWith(prefix)) rest = rest.slice(prefix.length);
+  if (rest.startsWith(primaryPrefix)) {
+    rest = rest.slice(primaryPrefix.length);
+  } else if (rest.startsWith(universalPrefix)) {
+    rest = rest.slice(universalPrefix.length);
+  }
   rest = rest.replace(/\.apk$/i, '');
   const marker = rest.lastIndexOf('-v');
   if (marker >= 0) return rest.slice(marker + 2);

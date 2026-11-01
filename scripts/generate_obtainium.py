@@ -42,6 +42,8 @@ NAME_MAP = {
     "gboard":           "Gboard",
     "duolingo":         "Duolingo",
     "brave":            "Brave Browser",
+    "discord":          "Discord",
+    "chess":            "Chess.com",
 }
 
 
