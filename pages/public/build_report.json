@@ -1,1 +1,1 @@
-[{"app": "discord", "arch": "arm64-v8a", "source": "venus", "status": "success", "version": "350.8 - Stable", "patches": ["Disable Play Store updates"], "dl_method": "download_playstore", "apk": "discord-arm64-v8a-venus-v350.8 - Stable.apk"}]
+[{"app": "chess", "arch": "arm64-v8a", "source": "noam", "status": "success", "version": "4.10.18-googleplay", "patches": ["Disable Play Store updates"], "dl_method": "download_playstore", "apk": "chess-arm64-v8a-noam-v4.10.18-googleplay.apk"}]
