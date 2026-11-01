@@ -1,22 +1,5 @@
 {
   "entries": {
-    "youtube|morphe|universal": {
-      "app_name": "youtube",
-      "source": "morphe",
-      "arch": "universal",
-      "config_version": "",
-      "source_sig": "MorpheApp/morphe-cli@v1.20.0@2026-10-30T11:58:35Z@2026-10-30T12:05:27Z|morphe-desktop-1.20.0-all.jar:sha256:679f579b3ad743ac0ca697ef71e57430d00be59411b04494afd1845c43fb79f0|sha:1ef541a3644e;MorpheApp/morphe-patches@v2.0.0@2026-10-30T11:16:04Z@2026-10-30T12:26:40Z|patches-2.0.0.mpp:sha256:f0f5cfd857950ed61a26a7b2eeeecf37d4d66bece2e8f94802280e189b69ed00|sha:0bb704a9a4ed",
-      "patch_tag": "v2.0.0",
-      "patch_url": "https://github.com/MorpheApp/morphe-patches/releases/tag/v2.0.0",
-      "patch_changelog": "## [2.0.0](https://github.com/MorpheApp/morphe-patches/compare/v1.48.0...v2.0.0) (2026-10-30)\r\n\r\n### \u26a0 BREAKING CHANGES\r\n\r\n* Patches now use Morphe Patcher 2.0.0\r\n\r\n### \u2728 New Features\r\n\r\n* **YouTube - Add to queue:** Add \"Native queue\" setting ([#3953](https://github.com/MorpheApp/morphe-patches/issues/3953)) ([372eea2](https://github.com/MorpheApp/morphe-patches/commit/372eea295ec4521b9ccdb93a3f1...",
-      "apk": "youtube-universal-morphe-v21.28.208.apk",
-      "built_version": "21.28.208",
-      "built_at": "2026-10-31T00:48:51Z",
-      "package": "com.google.android.youtube",
-      "icon_url": "https://play-lh.googleusercontent.com/QNmuZQc9I6Zbe3mWnSr0hycnENqGFCI5p3yE29Hkxtf22T0IWS6zTrpxULLyyjWpB7ONAXDsDQXnXcVWokl3eg=w240-h480",
-      "obtainium_url": "https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2522com.google.android.youtube%2522%252C%2522url%2522%253A%2522https%253A%2F%2Fyashrajrocxx.github.io%2FMophe-AutoBuilds%2Fdownloads.html%2522%252C%2522author%2522%253A%2522yashrajrocxx%2522%252C%2522name%2522%253A%2522YouTube%2522%252C%2522preferredApkIndex%2522%253A0%252C%2522additionalSettings%2522%253A%2522%257B%255C%2522apkFilterRegEx%255C%2522%253A%255C%2522youtube-universal-.%252A-v.%252A%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522versionExtractionRegEx%255C%2522%253A%255C%2522youtube-universal-.%252A-v%2528%255B%255E%2F%255D%252B%2529%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522matchGroupToUse%255C%2522%253A%255C%25221%255C%2522%257D%2522%257D",
-      "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.google.android.youtube%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22YouTube%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22youtube-universal-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22youtube-universal-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
-    },
     "youtube-music|morphe|arm64-v8a": {
       "app_name": "youtube-music",
       "source": "morphe",
@@ -233,10 +216,10 @@
       "apk": "gboard-arm64-v8a-jasonwu-v18.5.4.993608717-release.apk",
       "built_version": "18.5.4.993608717-release",
       "built_at": "2026-11-01T00:54:40Z",
-      "package": "dev.jason.com.google.android.inputmethod.latin",
+      "package": "com.google.android.inputmethod.latin",
       "icon_url": "https://play-lh.googleusercontent.com/J4vZ82VsZjnsRsI6ckQFXlO36_52QJerqG5-HfLgHffS34I4EfoAFfNdbf6s4wBAsUEf8DOJVEDEHh5tzWbrnA=w240-h480",
-      "obtainium_url": "https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2522dev.jason.com.google.android.inputmethod.latin%2522%252C%2522url%2522%253A%2522https%253A%2F%2Fyashrajrocxx.github.io%2FMophe-AutoBuilds%2Fdownloads.html%2522%252C%2522author%2522%253A%2522yashrajrocxx%2522%252C%2522name%2522%253A%2522Gboard%2522%252C%2522preferredApkIndex%2522%253A0%252C%2522additionalSettings%2522%253A%2522%257B%255C%2522apkFilterRegEx%255C%2522%253A%255C%2522gboard-arm64-v8a-.%252A-v.%252A%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522versionExtractionRegEx%255C%2522%253A%255C%2522gboard-arm64-v8a-.%252A-v%2528%255B%255E%2F%255D%252B%2529%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522matchGroupToUse%255C%2522%253A%255C%25221%255C%2522%257D%2522%257D",
-      "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22dev.jason.com.google.android.inputmethod.latin%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Gboard%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22gboard-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22gboard-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
+      "obtainium_url": "https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2522com.google.android.inputmethod.latin%2522%252C%2522url%2522%253A%2522https%253A%2F%2Fyashrajrocxx.github.io%2FMophe-AutoBuilds%2Fdownloads.html%2522%252C%2522author%2522%253A%2522yashrajrocxx%2522%252C%2522name%2522%253A%2522Gboard%2522%252C%2522preferredApkIndex%2522%253A0%252C%2522additionalSettings%2522%253A%2522%257B%255C%2522apkFilterRegEx%255C%2522%253A%255C%2522gboard-arm64-v8a-.%252A-v.%252A%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522versionExtractionRegEx%255C%2522%253A%255C%2522gboard-arm64-v8a-.%252A-v%2528%255B%255E%2F%255D%252B%2529%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522matchGroupToUse%255C%2522%253A%255C%25221%255C%2522%257D%2522%257D",
+      "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.google.android.inputmethod.latin%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Gboard%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22gboard-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22gboard-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
     },
     "duolingo|hoodles|arm64-v8a": {
       "app_name": "duolingo",
@@ -271,9 +254,23 @@
       "icon_url": "https://play-lh.googleusercontent.com/UBrZnuXGb-QACU0uUdF5r_n5nx5oBbdfPyEbtsr0xXv00RN7rpaTVu3GjLeE90aHFmNlbaCmm8vNcmY0eE98U9E=w240-h480",
       "obtainium_url": "https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2522com.brave.browser%2522%252C%2522url%2522%253A%2522https%253A%2F%2Fyashrajrocxx.github.io%2FMophe-AutoBuilds%2Fdownloads.html%2522%252C%2522author%2522%253A%2522yashrajrocxx%2522%252C%2522name%2522%253A%2522Brave%2520Browser%2522%252C%2522preferredApkIndex%2522%253A0%252C%2522additionalSettings%2522%253A%2522%257B%255C%2522apkFilterRegEx%255C%2522%253A%255C%2522brave-arm64-v8a-.%252A-v.%252A%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522versionExtractionRegEx%255C%2522%253A%255C%2522brave-arm64-v8a-.%252A-v%2528%255B%255E%2F%255D%252B%2529%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522matchGroupToUse%255C%2522%253A%255C%25221%255C%2522%257D%2522%257D",
       "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.brave.browser%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Brave%20Browser%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22brave-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22brave-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
+    },
+    "youtube|morphe|universal": {
+      "app_name": "youtube",
+      "source": "morphe",
+      "arch": "universal",
+      "config_version": "",
+      "source_sig": "",
+      "apk": "youtube-universal-morphe-v21.30.216.apk",
+      "built_version": "21.30.216",
+      "package": "app.morphe.android.youtube",
+      "version_code": 1561187872,
+      "built_at": "2026-11-01T10:44:16Z",
+      "obtainium_url": "https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%2F%257B%2522id%2522%253A%2522app.morphe.android.youtube%2522%252C%2522url%2522%253A%2522https%253A%2F%2Fyashrajrocxx.github.io%2FMophe-AutoBuilds%2Fdownloads.html%2522%252C%2522author%2522%253A%2522yashrajrocxx%2522%252C%2522name%2522%253A%2522YouTube%2522%252C%2522preferredApkIndex%2522%253A0%252C%2522additionalSettings%2522%253A%2522%257B%255C%2522apkFilterRegEx%255C%2522%253A%255C%2522youtube-universal-.%252A-v.%252A%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522versionExtractionRegEx%255C%2522%253A%255C%2522youtube-universal-.%252A-v%2528%255B%255E%2F%255D%252B%2529%255C%255C%255C%255C.apk%2524%255C%2522%252C%255C%2522matchGroupToUse%255C%2522%253A%255C%25221%255C%2522%257D%2522%257D",
+      "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22app.morphe.android.youtube%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22YouTube%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22youtube-universal-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22youtube-universal-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
     }
   },
-  "updated_at": "2026-11-01T00:54:58.261159+00:00",
+  "updated_at": "2026-11-01T10:44:29.198388+00:00",
   "patch_changelogs": {
     "hushgram": {
       "source": "hushgram",
