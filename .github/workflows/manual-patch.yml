@@ -21,11 +21,12 @@ on:
         type: string
         default: ''
       architecture:
-        description: 'Architecture to build (arm64-v8a is the only supported target)'
+        description: 'Architecture to build'
         required: false
         type: choice
         options:
           - arm64-v8a
+          - universal
         default: 'arm64-v8a'
       replace_in_release:
         description: 'Replace APK in existing release'

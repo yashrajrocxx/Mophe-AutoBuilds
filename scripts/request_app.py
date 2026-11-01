@@ -59,7 +59,7 @@ MARKER_RE = re.compile(
     re.escape(MARKER_START) + r"\s*(\{.*?\})\s*" + re.escape(MARKER_END), re.DOTALL
 )
 
-ARCHES = ("arm64-v8a",)  # every build targets arm64-v8a only
+ARCHES = ("arm64-v8a", "universal")
 DEFAULT_ARCH = "arm64-v8a"
 
 APP_PLATFORMS = ("playstore", "apkpure", "apkcombo", "uptodown", "aptoide")
