@@ -97,18 +97,11 @@ This repository compiles optimized builds using specific community patch reposit
     elif m_apps:
         start_idx = m_apps.start()
 
-    old_end = "*(All builds are target-optimized for `arm64-v8a` to reduce bundle sizes and increase device efficiency).*"
-    alt_old_end = "*(All builds are target-optimized for their respective architectures to reduce bundle sizes and increase device efficiency).*"
-
-    end_idx = -1
-    if old_end in content:
-        end_idx = content.find(old_end) + len(old_end)
-    elif alt_old_end in content:
-        end_idx = content.find(alt_old_end) + len(alt_old_end)
-
-    if end_idx == -1:
+    m_end = re.search(r"\*\(All builds are (?:target-)?optimized for [^)]+\)\.\*", content)
+    if not m_end:
         print("[ERROR] Could not find end marker of apps section in README.md")
         return 1
+    end_idx = m_end.end()
 
     updated_content = content[:start_idx] + new_section + content[end_idx:]
     readme_path.write_text(updated_content, encoding="utf-8", newline="\n")

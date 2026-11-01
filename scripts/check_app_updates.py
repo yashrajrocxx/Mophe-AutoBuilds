@@ -162,6 +162,13 @@ def load_app_config(app_name: str) -> Tuple[Optional[dict], Optional[str]]:
 
 def get_app_package_name(app_name: str) -> str:
     config, _ = load_app_config(app_name)
+    if not config:
+        return ""
+    return config.get("patched_package") or config.get("custom_package") or config.get("package", "")
+
+
+def get_app_upstream_package_name(app_name: str) -> str:
+    config, _ = load_app_config(app_name)
     return config.get("package", "") if config else ""
 
 
@@ -746,10 +753,13 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
         if not old_built_ver and carried_apk:
             old_built_ver = extract_version_from_filename(carried_apk)
 
+        upstream_pkg = get_app_upstream_package_name(app)
         package_name = get_app_package_name(app)
+        # Preserve actual package from built APK if recorded in previous manifest, otherwise use config
+        actual_pkg = (old or {}).get("package") or package_name
         icon_url = (old or {}).get("icon_url", "")
-        if not icon_url and package_name:
-            icon_url = fetch_app_icon(package_name)
+        if not icon_url and upstream_pkg:
+            icon_url = fetch_app_icon(upstream_pkg)
         
         new_entries[mkey] = {
             "app_name": app,
@@ -763,7 +773,7 @@ def plan_incremental(full_matrix: List[dict], old_manifest: Optional[dict],
             "apk": carried_apk,
             "built_version": old_built_ver,
             "built_at": (old or {}).get("built_at", ""),
-            "package": package_name,
+            "package": actual_pkg,
             "icon_url": icon_url,
         }
 

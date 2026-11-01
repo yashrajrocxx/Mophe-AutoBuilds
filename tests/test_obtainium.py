@@ -80,6 +80,19 @@ class TestObtainiumHtmlEntries(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_obtainium_app("k", _entry("x", "arm64-v8a", "not-an-apk"), "u/r", "u", {}, PAGES_URL)
 
+    def test_patched_package_name_in_id(self):
+        """When an app has a patched package name (e.g. Gboard with Jasonwu),
+        Obtainium's app ID must use the patched package name rather than the default."""
+        entry = {
+            "app_name": "gboard",
+            "arch": "arm64-v8a",
+            "source": "jasonwu",
+            "apk": "gboard-arm64-v8a-jasonwu-v18.0.3.954559732-release.apk",
+            "package": "dev.jason.com.google.android.inputmethod.latin",
+        }
+        app_obj = build_obtainium_app("gboard|jasonwu|arm64-v8a", entry, "u/r", "u", {}, PAGES_URL)
+        self.assertEqual(app_obj["id"], "dev.jason.com.google.android.inputmethod.latin")
+
 
 if __name__ == "__main__":
     unittest.main()

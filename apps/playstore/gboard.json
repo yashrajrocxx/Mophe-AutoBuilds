@@ -1,5 +1,6 @@
 {
     "package": "com.google.android.inputmethod.latin",
+    "patched_package": "dev.jason.com.google.android.inputmethod.latin",
     "arch": "arm64-v8a",
     "version": ""
 }

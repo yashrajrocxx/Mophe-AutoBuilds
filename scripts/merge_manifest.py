@@ -104,6 +104,10 @@ def main() -> int:
                 entry["apk"] = apk
             if resolved_version:
                 entry["built_version"] = resolved_version
+            if rec.get("package"):
+                entry["package"] = rec["package"]
+            if rec.get("version_code"):
+                entry["version_code"] = rec["version_code"]
             if rec.get("built_at"):
                 entry["built_at"] = rec.get("built_at")
             else:

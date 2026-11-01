@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
       EVENT_NAME: ${{ github.event_name }}
       EVENT_ACTION: ${{ github.event.action }}

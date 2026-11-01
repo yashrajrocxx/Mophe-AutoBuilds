@@ -15,6 +15,16 @@ import sys
 import json
 from pathlib import Path
 
+# Add project root to sys.path to access src.utils
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+try:
+    from src import utils
+except ImportError:
+    utils = None
+
 REC_DIR = Path("build_records")
 
 # Known architecture tokens that may appear in the APK filename
@@ -99,6 +109,35 @@ def main() -> int:
     # to "latest" never triggered a rebuild when a new APK version shipped.
     resolved_version = extract_version_from_filename(apk_name)
 
+    # Dynamically extract actual patched package name and metadata from the built APK
+    actual_package = None
+    manifest_vc = None
+    if apk_path and Path(apk_path).exists() and utils:
+        try:
+            info = utils.get_apk_manifest_info(apk_path)
+            if info.get("package"):
+                actual_package = info["package"]
+            if info.get("versionCode"):
+                manifest_vc = info["versionCode"]
+            if not resolved_version and info.get("versionName"):
+                resolved_version = info["versionName"]
+        except Exception as e:
+            print(f"[WARN] Error extracting manifest from {apk_path}: {e}")
+
+    # Fallback to configured patched_package if not extracted from APK
+    if not actual_package:
+        for platform in ("playstore", "apkmirror", "uptodown", "apkpure", "aptoide"):
+            cfg_path = ROOT_DIR / "apps" / platform / f"{app}.json"
+            if cfg_path.exists():
+                try:
+                    with cfg_path.open("r", encoding="utf-8") as f:
+                        cfg_data = json.load(f)
+                    if cfg_data.get("patched_package") or cfg_data.get("custom_package"):
+                        actual_package = cfg_data.get("patched_package") or cfg_data.get("custom_package")
+                        break
+                except Exception:
+                    pass
+
     import datetime
     built_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -112,6 +151,10 @@ def main() -> int:
         "arch": arch,
         "built_at": built_at,
     }
+    if actual_package:
+        record["package"] = actual_package
+    if manifest_vc:
+        record["version_code"] = manifest_vc
 
     safe = f"{app}__{src}__{arch}".replace("/", "_")
     fp = REC_DIR / f"{safe}.json"

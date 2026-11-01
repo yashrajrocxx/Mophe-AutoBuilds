@@ -275,6 +275,18 @@ def main():
                         if apks:
                             apk_names = ", ".join([a.name for a in apks])
                             print(f"SUCCESS ({apk_names})")
+                            for apk in apks:
+                                rec_env = os.environ.copy()
+                                rec_env["APP_NAME"] = app_name
+                                rec_env["SOURCE"] = source
+                                rec_env["APK_PATH"] = str(apk)
+                                rec_env["ARCH"] = "arm64-v8a"
+                                subprocess.run(
+                                    [sys.executable, str(root / "scripts" / "record_build.py")],
+                                    env=rec_env,
+                                    cwd=str(root),
+                                    capture_output=True
+                                )
                         else:
                             print("SUCCESS")
                         success_count += 1

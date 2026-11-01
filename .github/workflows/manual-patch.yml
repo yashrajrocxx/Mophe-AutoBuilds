@@ -105,7 +105,7 @@ jobs:
           APP_NAME: ${{ inputs.app_name }}
           SOURCE: ${{ inputs.source }}
           ARCH: ${{ inputs.architecture }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
           EXODUS_API_KEY: ${{ secrets.EXODUS_API_KEY }}
         run: |
           echo "Building ${{ inputs.app_name }} with ${{ inputs.source }} for ${{ inputs.architecture }} architecture..."
@@ -135,6 +135,18 @@ jobs:
           echo "Found these APKs:"
           echo "$apk_files"
       
+      - name: Record Build Outputs
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          SOURCE: ${{ inputs.source }}
+          ARCH: ${{ inputs.architecture }}
+        run: |
+          mkdir -p build_records
+          for apk in *.apk; do
+            [ -e "$apk" ] || continue
+            APK_PATH="$apk" python scripts/record_build.py || true
+          done
+
       - name: Upload as Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -145,7 +157,7 @@ jobs:
         if: ${{ inputs.replace_in_release == true }}
         id: check-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           if gh release view latest >/dev/null 2>&1; then
             echo "[OK] Release 'latest' exists"
@@ -158,7 +170,7 @@ jobs:
       - name: Update Release
         if: ${{ inputs.replace_in_release == true }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           echo "Updating release efficiently..."
           
@@ -297,7 +309,7 @@ jobs:
       - name: Show Download Links
         if: ${{ inputs.replace_in_release == true }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           release_url=$(gh release view latest --json url --jq .url)
           echo "Updated Release URL: $release_url"
@@ -312,7 +324,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || secrets.TELEGRAM_CHATID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           python scripts/send_telegram_report.py
       

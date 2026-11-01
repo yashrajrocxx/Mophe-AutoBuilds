@@ -94,7 +94,9 @@ def _find_build_tool(name: str) -> str | None:
     if on_path:
         return on_path
 
+    repo_bin = Path(__file__).resolve().parent.parent / "bin"
     sdk_roots = [
+        str(repo_bin),
         "/usr/local/lib/android/sdk",  # GitHub Actions runner default
         os.environ.get("ANDROID_HOME"),
         os.environ.get("ANDROID_SDK_ROOT"),
@@ -110,9 +112,17 @@ def _find_build_tool(name: str) -> str | None:
         for version_dir in versions:
             tool_path = version_dir / name
             if tool_path.exists() and tool_path.is_file():
+                try:
+                    if not os.access(tool_path, os.X_OK):
+                        os.chmod(tool_path, 0o755)
+                except Exception:
+                    pass
                 return str(tool_path)
 
     return None
+
+def find_aapt() -> str | None:
+    return _find_build_tool("aapt2") or _find_build_tool("aapt")
 
 def find_apksigner() -> str | None:
     apksigner = _find_build_tool("apksigner")
@@ -349,6 +359,7 @@ def get_apk_manifest_info(apk_path: str | Path) -> dict:
                     u16len = d[pos]
                     pos += 1
                     if u16len & 0x80 and pos < len(d):
+                        u16len = ((u16len & 0x7F) << 8) | d[pos]
                         pos += 1
                     if pos >= len(d):
                         strings.append("")
@@ -356,6 +367,7 @@ def get_apk_manifest_info(apk_path: str | Path) -> dict:
                     u8len = d[pos]
                     pos += 1
                     if u8len & 0x80 and pos < len(d):
+                        u8len = ((u8len & 0x7F) << 8) | d[pos]
                         pos += 1
                     s = d[pos:pos+u8len].decode("utf-8", errors="replace")
                 else:
@@ -365,6 +377,7 @@ def get_apk_manifest_info(apk_path: str | Path) -> dict:
                     u16len = struct.unpack("<H", d[pos:pos+2])[0]
                     pos += 2
                     if u16len & 0x8000 and pos + 2 <= len(d):
+                        u16len = ((u16len & 0x7FFF) << 16) | struct.unpack("<H", d[pos:pos+2])[0]
                         pos += 2
                     s = d[pos:pos+u16len*2].decode("utf-16le", errors="replace")
                 strings.append(s)
@@ -392,6 +405,27 @@ def get_apk_manifest_info(apk_path: str | Path) -> dict:
                     break  # Got root manifest tag
 
         offset += csize
+
+    if not meta.get("package"):
+        aapt = find_aapt()
+        if aapt:
+            try:
+                res = subprocess.run(
+                    [str(aapt), "dump", "badging", str(apk_file)],
+                    capture_output=True, text=True, timeout=15
+                )
+                out = res.stdout
+                pkg_m = re.search(r"package:\s+name='([^']+)'", out)
+                if pkg_m:
+                    meta["package"] = pkg_m.group(1)
+                ver_m = re.search(r"versionName='([^']+)'", out)
+                if ver_m and not meta.get("versionName"):
+                    meta["versionName"] = ver_m.group(1)
+                code_m = re.search(r"versionCode='(\d+)'", out)
+                if code_m and not meta.get("versionCode"):
+                    meta["versionCode"] = int(code_m.group(1))
+            except Exception as e:
+                logging.debug(f"get_apk_manifest_info: aapt fallback failed: {e}")
 
     return meta
 

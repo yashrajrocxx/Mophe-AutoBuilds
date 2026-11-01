@@ -130,14 +130,18 @@ def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     resolved_cmd = list(cmd)
     if resolved_cmd and resolved_cmd[0] in ("gplaydl", _TOOL):
         resolved_cmd[0] = _get_tool()
+    kwargs.setdefault("stdin", subprocess.DEVNULL)
     logging.info(f"PlayStore: {' '.join(resolved_cmd)}")
     return subprocess.run(resolved_cmd, **kwargs)
 
 
 def scrape_exodus_version_code(package_name: str, version_name: str) -> int | None:
     """Scrape the public Exodus Privacy web report for a package and version without authentication."""
-    search_url = f"https://reports.exodus-privacy.eu.org/reports/search/{package_name}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    search_url = f"https://reports.exodus-privacy.eu.org/en/reports/search/{package_name}/"
+    from src import utils
+    clean_target = utils.clean_version(version_name) if hasattr(utils, "clean_version") else version_name.strip()
+
     try:
         logging.info(f"PlayStore: Checking Exodus public web reports for {package_name} {version_name}")
         resp = requests.get(search_url, headers=headers, timeout=15)
@@ -152,28 +156,32 @@ def scrape_exodus_version_code(package_name: str, version_name: str) -> int | No
     # Search report cards
     for card in soup.find_all("div", class_=lambda c: c and "position-static" in c):
         v_el = card.find("div", class_="small")
-        a_el = card.find("a", class_=lambda c: c and "report-link" in c)
+        a_el = card.find("a", class_=lambda c: c and ("report-link" in c or (isinstance(c, list) and "report-link" in c)))
+        if not a_el:
+            a_el = card.find("a", href=lambda h: h and "/reports/" in h)
         if not v_el or not a_el:
             continue
         v_text = v_el.get_text()
         m = re.search(r"Version\s+([^\s-]+)", v_text, re.IGNORECASE)
-        if m and m.group(1).strip() == version_name:
-            report_href = a_el["href"]
-            report_url = f"https://reports.exodus-privacy.eu.org{report_href}" if report_href.startswith("/") else report_href
-            try:
-                rep_resp = requests.get(report_url, headers=headers, timeout=15)
-                if rep_resp.status_code == 200:
-                    rep_soup = BeautifulSoup(rep_resp.content, "html.parser")
-                    for pre in rep_soup.find_all(["pre", "code"]):
-                        try:
-                            data = json.loads(pre.get_text())
-                            if "version_code" in data:
-                                return int(data["version_code"])
-                        except Exception:
-                            continue
-            except Exception as e:
-                logging.debug(f"PlayStore: Error scraping report page {report_url}: {e}")
-                continue
+        if m:
+            cand_ver = m.group(1).strip()
+            if cand_ver == version_name or utils.is_version_compatible(cand_ver, version_name) or cand_ver == clean_target:
+                report_href = a_el["href"]
+                report_url = f"https://reports.exodus-privacy.eu.org{report_href}" if report_href.startswith("/") else report_href
+                try:
+                    rep_resp = requests.get(report_url, headers=headers, timeout=15)
+                    if rep_resp.status_code == 200:
+                        rep_soup = BeautifulSoup(rep_resp.content, "html.parser")
+                        for pre in rep_soup.find_all(["pre", "code"]):
+                            try:
+                                data = json.loads(pre.get_text())
+                                if "version_code" in data:
+                                    return int(data["version_code"])
+                            except Exception:
+                                continue
+                except Exception as e:
+                    logging.debug(f"PlayStore: Error scraping report page {report_url}: {e}")
+                    continue
 
     return None
 
