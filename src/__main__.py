@@ -271,10 +271,13 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             keep_abis = {"arm64-v8a"}
         elif arch == "armeabi-v7a":
             keep_abis = {"armeabi-v7a", "armeabi"}
+        elif arch == "universal":
+            keep_abis = set(utils.KNOWN_ABIS)
         else:
             keep_abis = {"arm64-v8a", "armeabi-v7a", "armeabi"}
         logging.info(f"Processing APK for {arch} architecture...")
-        utils.strip_apk_abis(input_apk, keep_abis)
+        if arch != "universal":
+            utils.strip_apk_abis(input_apk, keep_abis)
 
         # FIX: Repair corrupted APK (e.g. from Uptodown) ONLY when integrity check fails.
         # Previously this ran on every build and could silently alter healthy APKs.
@@ -416,7 +419,8 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
 
         # Patches can add their own native code, so check the final archive even
         # though the input was already trimmed above.
-        utils.strip_apk_abis(output_apk, keep_abis)
+        if arch != "universal":
+            utils.strip_apk_abis(output_apk, keep_abis)
 
         # zipalign must run after the archive stops changing and before
         # apksigner: signing first would invalidate the signature. "-P 16"

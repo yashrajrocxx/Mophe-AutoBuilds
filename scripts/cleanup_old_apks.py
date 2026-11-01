@@ -55,6 +55,22 @@ from typing import List, Set
 VERSION_MARKER = re.compile(r"-v\d[\d.()+\-]*\.apk$", re.IGNORECASE)
 
 
+def detect_arch_from_filename(apk_name: str, default: str = "") -> str:
+    """Detect the architecture token embedded in an APK filename."""
+    base = apk_name.lower()
+    if "arm64-v8a" in base:
+        return "arm64-v8a"
+    if "armeabi-v7a" in base:
+        return "armeabi-v7a"
+    if "x86_64" in base:
+        return "x86_64"
+    if "x86" in base:
+        return "x86"
+    if "universal" in base:
+        return "universal"
+    return default
+
+
 def gh_release_assets(release: str) -> List[dict]:
     """Return asset dicts (with 'name' + 'id') currently attached to the release.
     Only APK assets are returned."""
@@ -173,6 +189,19 @@ def main() -> int:
     # share a prefix when multiple arches of the same app are kept).
     keep_prefixes = {identity_prefix(n) for n in keep}
 
+    arch_config_path = Path("arch-config.json")
+    active_arches_by_app: dict[str, set[str]] = {}
+    if arch_config_path.exists():
+        try:
+            with arch_config_path.open("r", encoding="utf-8") as f:
+                ac_data = json.load(f)
+            for item in ac_data:
+                app_name = item.get("app_name", "")
+                if app_name:
+                    active_arches_by_app.setdefault(app_name, set()).update(item.get("arches", []))
+        except Exception:
+            pass
+
     to_delete = []  # list of asset dicts
     for asset in assets:
         name = str(asset.get("name", ""))
@@ -180,6 +209,14 @@ def main() -> int:
             continue  # explicitly kept (or unnamed)
         if identity_prefix(name) in keep_prefixes:
             to_delete.append(asset)  # same app/arch, but a different (older) version
+        elif active_arches_by_app:
+            # Check if this asset belongs to an app being kept, but its arch is no longer active
+            for app_name, valid_arches in active_arches_by_app.items():
+                if name.startswith(f"{app_name}-"):
+                    asset_arch = detect_arch_from_filename(name)
+                    if asset_arch and asset_arch not in valid_arches:
+                        to_delete.append(asset)
+                    break
         # else: an app/arch we didn't rebuild this run -> leave it untouched
 
     if not to_delete:

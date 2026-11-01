@@ -449,6 +449,10 @@ def get_latest_version(app_name: str, config: dict) -> str | None:
     if not _tool_available():
         return None
 
+    if config.get("arch") == "universal":
+        logging.info(f"PlayStore: skipping {app_name} because universal architecture is requested (Play Store only provides split device builds)")
+        return None
+
     package = config.get("package", "")
     if not package:
         return None
@@ -495,6 +499,10 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     downloader.py detects this and skips the HTTP download step.
     """
     if not _tool_available():
+        return None
+
+    if config.get("arch") == "universal":
+        logging.info(f"PlayStore: skipping {app_name} because universal architecture is requested (Play Store only provides split device builds)")
         return None
 
     package = config.get("package", "")

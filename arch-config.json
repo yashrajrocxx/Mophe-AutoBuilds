@@ -3,7 +3,7 @@
     "app_name": "youtube",
     "source": "morphe",
     "arches": [
-      "arm64-v8a"
+      "universal"
     ]
   },
   {

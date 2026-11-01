@@ -664,7 +664,10 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
                 
             arch_match = target_arch in row_text
             if try_type == 'BUNDLE' and not arch_match:
-                arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
+                if target_arch == "universal":
+                    arch_match = 'universal' in row_text or 'noarch' in row_text
+                else:
+                    arch_match = 'universal' in row_text or 'noarch' in row_text or 'arm64-v8a' in row_text
             
             if type_match and dpi_match and arch_match:
                 sub_url = row.find('a', class_='accent_color')
