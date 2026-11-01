@@ -476,7 +476,17 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         print(f"APK built: {signed_apk.name}")
         return str(signed_apk)
 
-    # If we got here, every candidate version failed.
+    # If we got here, every candidate version failed for the requested architecture.
+    # If the requested architecture was not universal (e.g. arm64-v8a), automatically fall back to universal.
+    if arch != "universal":
+        logging.warning(
+            f"Build failed for {app_name} on {arch} across all sources and versions. "
+            f"Falling back to universal architecture..."
+        )
+        if report is not None:
+            report["arch"] = "universal"
+        return run_build(app_name, source, arch="universal", report=report)
+
     return None
 
 def main():
@@ -506,14 +516,29 @@ def main():
         for arch in arches:
             logging.info(f"Building {app_name} for {arch} architecture...")
             report = {"app": app_name, "arch": arch, "source": source, "status": "failed", "version": None, "patches": []}
-            apk_path = run_build(app_name, source, arch, report=report)
+            try:
+                apk_path = run_build(app_name, source, arch, report=report)
+            except Exception as e:
+                logging.error(f"Error building {app_name} for {arch}: {e}")
+                apk_path = None
+                if arch != "universal":
+                    logging.warning(f"{arch} build failed for {app_name}. Retrying with universal architecture...")
+                    try:
+                        universal_report = {"app": app_name, "arch": "universal", "source": source, "status": "failed", "version": None, "patches": []}
+                        apk_path = run_build(app_name, source, "universal", report=universal_report)
+                        if apk_path:
+                            report = universal_report
+                    except Exception as e2:
+                        logging.error(f"Error building universal fallback for {app_name}: {e2}")
+                        apk_path = None
             if apk_path:
                 built_apks.append(apk_path)
                 report["status"] = "success"
                 report["apk"] = Path(apk_path).name
             build_reports.append(report)
             if apk_path:
-                print(f"Built {arch} version: {Path(apk_path).name}")
+                actual_arch = report.get("arch", arch)
+                print(f"Built {actual_arch} version: {Path(apk_path).name}")
         
         Path("build_records").mkdir(exist_ok=True)
         with open(f"build_records/build_report_{app_name}.json", "w") as f:

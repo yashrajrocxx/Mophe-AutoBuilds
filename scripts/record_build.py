@@ -99,8 +99,8 @@ def main() -> int:
 
     apk_name = Path(apk_path).name if apk_path else ""
 
-    # Prefer explicit ARCH env, otherwise detect from filename, fallback universal
-    arch = arch_env or detect_arch_from_filename(apk_name) or "universal"
+    # Detect arch from filename first (ground truth of built APK), fallback to ARCH env, then "universal"
+    arch = detect_arch_from_filename(apk_name, default="") or arch_env or "universal"
 
     # Extract the resolved app version from the filename so the manifest can
     # compare it on the next run and detect when a newer version is available

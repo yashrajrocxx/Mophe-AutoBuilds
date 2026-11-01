@@ -489,10 +489,10 @@ jobs:
           python scripts/update_readme_obtainium.py || echo "[WARN] update_readme_obtainium.py failed"
           
           # Only commit if there are changes to data
-          if [[ -n $(git status -s manifest.json obtainium.json README.md pages/public) ]]; then
+          if [[ -n $(git status -s manifest.json obtainium.json README.md arch-config.json pages/public) ]]; then
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add -f manifest.json obtainium.json README.md pages/public/
+            git add -f manifest.json obtainium.json README.md arch-config.json pages/public/
             git commit -m "chore: auto-sync manifest, obtainium bundle, and README catalog" || true
             git pull --rebase origin main || true
             git push

@@ -24,6 +24,9 @@ class TestVersionCompatibility(unittest.TestCase):
         self.assertTrue(utils.is_version_compatible("1.0.0-RELEASE", "1.0.0"))
         self.assertTrue(utils.is_version_compatible("2.0.1_beta", "2.0.1"))
         self.assertTrue(utils.is_version_compatible("2.0.1+hotfix", "2.0.1"))
+        self.assertTrue(utils.is_version_compatible("350.8 - Stable", "350.8"))
+        self.assertTrue(utils.is_version_compatible("350.8", "350.8 - Stable"))
+        self.assertTrue(utils.is_version_compatible("350.8 Stable", "350.8"))
 
     def test_v_prefix_and_parentheses(self):
         self.assertTrue(utils.is_version_compatible("v1.95.104", "1.95.104"))

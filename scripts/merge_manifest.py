@@ -88,6 +88,14 @@ def main() -> int:
             resolved_version = (rec.get("resolved_version") or "").strip()
             if not key:
                 continue
+
+            # If this record is universal (e.g. via fallback or config), remove any superseded arm64-v8a entry
+            if rec.get("arch") == "universal":
+                arm_key = f"{rec.get('app_name')}|{rec.get('source')}|arm64-v8a"
+                if arm_key in entries and arm_key != key:
+                    print(f"  removing superseded entry {arm_key} in favor of universal")
+                    del entries[arm_key]
+
             entry = entries.get(key)
             if not entry:
                 entry = {
@@ -125,6 +133,35 @@ def main() -> int:
     with open("manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print(f"Wrote manifest.json with {len(entries)} entries")
+
+    # Synchronize arch-config.json if any app fell back to universal
+    arch_config_path = Path("arch-config.json")
+    if arch_config_path.exists() and rec_dir.exists():
+        try:
+            with arch_config_path.open("r", encoding="utf-8") as f:
+                ac_data = json.load(f)
+            updated_ac = False
+            for rec_file in sorted(rec_dir.rglob("*.json")):
+                try:
+                    with rec_file.open("r", encoding="utf-8") as f:
+                        rdata = json.load(f)
+                    if isinstance(rdata, dict) and rdata.get("arch") == "universal":
+                        rapp = rdata.get("app_name")
+                        rsrc = rdata.get("source")
+                        for item in ac_data:
+                            if item.get("app_name") == rapp and item.get("source") == rsrc:
+                                if item.get("arches") != ["universal"]:
+                                    print(f"  updating arch-config.json for {rapp} ({rsrc}) -> ['universal']")
+                                    item["arches"] = ["universal"]
+                                    updated_ac = True
+                except Exception:
+                    continue
+            if updated_ac:
+                with arch_config_path.open("w", encoding="utf-8", newline="\n") as f:
+                    json.dump(ac_data, f, indent=2)
+                print("[OK] Synchronized arch-config.json with universal build fallback")
+        except Exception as e:
+            print(f"[WARN] Failed to synchronize arch-config.json: {e}")
     
     # Also merge build reports
     all_reports = []

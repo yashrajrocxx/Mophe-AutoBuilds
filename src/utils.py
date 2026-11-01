@@ -294,6 +294,7 @@ def is_version_compatible(actual: str, target: str | None) -> bool:
         v = v.strip().lstrip("vV")
         v = re.sub(r"\(.*?\)$", "", v)
         v = strip_arch_suffix(v)
+        v = re.sub(r"\s*([\-–—+_])\s*", r"\1", v)
         return v.strip().lower()
 
     c_act = clean_v(actual)
@@ -302,8 +303,8 @@ def is_version_compatible(actual: str, target: str | None) -> bool:
     if c_act == c_tgt:
         return True
 
-    # Check variant suffixes (e.g. 4.9.49-googleplay vs 4.9.49, or 1.0.0-release vs 1.0.0)
-    for sep in ("-", "+", "_"):
+    # Check variant suffixes (e.g. 4.9.49-googleplay vs 4.9.49, 1.0.0-release vs 1.0.0, or 350.8 - Stable vs 350.8)
+    for sep in ("-", "+", "_", " "):
         if c_act.startswith(c_tgt + sep):
             return True
         if c_tgt.startswith(c_act + sep):
