@@ -7,7 +7,6 @@
     "version": "1.98.60",
     "patches": [
       "Brave Origin",
-      "Disable ads",
       "Disable telemetry",
       "Hide promotional prompts",
       "Disable Play Store updates"
@@ -22,9 +21,9 @@
     "status": "success",
     "version": "4.10.18-googleplay",
     "patches": [
-      "Disable Play Store updates"
+      "Change installer source"
     ],
-    "dl_method": "download_playstore",
+    "dl_method": "download_apkmirror",
     "apk": "chess-arm64-v8a-noam-v4.10.18-googleplay.apk"
   },
   {
