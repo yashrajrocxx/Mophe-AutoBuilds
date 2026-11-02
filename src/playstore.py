@@ -42,7 +42,19 @@ def _get_tool() -> str:
     return "gplaydl"
 
 _TOOL = _get_tool()
-_ARCH = "arm64"   # gplaydl uses 'arm64', not 'arm64-v8a'
+_ARCH = "arm64"   # gplaydl default single arch
+
+def _map_to_gplaydl_arch(arch: str | None) -> str:
+    """Map project architecture string to gplaydl --arch parameter."""
+    if not arch or arch in ("arm64-v8a", "arm64"):
+        return "arm64"
+    if arch in ("armeabi-v7a", "armv7", "arm"):
+        return "armv7"
+    if arch == "universal":
+        return "arm64,armv7"
+    if arch in ("x86_64", "x86"):
+        return arch
+    return "arm64"
 
 _exodus_cache = {}
 
@@ -316,6 +328,7 @@ def _download_splits(
     package: str,
     output_dir: Path,
     version_code: str | None = None,
+    arch: str = "arm64",
 ) -> bool:
     """
     Call `gplaydl download` to fetch the APK + splits into output_dir.
@@ -328,7 +341,7 @@ def _download_splits(
 
     cmd = [
         _TOOL, "download", package,
-        "--arch", _ARCH,
+        "--arch", arch,
         "--output", str(output_dir),
         "--no-extras",   # skip OBB/asset packs — we only need the APK
     ]
@@ -337,6 +350,19 @@ def _download_splits(
 
     try:
         result = _run(cmd, timeout=600)
+        # If multi-arch (arm64,armv7) failed, retry with single arch "arm64"
+        if result.returncode != 0 and "," in arch:
+            logging.info(f"PlayStore: multi-arch download '{arch}' returned {result.returncode}; falling back to 'arm64'...")
+            cmd_fallback = [
+                _TOOL, "download", package,
+                "--arch", "arm64",
+                "--output", str(output_dir),
+                "--no-extras",
+            ]
+            if version_code:
+                cmd_fallback += ["--version", version_code]
+            result = _run(cmd_fallback, timeout=600)
+
         if result.returncode != 0:
             logging.warning(
                 f"PlayStore: gplaydl download failed (rc={result.returncode})"
@@ -350,7 +376,7 @@ def _download_splits(
             return False
 
         logging.info(
-            f"PlayStore: Downloaded {len(apk_files)} file(s) for {package}"
+            f"PlayStore: Downloaded {len(apk_files)} file(s) for {package} (arch={arch})"
         )
         return True
 
@@ -501,10 +527,6 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     if not _tool_available():
         return None
 
-    if config.get("arch") == "universal":
-        logging.info(f"PlayStore: skipping {app_name} because universal architecture is requested (Play Store only provides split device builds)")
-        return None
-
     package = config.get("package", "")
     if not package:
         logging.error(f"PlayStore: no package in config for {app_name}")
@@ -512,6 +534,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
 
     version_code: str | None = None
     target_arch = config.get("arch", "arm64-v8a")
+    gplaydl_arch = _map_to_gplaydl_arch(target_arch)
 
     # 1. First, query resolvers for the architecture-specific versionCode (e.g. 429806004 for Brave arm64-v8a)
     try:
@@ -546,7 +569,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
     splits_dir = Path(f"playstore_splits_{package}")
 
-    success = _download_splits(package, splits_dir, version_code)
+    success = _download_splits(package, splits_dir, version_code, arch=gplaydl_arch)
     if not success:
         if splits_dir.exists():
             shutil.rmtree(splits_dir, ignore_errors=True)
