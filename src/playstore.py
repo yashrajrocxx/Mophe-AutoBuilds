@@ -247,9 +247,9 @@ def resolve_version_code(package_name: str, version_name: str, arch: str = None)
     # ── 4. APKMirror scrape — versionCode from release variant rows ──────────────
     try:
         from src import apkmirror as _apkmirror
-        vc = _apkmirror.get_version_code(package_name, version_name)
+        vc = _apkmirror.get_version_code(package_name, version_name, target_arch=arch or "arm64-v8a")
         if vc:
-            logging.info(f"PlayStore: versionCode {vc} for {package_name} {version_name} (from APKMirror)")
+            logging.info(f"PlayStore: versionCode {vc} for {package_name} {version_name} ({arch}) (from APKMirror)")
             _exodus_cache[cache_key] = vc
             return vc
     except Exception as e:
@@ -511,40 +511,37 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         return None
 
     version_code: str | None = None
+    target_arch = config.get("arch", "arm64-v8a")
 
-    # First, check if the requested version is simply the latest version on Play Store.
-    # This avoids querying resolvers for brand new versions that indexes haven't caught yet.
-    latest_info = _run_info(package)
-    if latest_info.returncode == 0:
-        play_version, play_code = _parse_info_output(latest_info.stdout)
-        if not play_version or not play_code:
-            for line in latest_info.stdout.splitlines():
-                m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
-                if m:
-                    play_version = m.group(1)
-                    play_code = m.group(2)
+    # 1. First, query resolvers for the architecture-specific versionCode (e.g. 429806004 for Brave arm64-v8a)
+    try:
+        version_code_int = resolve_version_code(package, version, target_arch)
+        version_code = str(version_code_int)
+        logging.info(f"PlayStore: target {version} ({target_arch}) resolved to versionCode {version_code}")
+    except Exception as e:
+        logging.debug(f"PlayStore: resolve_version_code for {version} ({target_arch}) failed: {e}")
 
-        if play_version and play_code:
-            from src import utils
-            if utils.is_version_compatible(play_version, version):
-                version_code = play_code
-                logging.info(f"PlayStore: target is latest version, using code {version_code}")
-
-    # If it wasn't the latest version (or `info` failed), resolve via full chain
+    # 2. Fallback: if resolve_version_code failed, check if latest on Play Store
     if not version_code:
-        try:
-            version_code_int = resolve_version_code(package, version, config.get('arch'))
-            version_code = str(version_code_int)
-            logging.info(f"PlayStore: Resolved historical {version} to versionCode {version_code}")
-        except VersionNotFound as e:
-            logging.warning(f"PlayStore: {e} - Triggering scraper fallback.")
-            return None
-        except ExodusApiError as e:
-            logging.warning(f"PlayStore: Exodus API unavailable ({e}) - Triggering scraper fallback.")
-            return None
-        except Exception as e:
-            logging.warning(f"PlayStore: Unexpected error resolving version ({e}) - Triggering scraper fallback.")
-            return None
+        latest_info = _run_info(package)
+        if latest_info.returncode == 0:
+            play_version, play_code = _parse_info_output(latest_info.stdout)
+            if not play_version or not play_code:
+                for line in latest_info.stdout.splitlines():
+                    m = re.search(r"Version\s*│\s*([^\s]+)\s*\((\d+)\)", line, re.IGNORECASE)
+                    if m:
+                        play_version = m.group(1)
+                        play_code = m.group(2)
+
+            if play_version and play_code:
+                from src import utils
+                if utils.is_version_compatible(play_version, version):
+                    version_code = play_code
+                    logging.info(f"PlayStore: target is latest version, using code {version_code}")
+
+    if not version_code:
+        logging.warning(f"PlayStore: could not resolve versionCode for {package} {version}")
+        return None
 
     output_apk = Path(f"{app_name}-playstore-v{version}.apk")
     splits_dir = Path(f"playstore_splits_{package}")
@@ -573,6 +570,25 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         )
         output_apk.unlink(missing_ok=True)
         return None
+
+    # Verify native libraries for non-universal builds of apps known to contain native code
+    if target_arch != "universal":
+        import zipfile
+        try:
+            with zipfile.ZipFile(output_apk, "r") as zf:
+                names = zf.namelist()
+                has_arch_libs = any(n.startswith(f"lib/{target_arch}/") for n in names)
+                # Known complex browser/system apps must have native libraries and sane size
+                if package == "com.brave.browser":
+                    if not has_arch_libs or output_apk.stat().st_size < 50 * 1024 * 1024:
+                        logging.warning(
+                            f"PlayStore: merged Brave APK has no lib/{target_arch}/ native libraries or is too small "
+                            f"({output_apk.stat().st_size / 1024 / 1024:.1f} MB, expected ~150 MB). Rejecting to allow APKMirror fallback."
+                        )
+                        output_apk.unlink(missing_ok=True)
+                        return None
+        except Exception as e:
+            logging.warning(f"PlayStore: native library check error: {e}")
 
     logging.info(f"PlayStore: {app_name} {version} -> {output_apk} (verified manifest: {actual_vn or version})")
     return str(output_apk)

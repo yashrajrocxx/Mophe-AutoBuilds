@@ -927,8 +927,8 @@ def register_version_code(package: str, version: str, code: int, arch: str = "un
         pass
 
 
-def get_version_code(package: str, version_name: str) -> int | None:
-    """Scrape APKMirror for the versionCode of a specific version.
+def get_version_code(package: str, version_name: str, target_arch: str = None) -> int | None:
+    """Scrape APKMirror for the versionCode of a specific version and architecture.
 
     No extra HTTP beyond the normal release-page flow: finds the release page
     via find_release_page_from_main(), then regex-scans variant rows and the
@@ -958,23 +958,43 @@ def get_version_code(package: str, version_name: str) -> int | None:
         if resp.status_code != 200:
             return None
         soup = BeautifulSoup(resp.content, "html.parser")
-        page_text = soup.get_text(separator=" ")
-        code = _extract_version_code_from_text(page_text, base_version)
-        if code:
-            register_version_code(package, base_version, code)
-            register_version_code(package, version_name, code)
-            logging.info(f"APKMirror: resolved {package} {version_name} → versionCode {code}")
-            return code
-        # Fallback: scan individual variant rows for a parenthetical code
-        for row in soup.find_all("div", class_="table-row headerFont"):
+
+        # 1. First priority: look for variant row matching requested architecture
+        target_norm = _normalize_arch_label(target_arch or "arm64-v8a")
+        for row in soup.find_all("div", class_=lambda c: c and "table-row" in c):
+            row_text = row.get_text(separator=" ")
+            row_arch = None
+            for a in ["arm64-v8a", "arm64_v8a", "armeabi-v7a", "armeabi", "universal", "x86_64", "x86"]:
+                if a in row_text.lower():
+                    row_arch = _normalize_arch_label(a)
+                    break
+            if row_arch and (row_arch == target_norm or (target_norm == "universal" and "universal" in row_text.lower())):
+                code = _extract_version_code_from_text(row_text, base_version)
+                if code:
+                    register_version_code(package, base_version, code, target_arch or "universal")
+                    register_version_code(package, version_name, code, target_arch or "universal")
+                    logging.info(f"APKMirror: resolved {package} {version_name} ({target_arch}) → versionCode {code} (arch match)")
+                    return code
+
+        # 2. Second priority: scan individual variant rows
+        for row in soup.find_all("div", class_=lambda c: c and "table-row" in c):
             row_text = row.get_text(separator=" ")
             if base_version in row_text or base_version.replace(".", "-") in row_text:
                 code = _extract_version_code_from_text(row_text, base_version)
                 if code:
-                    register_version_code(package, base_version, code)
-                    register_version_code(package, version_name, code)
+                    register_version_code(package, base_version, code, target_arch or "universal")
+                    register_version_code(package, version_name, code, target_arch or "universal")
                     logging.info(f"APKMirror: resolved {package} {version_name} → versionCode {code} (variant row)")
                     return code
+
+        # 3. Fallback: page-wide search
+        page_text = soup.get_text(separator=" ")
+        code = _extract_version_code_from_text(page_text, base_version)
+        if code:
+            register_version_code(package, base_version, code, target_arch or "universal")
+            register_version_code(package, version_name, code, target_arch or "universal")
+            logging.info(f"APKMirror: resolved {package} {version_name} → versionCode {code}")
+            return code
     except ApkMirrorBlocked:
         return None
     except Exception as e:

@@ -6,11 +6,12 @@
   "brave|heval99": {
     "include": [
       "Brave Origin",
-      "Disable ads",
       "Disable telemetry",
       "Hide promotional prompts"
     ],
-    "exclude": []
+    "exclude": [
+      "Disable ads"
+    ]
   },
   "chess|noam": {
     "include": [],
