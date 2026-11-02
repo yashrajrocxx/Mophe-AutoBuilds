@@ -839,6 +839,11 @@ def _find_config_by_package(package: str) -> dict | None:
     try:
         from pathlib import Path as _Path
         import json as _json
+        KNOWN_PACKAGES = {
+            "com.brave.browser": {"org": "brave-software", "name": "brave-browser", "package": "com.brave.browser"},
+        }
+        if package in KNOWN_PACKAGES:
+            return KNOWN_PACKAGES[package]
         for cfg_path in sorted((_Path("apps") / "apkmirror").glob("*.json")):
             try:
                 with cfg_path.open(encoding="utf-8") as f:

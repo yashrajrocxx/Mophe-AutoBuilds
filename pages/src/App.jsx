@@ -29,7 +29,7 @@ function App() {
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   return (
-    <div className="flex h-[100dvh] w-screen bg-background text-foreground overflow-hidden font-sans">
+    <div className="flex h-[100dvh] w-full bg-background text-foreground overflow-hidden font-sans">
       {/* Desktop sidebar */}
       <Sidebar
         activeTab={activeTab}

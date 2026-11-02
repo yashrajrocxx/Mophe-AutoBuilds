@@ -200,9 +200,24 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         input_apk = None
         version = None
         
-        # Source fallback loop
+        # Source fallback loop (or exclusive platform if configured)
+        exclusive_method = None
+        for m in download_methods:
+            p_name = m.__name__.replace("download_", "")
+            cfg_p = Path("apps") / p_name / f"{app_name}.json"
+            if cfg_p.exists():
+                try:
+                    with cfg_p.open(encoding="utf-8") as f:
+                        if json.load(f).get("exclusive"):
+                            exclusive_method = m
+                            logging.info(f"{app_name} is marked exclusive to {p_name}; bypassing third-party scraper fallbacks")
+                            break
+                except Exception:
+                    pass
+
+        active_methods = [exclusive_method] if exclusive_method else download_methods
         dl_method_name = None
-        for method in download_methods:
+        for method in active_methods:
             try:
                 input_apk, dl_ver, _ = method(app_name, str(cli), patches, arch, override_version=ver)
                 if input_apk:

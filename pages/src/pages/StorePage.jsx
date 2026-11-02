@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   PackageSearch,
   Clock,
@@ -29,6 +30,20 @@ export function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  useEffect(() => {
+    if (!showObtainiumModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setShowObtainiumModal(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [showObtainiumModal]);
 
   useEffect(() => {
     Promise.allSettled([
@@ -316,14 +331,14 @@ export function StorePage() {
         )}
       </section>
 
-      {/* Obtainium Modal */}
-      {showObtainiumModal && (
+      {/* Obtainium Modal rendered in Portal directly under document.body */}
+      {showObtainiumModal && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs transition-opacity"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-6 bg-black/75 backdrop-blur-xs transition-opacity"
           onClick={() => setShowObtainiumModal(false)}
         >
           <div
-            className="bg-card border border-border rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg p-5 sm:p-6 relative fade-up max-h-[92dvh] overflow-y-auto shadow-xl"
+            className="bg-card border border-border rounded-2xl w-full max-w-lg p-5 sm:p-6 relative max-h-[88dvh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -399,7 +414,8 @@ export function StorePage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
