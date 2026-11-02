@@ -3,23 +3,14 @@
     "include": [],
     "exclude": []
   },
-  "brave|kveld9": {
+  "brave|heval99": {
     "include": [
-      "Block Brave Telemetry",
-      "Brave In-Product & Commercial Notification Optimizer",
       "Brave Origin",
-      "Brave Startup Performance Optimization",
-      "Clean New Tab Page",
-      "Clean Share URL",
-      "Disable Background Sync & Periodic Sync",
-      "Disable Battery Status API & OS Listener",
-      "Sensor Privacy Guard",
-      "Skip First Run"
+      "Disable ads",
+      "Disable telemetry",
+      "Hide promotional prompts"
     ],
-    "exclude": [
-      "Locale PAK Slimmer",
-      "Native Bloat Slimmer"
-    ]
+    "exclude": []
   },
   "chess|noam": {
     "include": [],

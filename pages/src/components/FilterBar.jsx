@@ -23,7 +23,10 @@ export function FilterBar({
       hushthreads: 'HushThreads',
       jasonwu: 'Jasonwu (Gboard)',
       kveld9: 'kveld9',
-      hoodles: 'Hoodles'
+      hoodles: 'Hoodles',
+      heval99: 'Heval99 (Brave)',
+      venus: 'Venus (Discord)',
+      noam: 'Noam (Chess.com)',
     };
     return map[src.toLowerCase()] || src.charAt(0).toUpperCase() + src.slice(1);
   };

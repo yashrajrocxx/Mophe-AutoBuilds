@@ -143,6 +143,9 @@ export function RequestPage({ onOpenStore }) {
   const requestsRef = useRef(requests);
   const issuesRef = useRef(issues);
   const trackerRef = useRef(null);
+  const appInputRef = useRef(null);
+  const pkgInputRef = useRef(null);
+  const repoInputRef = useRef(null);
 
   useEffect(() => {
     requestsRef.current = requests;
@@ -281,13 +284,25 @@ export function RequestPage({ onOpenStore }) {
 
   const submit = () => {
     setTouched(true);
-    if (!valid) return;
+    if (!valid) {
+      if (errors.app) {
+        appInputRef.current?.focus();
+        appInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (errors.pkg) {
+        pkgInputRef.current?.focus();
+        pkgInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (errors.source) {
+        repoInputRef.current?.focus();
+        repoInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
 
     const payload = {
       app_name: slug,
       package: packageText,
       source: sourceMode === 'known' ? source : '',
-      repo_url: sourceMode === 'custom' ? repoUrl.trim() : '',
+      repo_url: sourceMode === 'custom' ? (repoParsed ? `${repoParsed.owner}/${repoParsed.repo}` : repoUrl.trim()) : '',
       arch: arch || DEFAULT_ARCH,
       code: randomCode(),
     };
@@ -303,11 +318,23 @@ export function RequestPage({ onOpenStore }) {
       issueUrl: issue.url,
     };
     setRequests(addRequest(entry));
-    window.open(issue.url, '_blank', 'noopener');
-    setNotice({ code: payload.code, issueUrl: issue.url });
-    window.setTimeout(() => {
-      trackerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
+
+    let popupBlocked = false;
+    try {
+      const newWin = window.open(issue.url, '_blank', 'noopener,noreferrer');
+      if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+        popupBlocked = true;
+      }
+    } catch {
+      popupBlocked = true;
+    }
+
+    setNotice({
+      code: payload.code,
+      issueUrl: issue.url,
+      app: slug,
+      popupBlocked,
+    });
   };
 
   const toggleDetails = async (code) => {
@@ -464,13 +491,14 @@ export function RequestPage({ onOpenStore }) {
           hint={slug ? `Catalog name: ${slug}` : 'Example: firefox'}
         >
           <input
+            ref={appInputRef}
             type="text"
             value={app}
             onChange={(e) => setApp(e.target.value)}
             placeholder="firefox"
             autoComplete="off"
             spellCheck="false"
-            className={inputClass}
+            className={`${inputClass} ${showErrors && errors.app ? 'border-red-500 focus:border-red-500' : ''}`}
           />
         </Field>
 
@@ -480,13 +508,14 @@ export function RequestPage({ onOpenStore }) {
           hint="The Android package of the app, as shown on its store page."
         >
           <input
+            ref={pkgInputRef}
             type="text"
             value={pkg}
             onChange={(e) => setPkg(e.target.value)}
             placeholder="org.mozilla.firefox"
             autoComplete="off"
             spellCheck="false"
-            className={`${inputClass} font-mono`}
+            className={`${inputClass} font-mono ${showErrors && errors.pkg ? 'border-red-500 focus:border-red-500' : ''}`}
           />
         </Field>
 
@@ -545,13 +574,14 @@ export function RequestPage({ onOpenStore }) {
               </div>
             ) : (
               <input
+                ref={repoInputRef}
                 type="text"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
-                placeholder="owner/patch-repository"
+                placeholder="owner/patch-repository or GitHub URL"
                 autoComplete="off"
                 spellCheck="false"
-                className={`${inputClass} font-mono`}
+                className={`${inputClass} font-mono ${showErrors && errors.source ? 'border-red-500 focus:border-red-500' : ''}`}
               />
             )}
           </div>
@@ -593,37 +623,127 @@ export function RequestPage({ onOpenStore }) {
           </p>
         )}
 
-        {valid && (
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-xs">
-            <BadgeCheck size={13} className="shrink-0" />
-            <span className="font-semibold">Ready</span>
-            <span className="font-mono">{slug}</span>
+        {valid && !notice && (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5 text-xs">
+            <BadgeCheck size={14} className="shrink-0 text-foreground" />
+            <span className="font-semibold text-foreground">Ready:</span>
+            <span className="font-mono font-medium">{slug}</span>
             <span className="text-muted-foreground">({arch}) from</span>
-            <span className="min-w-0 truncate">{sourceMode === 'known' ? sourceLabel(source) : repoUrl.trim()}</span>
+            <span className="min-w-0 font-medium truncate">{sourceMode === 'known' ? sourceLabel(source) : (repoParsed ? `${repoParsed.owner}/${repoParsed.repo}` : repoUrl.trim())}</span>
           </div>
         )}
 
-        <div className="flex flex-col gap-2 pt-4 border-t border-border sm:flex-row sm:flex-wrap sm:items-center">
-          <button
-            type="button"
-            onClick={submit}
-            disabled={catalogLoading}
-            className={`${primaryButton} w-full sm:w-auto`}
-          >
-            <Rocket size={14} />
-            Submit request
-          </button>
-          <div className="flex flex-wrap items-center gap-2">
-            <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer" className={secondaryButton}>
-              <ClipboardList size={13} />
-              All requests
-            </a>
-            <a href={RELEASES_URL} target="_blank" rel="noopener noreferrer" className={secondaryButton}>
-              <Download size={13} />
-              Latest release
-            </a>
+        {showErrors && !valid && (
+          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-xs text-foreground">
+            <TriangleAlert size={14} className="shrink-0 text-destructive" />
+            <span className="font-medium">Please correct the highlighted fields above before submitting.</span>
           </div>
-        </div>
+        )}
+
+        {notice ? (
+          <div className="space-y-3 pt-3 border-t border-border">
+            <div className="rounded-xl border border-border bg-muted/60 p-4 space-y-3">
+              <div className="flex items-start gap-2.5">
+                <BadgeCheck size={18} className="mt-0.5 shrink-0 text-foreground" />
+                <div className="space-y-1 text-xs sm:text-[13px] flex-1">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <p className="font-bold text-sm text-foreground">
+                      Issue prepared: <span className="font-mono text-xs">{notice.code}</span>
+                    </p>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-background border border-border">
+                      Action required
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">
+                    {notice.popupBlocked
+                      ? 'Your browser blocked opening a new tab automatically. Click the button below to submit on GitHub:'
+                      : 'A prefilled issue opened in GitHub. Click Submit new issue there to launch the build!'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                <a
+                  href={notice.issueUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${primaryButton} w-full sm:flex-1`}
+                >
+                  <Rocket size={14} />
+                  <span>Open GitHub Issue to Confirm</span>
+                  <ExternalLink size={13} />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = notice.issueUrl;
+                  }}
+                  className={secondaryButton}
+                  title="Direct navigate if popup blockers prevent opening a new tab"
+                >
+                  Open in this tab
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(notice.issueUrl);
+                    alert('GitHub issue link copied to clipboard!');
+                  }}
+                  className={secondaryButton}
+                >
+                  <ClipboardList size={13} />
+                  Copy link
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setNotice(null);
+                  setApp('');
+                  setPkg('');
+                  setTouched(false);
+                }}
+                className="font-medium text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+              >
+                + Request another app
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  trackerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="font-medium text-foreground hover:opacity-75 transition-opacity"
+              >
+                View request status below ↓
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 pt-4 border-t border-border sm:flex-row sm:flex-wrap sm:items-center">
+            <button
+              type="button"
+              onClick={submit}
+              disabled={catalogLoading}
+              className={`${primaryButton} w-full sm:w-auto shadow-xs active:scale-[0.98] transition-all`}
+            >
+              <Rocket size={14} />
+              Submit request
+            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer" className={secondaryButton}>
+                <ClipboardList size={13} />
+                All requests
+              </a>
+              <a href={RELEASES_URL} target="_blank" rel="noopener noreferrer" className={secondaryButton}>
+                <Download size={13} />
+                Latest release
+              </a>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Tracker */}

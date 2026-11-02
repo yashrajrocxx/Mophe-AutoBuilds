@@ -1,0 +1,17 @@
+[
+  {
+    "name": "heval99"
+  },
+  {
+    "provider": "github",
+    "user": "heval99",
+    "repo": "Heval-Morphe-Patches",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  }
+]

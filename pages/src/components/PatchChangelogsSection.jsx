@@ -28,6 +28,9 @@ export function PatchChangelogsSection({ patchChangelogs, onFilterByApp }) {
       jasonwu: 'Jasonwu Patches',
       kveld9: 'kveld9 Patches',
       hoodles: 'Hoodles Patches',
+      heval99: 'Heval99 Patches',
+      venus: 'Venus Patches',
+      noam: 'Noam Patches',
     };
     return map[source.toLowerCase()] || `${source.charAt(0).toUpperCase() + source.slice(1)} Patches`;
   };

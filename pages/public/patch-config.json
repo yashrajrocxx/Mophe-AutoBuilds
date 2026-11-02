@@ -1,0 +1,76 @@
+{
+  "patch_list": [
+    {
+      "app_name": "youtube",
+      "source": "morphe"
+    },
+    {
+      "app_name": "youtube-music",
+      "source": "morphe"
+    },
+    {
+      "app_name": "reddit",
+      "source": "morphe"
+    },
+    {
+      "app_name": "instagram",
+      "source": "hushgram"
+    },
+    {
+      "app_name": "twitter",
+      "source": "piko-newx"
+    },
+    {
+      "app_name": "pinterest",
+      "source": "hushpinterest"
+    },
+    {
+      "app_name": "telegram",
+      "source": "hushtelegram"
+    },
+    {
+      "app_name": "sdmaidse",
+      "source": "paresh"
+    },
+    {
+      "app_name": "threads",
+      "source": "hushthreads"
+    },
+    {
+      "app_name": "google-photos",
+      "source": "rookie"
+    },
+    {
+      "app_name": "depthwallpaper",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "pocketcasts",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "minimalwidgets",
+      "source": "rushiranpise"
+    },
+    {
+      "app_name": "gboard",
+      "source": "jasonwu"
+    },
+    {
+      "app_name": "duolingo",
+      "source": "hoodles"
+    },
+    {
+      "app_name": "brave",
+      "source": "heval99"
+    },
+    {
+      "app_name": "discord",
+      "source": "venus"
+    },
+    {
+      "app_name": "chess",
+      "source": "noam"
+    }
+  ]
+}

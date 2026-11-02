@@ -1,0 +1,6 @@
+# Brave Browser Patches (heval99 / Heval-Morphe-Patches)
+
++ Brave Origin
++ Disable ads
++ Disable telemetry
++ Hide promotional prompts

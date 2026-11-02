@@ -28,11 +28,12 @@ export const DEFAULT_ARCH = 'arm64-v8a';
 
 export const APP_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
 export const PACKAGE_RE = /^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+$/;
-const GITHUB_URL_RE = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([A-Za-z0-9-]{1,39})\/([A-Za-z0-9_.-]{1,100}?)(?:\.git)?\/?$/;
-const GITHUB_SHORT_RE = /^([A-Za-z0-9-]{1,39})\/([A-Za-z0-9_.-]{1,100}?)(?:\.git)?\/?$/;
+const GITHUB_URL_RE = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([A-Za-z0-9-]{1,39})\/([A-Za-z0-9_.-]{1,100}?)(?:\.git)?(?:\/.*)?$/;
+const GITHUB_SHORT_RE = /^([A-Za-z0-9-]{1,39})\/([A-Za-z0-9_.-]{1,100}?)(?:\.git)?(?:\/.*)?$/;
 
 // Fallback list used until the live sources/ directory listing arrives.
 const BUILTIN_SOURCES = [
+  'heval99',
   'hoodles',
   'hushgram',
   'hushpinterest',
@@ -60,6 +61,7 @@ const SOURCE_LABELS = {
   hushtelegram: 'HushTelegram',
   hushthreads: 'HushThreads',
   jasonwu: 'Jasonwu (Gboard)',
+  heval99: 'Heval99 (Brave)',
   kveld9: 'kveld9',
   hoodles: 'Hoodles',
   venus: 'Venus (Discord)',
@@ -88,11 +90,12 @@ export function slugify(value) {
 }
 
 export function parseRepo(value) {
-  const text = String(value || '').trim();
+  let text = String(value || '').trim();
   if (!text) return null;
+  text = text.replace(/[?#].*$/, '').replace(/\/+$/, '');
   for (const pattern of [GITHUB_URL_RE, GITHUB_SHORT_RE]) {
     const match = text.match(pattern);
-    if (match) return { owner: match[1], repo: match[2] };
+    if (match) return { owner: match[1], repo: match[2].replace(/\.git$/i, '') };
   }
   return null;
 }
