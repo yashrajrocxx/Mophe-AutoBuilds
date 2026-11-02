@@ -388,11 +388,36 @@ def _download_splits(
         return False
 
 
-def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
+def _clean_unneeded_splits(splits_dir: Path, target_arch: str) -> None:
+    """Clean out non-apk files and unneeded architecture splits before merging."""
+    # Remove non-APK files (.dm, temporary assets, etc.)
+    for p in splits_dir.iterdir():
+        if p.is_file() and not p.name.endswith(".apk"):
+            p.unlink(missing_ok=True)
+
+    if target_arch in ("arm64-v8a", "arm64"):
+        # For arm64 target, remove 32-bit and x86 splits to save merge time and APK size
+        drop_patterns = ["*armeabi*", "*armv7*", "*x86*", "*riscv64*"]
+        for pattern in drop_patterns:
+            for p in splits_dir.glob(pattern):
+                logging.info(f"PlayStore: pre-merge removing unneeded split {p.name}")
+                p.unlink(missing_ok=True)
+    elif target_arch == "universal":
+        # For universal mobile target, drop x86/riscv64 desktop splits to avoid bloating the APK
+        drop_patterns = ["*x86*", "*riscv64*"]
+        for pattern in drop_patterns:
+            for p in splits_dir.glob(pattern):
+                logging.info(f"PlayStore: pre-merge removing desktop-only split {p.name}")
+                p.unlink(missing_ok=True)
+
+
+def _merge_splits(splits_dir: Path, output_apk: Path, target_arch: str = "universal") -> bool:
     """
     Use APKEditor to merge a directory of split APKs into one monolithic APK.
     If only a single .apk exists, rename it directly (no merge needed).
     """
+    _clean_unneeded_splits(splits_dir, target_arch)
+
     apk_files = list(splits_dir.glob("**/*.apk"))
 
     if not apk_files:
@@ -421,7 +446,7 @@ def _merge_splits(splits_dir: Path, output_apk: Path) -> bool:
 
     try:
         result = _run(
-            ["java", "-jar", str(apkeditor), "m",
+            ["java", "-Xms256m", "-Xmx4g", "-jar", str(apkeditor), "m",
              "-i", str(splits_dir), "-o", str(output_apk)],
             timeout=300
         )
@@ -576,7 +601,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
         logging.error(f"PlayStore: download failed for {app_name} {version}")
         return None
 
-    merged = _merge_splits(splits_dir, output_apk)
+    merged = _merge_splits(splits_dir, output_apk, target_arch=target_arch)
     if splits_dir.exists():
         shutil.rmtree(splits_dir, ignore_errors=True)
 

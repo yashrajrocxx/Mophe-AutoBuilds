@@ -196,9 +196,11 @@ def strip_apk_abis(apk_path: Path, keep: Iterable[str]) -> None:
     """
     dropped = [abi for abi in KNOWN_ABIS if abi not in keep]
     if not dropped:
-        logging.info(f"{apk_path.name} keeping all ABIs (universal)")
+        logging.info(f"{apk_path.name} keeping all ABIs ({', '.join(keep)})")
         return
-    patterns = [f"lib/{abi}/*" for abi in dropped]
+    patterns = []
+    for abi in dropped:
+        patterns.extend([f"lib/{abi}/*", f"lib/{abi}/**"])
     try:
         run_process(["zip", "--delete", str(apk_path), *patterns], silent=True, check=False)
     except FileNotFoundError:

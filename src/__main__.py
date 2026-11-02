@@ -242,7 +242,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             merged_apk = input_apk.with_suffix(".apk")
 
             utils.run_process([
-                "java", "-jar", apk_editor, "m",
+                "java", "-Xms256m", "-Xmx4g", "-jar", apk_editor, "m",
                 "-i", str(input_apk),
                 "-o", str(merged_apk)
             ], silent=True)
@@ -287,12 +287,12 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
         elif arch == "armeabi-v7a":
             keep_abis = {"armeabi-v7a", "armeabi"}
         elif arch == "universal":
-            keep_abis = set(utils.KNOWN_ABIS)
+            # For universal mobile builds, keep arm64-v8a and armeabi-v7a, drop desktop x86/x86_64 bloat
+            keep_abis = {"arm64-v8a", "armeabi-v7a", "armeabi"}
         else:
             keep_abis = {"arm64-v8a", "armeabi-v7a", "armeabi"}
-        logging.info(f"Processing APK for {arch} architecture...")
-        if arch != "universal":
-            utils.strip_apk_abis(input_apk, keep_abis)
+        logging.info(f"Processing APK for {arch} architecture (keeping {', '.join(keep_abis)})...")
+        utils.strip_apk_abis(input_apk, keep_abis)
 
         # FIX: Repair corrupted APK (e.g. from Uptodown) ONLY when integrity check fails.
         # Previously this ran on every build and could silently alter healthy APKs.
@@ -361,7 +361,8 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                 # not supported by the patches so the outer version-retry loop can fall
                 # back to an older, compatible version automatically.
                 morphe_cmd = [
-                    "java", "-jar", str(cli),
+                    "java", "-Xms256m", "-Xmx4g", "-XX:+UseG1GC",
+                    "-jar", str(cli),
                     "patch", "--continue-on-error",
                 ]
                 for p in patches:
@@ -386,7 +387,8 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
 
                 if is_revanced_v6_or_newer:
                     cmd = [
-                        "java", "-jar", str(cli),
+                        "java", "-Xms256m", "-Xmx4g", "-XX:+UseG1GC",
+                        "-jar", str(cli),
                         "patch"
                     ]
                     for p in patches:
@@ -403,7 +405,8 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
                     _record_failed_patches(app_name, output)
                 else:
                     cmd = [
-                        "java", "-jar", str(cli),
+                        "java", "-Xms256m", "-Xmx4g", "-XX:+UseG1GC",
+                        "-jar", str(cli),
                         "-m", str(integrations)
                     ]
                     for p in patches:
@@ -434,8 +437,7 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
 
         # Patches can add their own native code, so check the final archive even
         # though the input was already trimmed above.
-        if arch != "universal":
-            utils.strip_apk_abis(output_apk, keep_abis)
+        utils.strip_apk_abis(output_apk, keep_abis)
 
         # zipalign must run after the archive stops changing and before
         # apksigner: signing first would invalidate the signature. "-P 16"
@@ -488,6 +490,16 @@ def run_build(app_name: str, source: str, arch: str = "universal", report: dict 
             ], capture=True, stream=True)
 
         output_apk.unlink(missing_ok=True)
+
+        # Verify signature
+        try:
+            utils.run_process([
+                str(apksigner), "verify", "--verbose", str(signed_apk)
+            ], capture=True, silent=True)
+            logging.info(f"Signature verified successfully for {signed_apk.name}")
+        except Exception as e:
+            logging.warning(f"Signature verification warning: {e}")
+
         print(f"APK built: {signed_apk.name}")
         return str(signed_apk)
 
