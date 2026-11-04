@@ -1,1 +1,1 @@
-[{"app": "red-ball-4", "arch": "arm64-v8a", "source": "morphe-patches", "status": "success", "version": "1.17.03", "patches": ["Disable Play Store updates"], "dl_method": "download_playstore", "apk": "red-ball-4-arm64-v8a-morphe-patches-v1.17.03.apk"}]
+[{"app": "oddmar", "arch": "arm64-v8a", "source": "miguel-morphe-patches", "status": "success", "version": "0.111", "patches": ["Disable Play Store updates"], "dl_method": "download_playstore", "apk": "oddmar-arm64-v8a-miguel-morphe-patches-v0.111.apk"}]
