@@ -1,0 +1,17 @@
+[
+  {
+    "name": "miguel-morphe-patches"
+  },
+  {
+    "provider": "github",
+    "user": "MiguelNinja19",
+    "repo": "miguel-morphe-patches",
+    "tag": "latest"
+  },
+  {
+    "provider": "github",
+    "user": "MorpheApp",
+    "repo": "morphe-cli",
+    "tag": "latest"
+  }
+]
