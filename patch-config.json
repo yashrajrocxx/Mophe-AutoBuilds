@@ -71,6 +71,10 @@
     {
       "app_name": "chess",
       "source": "noam"
+    },
+    {
+      "app_name": "oddmar",
+      "source": "miguel-morphe-patches"
     }
   ]
 }

@@ -124,5 +124,12 @@
     "arches": [
       "arm64-v8a"
     ]
+  },
+  {
+    "app_name": "oddmar",
+    "source": "miguel-morphe-patches",
+    "arches": [
+      "arm64-v8a"
+    ]
   }
 ]
