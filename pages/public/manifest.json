@@ -11,7 +11,7 @@
       "patch_changelog": "## [2.1.0](https://github.com/MorpheApp/morphe-patches/compare/v2.0.0...v2.1.0) (2026-11-06)\n\n### \u2728 New Features\n\n* **Debugging:** Block/force offline feature flags ([#4416](https://github.com/MorpheApp/morphe-patches/issues/4416)) ([f775c62](https://github.com/MorpheApp/morphe-patches/commit/f775c62ed56f575c65c53df25bfbcc634fefbdf8))\n* **GmsCore support:** Support video/audio casting to other dev...",
       "apk": "youtube-universal-morphe-v21.30.216.apk",
       "built_version": "21.30.216",
-      "built_at": "2026-11-07T00:46:57Z",
+      "built_at": "2026-11-08T14:01:24Z",
       "package": "app.morphe.android.youtube",
       "icon_url": "https://play-lh.googleusercontent.com/QNmuZQc9I6Zbe3mWnSr0hycnENqGFCI5p3yE29Hkxtf22T0IWS6zTrpxULLyyjWpB7ONAXDsDQXnXcVWokl3eg=w240-h480",
       "version_code": 1561187872,
@@ -342,7 +342,7 @@
       "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.mobge.Oddmar%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Oddmar%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22oddmar-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22oddmar-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
     }
   },
-  "updated_at": "2026-11-07T00:50:18.425144+00:00",
+  "updated_at": "2026-11-08T14:01:33.021512+00:00",
   "patch_changelogs": {
     "morphe": {
       "source": "morphe",
