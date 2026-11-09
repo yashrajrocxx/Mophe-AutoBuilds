@@ -1,2 +1,0 @@
-# mightymichs-patches patches for whatsapp
-# Left empty to apply all default recommended patches automatically.
