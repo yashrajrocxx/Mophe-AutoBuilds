@@ -1,5 +1,32 @@
 [
   {
+    "app": "brave",
+    "arch": "arm64-v8a",
+    "source": "heval99",
+    "status": "success",
+    "version": "1.99.56",
+    "patches": [
+      "Brave Origin",
+      "Disable telemetry",
+      "Hide promotional prompts",
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "brave-arm64-v8a-heval99-v1.99.56.apk"
+  },
+  {
+    "app": "gboard",
+    "arch": "arm64-v8a",
+    "source": "jasonwu",
+    "status": "success",
+    "version": "18.5.4.993608717-release",
+    "patches": [
+      "Disable Play Store updates"
+    ],
+    "dl_method": "download_playstore",
+    "apk": "gboard-arm64-v8a-jasonwu-v18.5.4.993608717-release.apk"
+  },
+  {
     "app": "instagram",
     "arch": "arm64-v8a",
     "source": "hushgram",
@@ -12,18 +39,6 @@
     "apk": "instagram-arm64-v8a-hushgram-patches-v454.0.0.54.77.apk"
   },
   {
-    "app": "reddit",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "2026.40.0",
-    "patches": [
-      "Disable Play Store updates"
-    ],
-    "dl_method": "download_playstore",
-    "apk": "reddit-arm64-v8a-morphe-v2026.40.0.apk"
-  },
-  {
     "app": "telegram",
     "arch": "arm64-v8a",
     "source": "hushtelegram",
@@ -34,31 +49,5 @@
     ],
     "dl_method": "download_playstore",
     "apk": "telegram-arm64-v8a-hushtelegram-patches-v13.2.1.apk"
-  },
-  {
-    "app": "youtube-music",
-    "arch": "arm64-v8a",
-    "source": "morphe",
-    "status": "success",
-    "version": "9.30.53",
-    "patches": [
-      "GmsCore support",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "youtube-music-arm64-v8a-morphe-v9.30.53.apk"
-  },
-  {
-    "app": "youtube",
-    "arch": "universal",
-    "source": "morphe",
-    "status": "success",
-    "version": "21.30.216",
-    "patches": [
-      "GmsCore support",
-      "Change installer source"
-    ],
-    "dl_method": "download_apkmirror",
-    "apk": "youtube-universal-morphe-v21.30.216.apk"
   }
 ]
