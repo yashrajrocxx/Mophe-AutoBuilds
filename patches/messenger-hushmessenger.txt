@@ -1,0 +1,2 @@
+# hushmessenger patches for messenger
+# Left empty to apply all default recommended patches automatically.
