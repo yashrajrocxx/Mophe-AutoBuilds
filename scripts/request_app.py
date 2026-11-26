@@ -54,6 +54,9 @@ GITHUB_URL_RE = re.compile(
 )
 GITHUB_SHORT_RE = re.compile(r"^([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?/?$")
 CODE_RE = re.compile(r"^[a-z0-9]{4,16}$")
+# Patch sources list the patch repository next to the CLI that applies it. A
+# CLI repository is not a patch repository, so it must never be matched as one.
+CLI_REPO_RE = re.compile(r"(?:^|[-_.])cli$", re.IGNORECASE)
 FENCE_RE = re.compile(r"```(?:json)?\s*\n(.*?)```", re.DOTALL)
 MARKER_RE = re.compile(
     re.escape(MARKER_START) + r"\s*(\{.*?\})\s*" + re.escape(MARKER_END), re.DOTALL
@@ -190,6 +193,13 @@ def normalize_request(payload: dict):
                 "The patch repository must be a public GitHub repository (owner/repo).",
             )
         repo_owner, repo_name = parsed
+        if is_cli_repo(repo_name):
+            return None, rejection(
+                "invalid-repo",
+                f"'{repo_owner}/{repo_name}' is a patcher CLI repository, not a patch "
+                "source. Use the repository that publishes the .mpp patch bundle or "
+                "patch .jar (for example MorpheApp/morphe-patches).",
+            )
     elif not source:
         return None, rejection(
             "invalid-source",
@@ -227,6 +237,11 @@ def repo_matches_source_entry(entry, owner: str, repo: str) -> bool:
     )
 
 
+def is_cli_repo(repo: str) -> bool:
+    """True when a repository name looks like a patcher CLI, not a patch repo."""
+    return bool(CLI_REPO_RE.search(str(repo or "").strip()))
+
+
 def available_sources(root: Path) -> list[str]:
     return sorted(p.stem for p in (root / "sources").glob("*.json"))
 
@@ -257,6 +272,64 @@ def package_owner(root: Path, package: str, exclude_app: str):
             if isinstance(data, dict) and str(data.get("package") or "").lower() == target:
                 return config_path.stem, platform_dir.name
     return None
+
+
+def find_source_for_repo(root: Path, owner: str, repo: str):
+    """Return the id of an existing source that already points at owner/repo.
+
+    A repository's identity is ``owner/repo``, not its bare name: several
+    owners publish repositories called ``morphe-patches``. Matching the full
+    identity lets a request reuse the source that already tracks the same
+    repository even when it was registered under a different id (for example
+    ``MorpheApp/morphe-patches`` is tracked by the ``morphe`` source).
+    """
+    sources_dir = root / "sources"
+    if not sources_dir.is_dir():
+        return None
+    for source_path in sorted(sources_dir.glob("*.json")):
+        data = read_json(source_path)
+        if not isinstance(data, list):
+            continue
+        if any(
+            repo_matches_source_entry(entry, owner, repo)
+            and not is_cli_repo(entry.get("repo", ""))
+            for entry in data
+        ):
+            return source_path.stem
+    return None
+
+
+def resolve_custom_source(root: Path, owner: str, repo: str):
+    """Return ``(source_id, exists)`` for a custom GitHub repository.
+
+    An existing source is reused when it already points at this exact
+    ``owner/repo``. Otherwise a free id is chosen, preferring the repository
+    name, then an owner-qualified id (``owner-repo``), then a numbered variant.
+    Two different owners can therefore both use a repository with the same
+    name without one request being rejected for "renaming".
+    """
+    existing = find_source_for_repo(root, owner, repo)
+    if existing:
+        return existing, True
+
+    sources_dir = root / "sources"
+    for candidate in (slugify(repo), slugify(f"{owner}-{repo}")):
+        if (
+            candidate
+            and APP_RE.match(candidate)
+            and not (sources_dir / f"{candidate}.json").exists()
+        ):
+            return candidate, False
+
+    # Both natural ids are taken by other repositories; add a numeric suffix.
+    base = (slugify(f"{owner}-{repo}") or slugify(repo) or "custom-patches")[:36].strip("-")
+    if not base or not APP_RE.match(base):
+        base = "custom-patches"
+    for suffix in range(2, 1000):
+        candidate = f"{base}-{suffix}"[:40].strip("-")
+        if APP_RE.match(candidate) and not (sources_dir / f"{candidate}.json").exists():
+            return candidate, False
+    return None, False
 
 
 def validate_request(request: dict, root: Path):
@@ -308,29 +381,15 @@ def validate_request(request: dict, root: Path):
 
     if request["repo_name"]:
         owner, repo_name = request["repo_owner"], request["repo_name"]
-        source = slugify(repo_name) or slugify(owner)
-        if not source or not APP_RE.match(source):
+        source, source_exists = resolve_custom_source(root, owner, repo_name)
+        if not source:
             return None, rejection(
                 "invalid-repo",
-                "The patch repository name cannot be turned into a source id; "
+                "The patch repository cannot be turned into a unique source id; "
                 "use a repository with letters, digits and dashes in its name.",
             )
         source_kind = "custom"
         repo = (owner, repo_name)
-        source_path = root / "sources" / f"{source}.json"
-        existing_source = read_json(source_path)
-        if existing_source is None:
-            source_exists = False
-        elif not any(
-            repo_matches_source_entry(entry, owner, repo_name)
-            for entry in (existing_source if isinstance(existing_source, list) else [])
-        ):
-            return None, rejection(
-                "source-name-taken",
-                f"A patch source named '{source}' already exists for a different repository. "
-                "Rename the patch repository or ask a maintainer to add it manually.",
-                app=app,
-            )
     else:
         if not (root / "sources" / f"{source}.json").exists():
             known = ", ".join(available_sources(root)) or "none"
@@ -432,6 +491,7 @@ def validate_and_write(
         "package": plan["package"],
         "source": plan["source"],
         "source_kind": plan["source_kind"],
+        "source_exists": plan["source_exists"],
         "arch": plan["arch"],
         "repo": f"{plan['repo'][0]}/{plan['repo'][1]}" if plan["repo"] else "",
         "code": plan["code"],

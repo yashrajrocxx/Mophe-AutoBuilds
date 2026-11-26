@@ -57,6 +57,15 @@ def download_required(source: str) -> tuple[list[Path], str]:
     name = repos_info[0]["name"]
     downloaded_files = []
 
+    # Patch bundles and CLIs ship as .mpp / .rvp / .jar, plus ReVanced
+    # integrations (.apk). Anything else in a GitHub release (patches-list
+    # metadata, checksums, notes) is skipped so stray assets can neither waste
+    # bandwidth nor confuse CLI/patch detection. Filtering by extension rather
+    # than repository name keeps custom patch repositories working no matter
+    # what the repository is called. Non-GitHub providers keep the previous
+    # download-everything behavior so exotic release layouts never break.
+    PATCH_ASSET_SUFFIXES = (".mpp", ".rvp", ".jar", ".apk")
+
     for repo_info in repos_info[1:]:
         release = utils.detect_release(repo_info)
         entry_name = (
@@ -65,23 +74,20 @@ def download_required(source: str) -> tuple[list[Path], str]:
             or repo_info.get("name")
             or ""
         ).lower()
+        provider = str(repo_info.get("provider") or "github").lower()
 
         for asset in release["assets"]:
             asset_name = asset["name"]
             asset_url = asset["browser_download_url"]
-            if asset_name.endswith(".asc"):
+            lowered = asset_name.lower()
+            if lowered.endswith((".asc", ".sig")):
                 continue
 
-            # Keep the existing Morphe-specific asset filtering. Piko NewX
-            # releases also carry metadata (e.g. patches-list.json); only its
-            # patch bundle / CLI jars should be downloaded.
-            if "morphe-patches" in entry_name or "morphe-cli" in entry_name or "piko-newx" in entry_name:
-                if asset_name.endswith(".mpp") or (
-                    asset_name.lower().endswith(".jar")
-                ):
-                    downloaded_files.append(download_resource(asset_url))
-            else:
-                downloaded_files.append(download_resource(asset_url))
+            if provider == "github" and not lowered.endswith(PATCH_ASSET_SUFFIXES):
+                logging.debug(f"Skipping non-patch asset {asset_name} from {entry_name}")
+                continue
+
+            downloaded_files.append(download_resource(asset_url))
 
     return downloaded_files, name
 

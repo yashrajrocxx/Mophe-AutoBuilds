@@ -31,6 +31,7 @@ def make_repo(root: Path) -> None:
     write(root / "sources" / "morphe.json", [
         {"name": "morphe"},
         {"provider": "github", "user": "MorpheApp", "repo": "morphe-patches", "tag": "latest"},
+        {"provider": "github", "user": "MorpheApp", "repo": "morphe-cli", "tag": "latest"},
     ])
     write(root / "sources" / "piko-newx.json", [
         {"name": "piko-newx-patches"},
@@ -82,6 +83,18 @@ class TestNormalize(unittest.TestCase):
             "app_name": "demo", "package": "com.demo.app", "repo_url": "example.com/morphe-patches",
         })
         self.assertEqual(error["code"], "invalid-repo")
+
+    def test_rejects_cli_repository(self):
+        for value in (
+            "MorpheApp/morphe-cli",
+            "https://github.com/ReVanced/revanced-cli",
+            "github.com/MorpheApp/morphe-cli.git",
+        ):
+            _, error = request_app.normalize_request({
+                "app_name": "demo", "package": "com.demo.app", "repo_url": value,
+            })
+            self.assertEqual(error["code"], "invalid-repo", value)
+            self.assertIn("CLI", error["reason"], value)
 
     def test_rejects_bad_fields(self):
         cases = [
@@ -240,11 +253,81 @@ class TestValidate(unittest.TestCase):
         # The existing source file is reused, not rewritten.
         self.assertNotIn("sources/morphe-patches.json", second["files"])
 
-    def test_custom_source_name_taken(self):
+    def test_custom_source_name_collision_is_disambiguated(self):
+        # sources/demo-patches.json already tracks someone/other-patches, so a
+        # different repository with the same name must get an owner-qualified id.
         result = request_app.validate_and_write(
             self.normalize(source="", repo_url="https://github.com/other/demo-patches"), self.root)
-        self.assertEqual(result["status"], "rejected")
-        self.assertEqual(result["code"], "source-name-taken")
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["source"], "other-demo-patches")
+        self.assertEqual(result["source_kind"], "custom")
+        self.assertFalse(result["source_exists"])
+        self.assertIn("sources/other-demo-patches.json", result["files"])
+
+        source = json.loads(
+            (self.root / "sources" / "other-demo-patches.json").read_text(encoding="utf-8"))
+        self.assertEqual(source[1]["user"], "other")
+        self.assertEqual(source[1]["repo"], "demo-patches")
+
+    def test_same_repo_name_from_different_owners_gets_distinct_sources(self):
+        first = request_app.validate_and_write(
+            self.normalize(source="", repo_url="https://github.com/alpha/shared-patches"), self.root)
+        self.assertEqual(first["status"], "ok")
+        self.assertEqual(first["source"], "shared-patches")
+
+        second = request_app.validate_and_write(
+            self.normalize(app_name="demo2", package="com.demo.two", source="",
+                           repo_url="https://github.com/beta/shared-patches"),
+            self.root,
+        )
+        self.assertEqual(second["status"], "ok")
+        self.assertEqual(second["source"], "beta-shared-patches")
+        self.assertNotEqual(first["source"], second["source"])
+        self.assertIn("sources/beta-shared-patches.json", second["files"])
+
+    def test_reuses_source_by_owner_repo_identity(self):
+        # MorpheApp/morphe-patches is already tracked by the "morphe" source,
+        # even though its id does not match the repository name.
+        result = request_app.validate_and_write(
+            self.normalize(source="", repo_url="https://github.com/MorpheApp/morphe-patches"), self.root)
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["source"], "morphe")
+        self.assertTrue(result["source_exists"])
+        self.assertNotIn("sources/morphe.json", result["files"])
+
+    def test_reuses_source_by_owner_repo_identity_case_insensitively(self):
+        result = request_app.validate_and_write(
+            self.normalize(source="", repo_url="https://github.com/morpheapp/MORPHE-PATCHES"), self.root)
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["source"], "morphe")
+
+    def test_cli_entries_are_not_treated_as_patch_repositories(self):
+        # morphe.json lists MorpheApp/morphe-cli next to the patch repository;
+        # that CLI entry must not make the CLI look like a tracked patch source.
+        self.assertIsNone(
+            request_app.find_source_for_repo(self.root, "MorpheApp", "morphe-cli"))
+        self.assertEqual(
+            request_app.find_source_for_repo(self.root, "MorpheApp", "morphe-patches"),
+            "morphe",
+        )
+
+    def test_custom_source_collision_falls_back_to_numbered_id(self):
+        # Both the repository-name id and the owner-qualified id are taken by
+        # other repositories, so the new source gets a numeric suffix.
+        write(self.root / "sources" / "shared-patches.json", [
+            {"name": "shared-patches"},
+            {"provider": "github", "user": "alpha", "repo": "other"},
+        ])
+        write(self.root / "sources" / "beta-shared-patches.json", [
+            {"name": "beta-shared-patches"},
+            {"provider": "github", "user": "gamma", "repo": "different"},
+        ])
+
+        result = request_app.validate_and_write(
+            self.normalize(source="", repo_url="https://github.com/beta/shared-patches"), self.root)
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["source"], "beta-shared-patches-2")
+        self.assertIn("sources/beta-shared-patches-2.json", result["files"])
 
     def test_check_only_writes_nothing(self):
         result = request_app.validate_and_write(self.normalize(), self.root, check_only=True)

@@ -51,6 +51,10 @@ import {
   versionFromAssetName,
 } from '../utils/requestUtils';
 
+// A patcher CLI (morphe-cli, revanced-cli) is not a patch source. The pipeline
+// rejects it too; catching it here keeps the message next to the input.
+const CLI_REPO_RE = /(?:^|[-_.])cli$/i;
+
 const STATUS_META = {
   submitted: {
     icon: Clock,
@@ -252,6 +256,8 @@ export function RequestPage({ onOpenStore }) {
       out.source = 'Enter the patch repository.';
     } else if (!repoParsed) {
       out.source = 'Use owner/repo or a full GitHub URL.';
+    } else if (CLI_REPO_RE.test(repoParsed.repo)) {
+      out.source = `'${repoParsed.owner}/${repoParsed.repo}' is a patcher CLI, not a patch source. Use the repository that publishes the .mpp patch bundle or patch .jar.`;
     }
 
     return out;
@@ -524,7 +530,7 @@ export function RequestPage({ onOpenStore }) {
           error={showErrors ? errors.source : ''}
           hint={
             sourceMode === 'custom' && customSourceExists
-              ? 'A source with this name already exists — it is reused when it points at the same repository.'
+              ? 'A source with this name exists. It is reused when it points at the same owner/repo; otherwise an owner-qualified source id is created.'
               : sourceMode === 'custom'
                 ? 'The repository must publish Morphe patch bundles (.mpp) or a patch .jar in its releases.'
                 : 'Patches are pulled from this repository, same as the rest of the catalog.'

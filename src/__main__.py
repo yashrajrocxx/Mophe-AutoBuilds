@@ -524,6 +524,8 @@ def main():
         logging.error("APP_NAME and SOURCE environment variables must be set")
         exit(1)
 
+    built_apks = []
+
     # Read arch-config.json
     arch_config_path = Path("arch-config.json")
     if arch_config_path.exists():
@@ -538,7 +540,6 @@ def main():
                 break
         
         # Build for each architecture
-        built_apks = []
         build_reports = []
         for arch in arches:
             logging.info(f"Building {app_name} for {arch} architecture...")
@@ -582,6 +583,7 @@ def main():
         report = {"app": app_name, "arch": "universal", "source": source, "status": "failed", "version": None, "patches": []}
         apk_path = run_build(app_name, source, "universal", report=report)
         if apk_path:
+            built_apks.append(apk_path)
             report["status"] = "success"
             report["apk"] = Path(apk_path).name
             print(f"Final APK path: {apk_path}")
@@ -589,6 +591,14 @@ def main():
         Path("build_records").mkdir(exist_ok=True)
         with open(f"build_records/build_report_{app_name}.json", "w") as f:
             json.dump([report], f)
+
+    # Interactive/manual builds set FAIL_ON_NO_APK so a missing artifact fails
+    # the build step with a clear error instead of a later "no APK found" check.
+    # Scheduled matrix builds keep exiting 0 so one unavailable app does not
+    # mark the whole pipeline red; the release step carries the old APK over.
+    if getenv("FAIL_ON_NO_APK", "").lower() in ("1", "true", "yes") and not built_apks:
+        logging.error(f"No APK was produced for {app_name} ({source}).")
+        exit(1)
 
 if __name__ == "__main__":
     main()

@@ -106,6 +106,7 @@ jobs:
           APP_NAME: ${{ inputs.app_name }}
           SOURCE: ${{ inputs.source }}
           ARCH: ${{ inputs.architecture }}
+          FAIL_ON_NO_APK: "1"
           GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN || secrets.GITHUB_TOKEN }}
           EXODUS_API_KEY: ${{ secrets.EXODUS_API_KEY }}
         run: |
@@ -119,7 +120,7 @@ jobs:
           # Find the built APK file(s)
           apk_files=$(ls -1 *.apk 2>/dev/null)
           if [ -z "$apk_files" ]; then
-            echo "[ERROR] No APK files found"
+            echo "::error::The build finished without producing an APK for ${{ inputs.app_name }}. Check the Build APK log for the failing download or patch step."
             exit 1
           fi
           
@@ -299,8 +300,21 @@ jobs:
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add -f manifest.json obtainium.json README.md arch-config.json pages/public/
             git commit -m "chore: auto-sync manifest, obtainium bundle, and README catalog" || true
-            git pull --rebase origin main || true
-            git push
+            # The scheduled pipeline may push concurrently; retry so the sync commit is not lost.
+            pushed=false
+            for attempt in 1 2 3; do
+              if git pull --rebase origin main && git push; then
+                pushed=true
+                break
+              fi
+              git rebase --abort 2>/dev/null || true
+              echo "[WARN] Sync push failed (attempt $attempt/3). Retrying in 10s..."
+              sleep 10
+            done
+            if [ "$pushed" != true ]; then
+              echo "::error::Could not push the manifest sync commit after 3 attempts."
+              exit 1
+            fi
 
             echo "Repository and Pages data pushed successfully!"
           else

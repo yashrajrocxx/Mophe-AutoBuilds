@@ -377,7 +377,7 @@ jobs:
           fi
 
           assets=$(gh api "repos/$owner_repo/releases?per_page=5" \
-            --jq '[.[].assets[].name | select(test("\\.(mpp|jar)$"))] | length' 2>/dev/null || echo 0)
+            --jq '[.[].assets[].name | select(test("\\.(mpp|rvp|jar)$"; "i"))] | length' 2>/dev/null || echo 0)
           case "$assets" in
             ''|*[!0-9]*) assets=0 ;;
           esac
