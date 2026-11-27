@@ -342,7 +342,7 @@
       "obtainium_deep_link": "obtainium://app/%7B%22id%22%3A%22com.mobge.Oddmar%22%2C%22url%22%3A%22https%3A//yashrajrocxx.github.io/Mophe-AutoBuilds/downloads.html%22%2C%22author%22%3A%22yashrajrocxx%22%2C%22name%22%3A%22Oddmar%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22oddmar-arm64-v8a-.%2A-v.%2A%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22oddmar-arm64-v8a-.%2A-v%28%5B%5E/%5D%2B%29%5C%5C%5C%5C.apk%24%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%221%5C%22%7D%22%7D"
     }
   },
-  "updated_at": "2026-11-27T00:53:25.368524+00:00",
+  "updated_at": "2026-11-27T06:05:51.006702+00:00",
   "patch_changelogs": {
     "morphe": {
       "source": "morphe",
